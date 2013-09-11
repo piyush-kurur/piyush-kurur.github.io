@@ -1,0 +1,88 @@
+
+<!-- Global urls -->
+
+
+[cse]: <http://cse.iitk.ac.in> "Department of Computer Science and Engineering"
+[iitk]:  <http://www.iitk.ac.in> "IIT Kanpur"
+[imsc]: <http://www.imsc.res.in> "Institute of Mathematical Sciences, Chennai"
+
+<!-- My coding stuff   -->
+
+[raaz]: <http://github.com/piyush-kurur/raaz> "Raaz: A Cryptographic Network library for Haskell"
+
+<!-- Other languages  -->
+
+[c]: <http://en.wikipedia.org/wiki/C_%28programming_language%29>
+[python]: <http://www.python.org>
+[ruby]: <http://www.ruby-lang.org>
+[java]: <http://en.wikipedia.org/wiki/Java_%28programming_language%29>
+<!-- Haskell packages  -->
+
+[attoparsec]:   <http://hackage.haskell.org/package/attoparsec>
+[binary]:       <http://hackage.haskell.org/package/binary>
+[blaze-builder]: <http://hackage.haskell.org/package/blaze-builder>
+
+<!-- Web stuff         -->
+
+[hakyll]:   <http://jaspervdj.be/hakyll/> "Hakyll"
+[compass]:  <http://compass-style.org> "Compass"
+[markdown]: <http://daringfireball.net/projects/markdown/> "Markdown"
+[sass]:     <http://sass-lang.com> "Sass"
+
+<!-- Haskell links     -->
+
+[realworld]: <http://book.realworldhaskell.org/read/>
+          "Online edition of the book Real world haskell"
+[whyfp]: <http://www.cse.chalmers.se/~rjmh/Papers/whyfp.html>
+         "Why functional programming matters"
+[cabal]:  <http://www.haskell.org/cabal>   "Haskell Cabal"
+
+[haskellWeb]:
+    <http://www.haskell.org/haskellwiki/Practical_web_programming_in_Haskell>
+    "Web programming in haskell"
+
+[haskell]: http://www.haskell.org	  "Haskell homepage"
+[darcs]:  http://darcs.net		 "Darcs"
+[pandoc]: http://johnmacfarlane.net/pandoc "Pandoc"
+[xmonad]: http://xmonad.org		   "XMonad"
+[ghc]:  http://haskell.org/haskellwiki/GHC "GHC"
+
+<!-- Co-authors         -->
+
+[Piyush P Kurur]: <http://cse.iitk.ac.in/users/ppk> "Piyush P Kurur"
+[Anindya De]: <http://www.cs.berkeley.edu/~anindya> "Anindya De"
+[V. Arvind]: <http://www.imsc.res.in/~arvind> "V. Arvind"
+[Ramprasad Saptharishi]: <http://www.cmi.ac.in/~ramprasad>
+             "Ramprasad Saptharishi"
+[Chandan Saha]: <http://www.cse.iitk.ac.in/users/csaha>
+             "Chandan Saha"
+[Sagarmoy Dutta]: <http://www.cse.iitk.ac.in/users/sagarmoy>
+             "Sagarmoy Dutta"
+[Surender Baswana]: <http://www.cse.iitk.ac.in/~sbaswana>
+	  "Surender Baswana"
+[Somenath Biswas]:  <http://www.cse.iitk.ac.in/~sb>
+	  "Somenath Biswas"
+[Benjamin Doerr]:   <http://mpi-inf.mpg.de/~doerr>
+	  "Benjamin Doerr"
+[Frank Neumann]:   <http://mpi-inf.mpg.de/~fne>
+       "Frank Neumann"
+[Tobias Friedrich]: <http://mpi-inf.mpg.de/~tfried>
+	"Tobias Friedrich"
+[Daniel Johannsen]: <http://www.danieljohannsen.net/>
+	"Daniel Johannsen"
+[Johannes Lengler]: <http://www.math.uni-sb.de/ag/gekeler/PERSONEN/Lengler/johannes.html>
+	  "Johannes Lengler"
+
+<!-- Conference/Journal links -->
+
+[focs]: <http://ieee-focs.org> "IEEE FOCS"
+[ccc]: <http://computationalcomplexity.org>
+       "IEEE Conference on computatioal complexity"
+[stoc]: <http://www.sigact.org/stoc.html>
+	"ACM Symposium on Theory of Computing"
+[foga2009]: <http://www.sigevo.org/foga-2009/>
+	    "Foundations of Genetic Algorithms 2009"
+[isit2011]: <http://www.isit2011.org>
+	    "IEEE Symposium on Information Theory  2011"
+
+[talg]: <http://talg.acm.org> "ACM Transactions on Algorithms"
