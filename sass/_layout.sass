@@ -9,7 +9,7 @@ $grid-padding: $gutter-width
 
 .page
   +container
-  #header
+  .header
     border-bottom:
       style: solid
       color: lighten($color,50%)
@@ -17,18 +17,18 @@ $grid-padding: $gutter-width
     padding-bottom: 3em
 
     +span-columns(12)
-    #title
+    .title
       +span-columns(4,12)
-    #navigation
+    .navigation
       +span-columns(6 omega, 12)
-      #navigation-meta
+      .navigation-meta
         +span-columns(2,6)
-      #navigation-work
+      .navigation-work
         +span-columns(2,6)
-  #content
+  .content
     padding-top: 1em
-    #about
-      +span-columns(6, 12)
-    #recent-posts
-      +span-columns(6,12)
     +span-columns(12)
+    .about
+      +span-columns(6, 12)
+    .recent-posts
+      +span-columns(6 omega, 12)

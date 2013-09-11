@@ -5,9 +5,10 @@ html
   color: $color
   background: $background
 
-#title
-  @include adjust-font-size-to(2 * $base-font-size)
+.title
+  @include adjust-font-size-to(1.27 * $base-font-size)
   color: $title-color
+  font-weight: bold
   +single-text-shadow($hoff:2px, $voff:2px,$color: lighten($title-color,50%))
 
 h1
