@@ -1,0 +1,80 @@
+@include establish-baseline
+
+html
+  font-family: "Warnock Pro", "Goudy Old Style","Palatino","Book Antiqua",Georgia, serif
+  color: $color
+  background: $background
+
+#title
+  @include adjust-font-size-to(2 * $base-font-size)
+  color: $title-color
+  +single-text-shadow($hoff:2px, $voff:2px,$color: lighten($title-color,50%))
+
+h1
+  @include adjust-font-size-to(1.27 * $base-font-size)
+  font-weight: bold
+  padding-top:   $paragraph-extra-sep
+  padding-bottom: $paragraph-extra-sep
+
+h2
+  @include adjust-font-size-to(1.10 * $base-font-size)
+  font-weight: bold
+  padding-top:   $paragraph-extra-sep
+  padding-bottom:  $paragraph-extra-sep
+
+h3
+  @include adjust-font-size-to($base-font-size)
+  font-weight: bold
+
+
+p
+  text-indent: $paragraph-indent
+  padding-top: $paragraph-extra-sep
+
+  // skip padding if it is the first paragraph in the box.
+  &:first-child
+    text-indent: 0px
+
+// Avoid paragraph indentation immediately after a heading
+
+h1 + p, h2 + p, h3 + p
+  text-indent: 0px
+  padding-top: 0px
+
+a
+  +link-colors($link-color,$link-color,$link-color,$link-visited-color)
+  text-decoration: none
+
+em
+  font-style: italic
+
+i
+  font-style: italic
+  > em
+    font-style: normal
+
+strong
+  font-weight: bold
+
+
+// List stylings.
+
+ol, ul
+  padding-top: $paragraph-extra-sep
+  list-style-position: outside
+  margin-left: 1.5em
+
+ul
+  list-style-type: disc
+  // handling nesting of itemized list
+  li>ul
+    list-style-type: square
+    li> ul
+      list-style-type: circle
+
+
+// blockquote
+
+blockquote
+  padding-left: $paragraph-indent
+  padding-top: $paragraph-extra-sep

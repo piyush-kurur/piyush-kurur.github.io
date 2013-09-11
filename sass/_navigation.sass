@@ -1,0 +1,8 @@
+div#navigation
+  background: $navigation-background
+#navigation ul
+
+  @include adjust-font-size-to(0.8 * $base-font-size)
+  +no-bullets
+  a
+    +link-colors(lighten($navigation-color,30%), $hover: $navigation-hover-color)

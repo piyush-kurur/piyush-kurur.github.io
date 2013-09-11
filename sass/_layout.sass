@@ -1,0 +1,30 @@
+@import susy
+
+// Layout configuration
+
+$total-columns: 12
+$column-width: 4em
+$gutter-width: 1em
+$grid-padding: $gutter-width
+
+.page
+  +container
+  #header
+    border-bottom:
+      style: solid
+      color: lighten($color,50%)
+      width: 1px
+    padding-bottom: 3em
+
+    +span-columns(12)
+    #title
+      +span-columns(4,12)
+    #navigation
+      +span-columns(6 omega, 12)
+      #navigation-meta
+        +span-columns(2,6)
+      #navigation-work
+        +span-columns(2,6)
+  #content
+    padding-top: 1em
+    +span-columns(12)
