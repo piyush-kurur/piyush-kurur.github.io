@@ -39,7 +39,7 @@ type Pipeline a b = Item a -> Compiler (Item b)
 -- making all refernces defined in urls.db available for free
 -- reference.
 prePandoc :: Pipeline String String
-prePandoc iStr = (++str) <$> mUrls  >>= makeItem
+prePandoc iStr = (str++) <$> mUrls  >>= makeItem
   where str   = itemBody iStr
         mUrls = loadBody "misc/urls.db"
 
