@@ -3,8 +3,9 @@
 module Site.Compilers
        ( prePandoc, pandoc, postPandoc
        , Pipeline, compilePipeline
-       , stdPage
-       , siteContext
+       , mainPage, stdPage
+       , siteContext, postContext
+
        ) where
 
 import Control.Applicative
@@ -18,6 +19,10 @@ siteContext :: Context String
 siteContext =  defaultContext
             <> field "navigation" navC
   where navC _ = loadBody "misc/navigation.md"
+
+
+postContext :: Context String
+postContext = siteContext <> dateField "date" dateFormat
 
 ----------------   Compilers    ----------------------------------------
 
@@ -60,6 +65,14 @@ pandoc = reader >=> transform >=> writer
 -- | The pipeline for a standard page.
 stdPage :: Pipeline String String
 stdPage = prePandoc >=> pandoc >=> postPandoc
+
+mainPage :: Pipeline String String
+mainPage = prePandoc >=> applyAsTemplate cxt >=> pandoc >=> postPandoc
+  where cxt      = siteContext <> listField "posts" postContext postList
+        postList = take postsOnMainPage <$> loadAllPosts
+
+loadAllPosts :: Compiler [Item String]
+loadAllPosts = loadAll postsPat >>= recentFirst
 
 -- | Similar to compile but takes a compiler pipeline instead.
 compilePipeline ::  Pipeline String String -> Rules ()

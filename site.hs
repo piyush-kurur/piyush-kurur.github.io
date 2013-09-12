@@ -26,7 +26,11 @@ rules = do
   -- Compile navigation bar
   match "misc/navigation.md" $ compilePipeline pandoc
 
-  match "**index.md" $ do
+  match "index.md" $ do
+    route $ setExtension "html"
+    compilePipeline mainPage
+
+  match "**/index.md" $ do
     route $ setExtension "html"
     compilePipeline stdPage
 

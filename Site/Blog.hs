@@ -5,14 +5,10 @@ module Site.Blog
        ) where
 
 import Control.Monad
-import Data.Monoid
 import Hakyll
 
 import Site.Config
 import Site.Compilers
-
-postContext :: Context String
-postContext = siteContext <> dateField "date" dateFormat
 
 -- | Blog post page
 blogPostPage :: Pipeline String String
