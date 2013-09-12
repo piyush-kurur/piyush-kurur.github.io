@@ -5,6 +5,8 @@ import Hakyll
 import Site.Config -- Edit this file to change the configuration.
 import Site.Compilers
 
+import qualified Site.Blog as Blog  -- Rules to hand blog
+
 ----------------   Rules   --------------------------------------------
 
 rules :: Rules () -- ^ the actual rules for conversion
@@ -27,6 +29,8 @@ rules = do
   match "**index.md" $ do
     route $ setExtension "html"
     compilePipeline stdPage
+
+  Blog.rules
 
 ----------------   Main and sundry   ------------------------------------
 
