@@ -2,8 +2,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Site.Compilers
        ( prePandoc, pandoc, postPandoc
-       , compilePipeline
+       , Pipeline, compilePipeline
        , stdPage
+       , siteContext
        ) where
 
 import Control.Applicative
