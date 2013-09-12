@@ -16,5 +16,9 @@ logic.
 <div class="recent-posts">
 # Recent posts
 
+$for(posts)$
+* [$title$]($url$) - $date$
+$endfor$
+
 
 </div>
