@@ -25,6 +25,20 @@ postsPat = "posts/*"
 postsOnMainPage :: Int -- ^ How many posts to show on main page.
 postsOnMainPage = 3
 
+postsOnFeed :: Int -- ^ How many posts on atom feeds.
+postsOnFeed = 42
+
+-- | Feed configuration.
+feedConfig :: FeedConfiguration
+feedConfig = FeedConfiguration
+  { feedTitle       = "Delusions of a chaotic mind"
+  , feedDescription = "My views on how the Universe ought to be"
+  , feedAuthorName  = "Piyush P Kurur"
+  , feedAuthorEmail = "ppk@cse.iitk.ac.in.REMOVETHISIFYOUAREAHUMAN"
+  , feedRoot        = "http://cse.iitk.ac.in/users/ppk"
+  }
+
+
 dateFormat :: String
 dateFormat = "%B %e, %Y (%A)"
 
