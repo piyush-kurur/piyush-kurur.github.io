@@ -75,3 +75,6 @@ postT = "templates/post.html"
 
 postItemT :: Identifier -- ^ A post item (useful in post lists).
 postItemT = "templates/post/item.html"
+
+tagT :: Identifier      -- ^ A template for a tags page.
+tagT = "templates/posts/tag.html"

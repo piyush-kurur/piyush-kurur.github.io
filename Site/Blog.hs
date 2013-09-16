@@ -26,6 +26,18 @@ compileFeeds =   loadAllSnapshots postsPat "feed"
              >>= fmap (take postsOnFeed) . recentFirst
              >>= mapM relativizeUrls
 
+-- | Generating a tags page
+makeTagRules :: Identifier -> String -> Pattern -> Rules ()
+makeTagRules template tag pat = do
+  route idRoute
+  compile $ makeItem ""
+    >>= prePandoc
+    >>= pandoc
+    >>= loadAndApplyTemplate template tagContext
+    >>= postPandoc
+    where tagContext = postContext
+                       <> constField "tag" tag
+                       <> listField "posts" postContext (loadAll pat)
 
 rules :: Rules ()
 rules = do
@@ -42,3 +54,10 @@ rules = do
     create ["posts/feeds/rss.xml"] $ do
       route idRoute
       compile $ compileFeeds >>= renderRss feedConfig feedContext
+
+  -- Classify posts based on tags.
+  postTags <- buildTags "posts/*"
+              $ fromCapture "posts/tags/*.html"
+
+  -- Generate the tags page
+  tagsRules postTags $ makeTagRules tagT
