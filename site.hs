@@ -18,7 +18,7 @@ rules = do
     compile compressCssCompiler
 
   -- Compile the templates.
-  match "templates/*" $ compile templateCompiler
+  match "templates/**" $ compile templateCompiler
 
   -- Match urls database
   match "misc/urls.db" $ compile getResourceBody
