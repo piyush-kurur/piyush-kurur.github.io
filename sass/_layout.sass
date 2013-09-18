@@ -7,6 +7,7 @@ $column-width: 4em
 $gutter-width: 1em
 $grid-padding: $gutter-width
 
+
 .page
   +container
   .header
@@ -34,3 +35,13 @@ $grid-padding: $gutter-width
       +span-columns(6, 12)
     .recent-posts
       +span-columns(6 omega, 12)
+
+    .post-date
+      font-size: 80%
+      +span-columns(3,12)
+    .post-tags
+      font-size: 80%
+      +span-columns(3 omega, 12)
+
+    .post
+      +span-columns(12, 12)
