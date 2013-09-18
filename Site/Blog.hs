@@ -21,6 +21,19 @@ blogPostPage tags =   prePandoc >=> pandoc
   where postRender  = loadAndApplyTemplate postT cxt
         cxt         = postContext <> tagsField "postTags" tags
 
+-- | Blog archive page.
+blogArchivePage :: Tags -- ^ classify based on year
+                -> Tags -- ^ classify based on tags.
+                -> Pipeline String String
+blogArchivePage yearlyPosts tags = prePandoc >=> pandoc
+                                   >=> archiveRender
+                                   >=> postPandoc
+  where archiveRender = loadAndApplyTemplate archiveIndexT cxt
+        cxt        = constField "title" "Posts Archive" <> siteContext
+                     <> tagCloudField "tags"    tagCloudMin tagCloudMax tags
+                     <> tagListField "oldPosts" yearlyPosts
+        tagListField key tgs = field key $ \ _ -> renderTagList tgs
+
 -- | Generating feeds.
 compileFeeds :: Compiler [Item String]
 compileFeeds =   loadAllSnapshots postsPat "feed"
@@ -76,10 +89,15 @@ rules = do
       compile $ compileFeeds >>= renderRss feedConfig feedContext
 
   --
-  -- Classifying the posts with respect to the year of posting.
+  -- Creating the archive.
   --
   let yearTag ident = return [getYear ident] in do
     dateTags <- buildTagsWith yearTag "posts/*"
                 $ fromCapture "posts/archive/*.html"
 
     tagsRules dateTags $ makeTagRules archiveT
+
+    -- Creating the index page of the archive
+    create ["posts/archive/index.html"] $ do
+      route idRoute
+      compile $ makeItem "" >>= blogArchivePage dateTags postTags

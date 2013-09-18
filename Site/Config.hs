@@ -42,6 +42,11 @@ feedConfig = FeedConfiguration
 dateFormat :: String
 dateFormat = "%B %e, %Y (%A)"
 
+tagCloudMin :: Double -- ^ minimum size in % of a tag cloud item
+tagCloudMin = 80
+tagCloudMax :: Double -- ^ maximum size in % of a tag cloud item
+tagCloudMax = 120
+
 --------------- Pandoc configuration ---------------------------------
 
 -- | Pandoc reader options.
@@ -80,4 +85,7 @@ tagT :: Identifier      -- ^ A template for a tags page.
 tagT = "templates/posts/tag.html"
 
 archiveT :: Identifier  -- ^ A template for a tags page.
-archiveT = "templates/posts/archive.html"
+archiveT  = "templates/posts/archive.html"
+
+archiveIndexT :: Identifier -- ^ Template for the archive's index page
+archiveIndexT = "templates/posts/archiveIndex.html"
