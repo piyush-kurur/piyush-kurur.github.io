@@ -17,3 +17,12 @@
 * [Teaching](/teaching/)
 
 </div>
+
+<div class=navigation-blog>
+
+### Blog
+* [Archive](/posts/archive/)
+* [Atom](/posts/feeds/atom.xml)
+* [Rss](/posts/feeds/rss.xml)
+
+</div>
