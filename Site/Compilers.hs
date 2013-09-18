@@ -51,9 +51,9 @@ prePandoc iStr = (str++) <$> mUrls  >>= makeItem
 
 -- | This is the default post-pandoc compiler. It applys the layout
 -- and wrapper together with relativizing the urls.
-postPandoc :: Pipeline String String
-postPandoc = apply layoutT >=> apply wrapperT >=> relativizeUrls
-  where apply template = loadAndApplyTemplate template siteContext
+postPandoc :: Context String -> Pipeline String String
+postPandoc cxt = apply layoutT >=> apply wrapperT >=> relativizeUrls
+  where apply template = loadAndApplyTemplate template cxt
 
 -- | The pandoc converter.
 pandoc :: Pipeline String String
@@ -64,10 +64,10 @@ pandoc = reader >=> transform >=> writer
 
 -- | The pipeline for a standard page.
 stdPage :: Pipeline String String
-stdPage = prePandoc >=> pandoc >=> postPandoc
+stdPage = prePandoc >=> pandoc >=> postPandoc siteContext
 
 mainPage :: Pipeline String String
-mainPage = prePandoc >=> applyAsTemplate cxt >=> pandoc >=> postPandoc
+mainPage = prePandoc >=> applyAsTemplate cxt >=> pandoc >=> postPandoc cxt
   where cxt      = siteContext <> listField "posts" postContext postList
         postList = take postsOnMainPage <$> loadAllPosts
 
