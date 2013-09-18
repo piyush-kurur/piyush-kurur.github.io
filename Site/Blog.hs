@@ -17,7 +17,7 @@ blogPostPage :: Tags -> Pipeline String String
 blogPostPage tags =   prePandoc >=> pandoc
                   >=> postRender
                   >=> saveSnapshot "feed"
-                  >=> postPandoc
+                  >=> postPandoc cxt
   where postRender  = loadAndApplyTemplate postT cxt
         cxt         = postContext <> tagsField "postTags" tags
 
@@ -27,7 +27,7 @@ blogArchivePage :: Tags -- ^ classify based on year
                 -> Pipeline String String
 blogArchivePage yearlyPosts tags = prePandoc >=> pandoc
                                    >=> archiveRender
-                                   >=> postPandoc
+                                   >=> postPandoc cxt
   where archiveRender = loadAndApplyTemplate archiveIndexT cxt
         cxt        = constField "title" "Posts Archive" <> siteContext
                      <> tagCloudField "tags"    tagCloudMin tagCloudMax tags
@@ -48,7 +48,7 @@ makeTagRules template tag pat = do
     >>= prePandoc
     >>= pandoc
     >>= loadAndApplyTemplate template tagContext
-    >>= postPandoc
+    >>= postPandoc tagContext
     where tagContext = postContext
                        <> constField "tag" tag
                        <> listField "posts" postContext (loadAll pat)
