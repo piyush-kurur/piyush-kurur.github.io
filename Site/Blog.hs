@@ -13,13 +13,13 @@ import Site.Config
 import Site.Compilers
 
 -- | Blog post page
-blogPostPage :: Pipeline String String
-blogPostPage = prePandoc >=> pandoc
-               >=> postRender
-               >=> saveSnapshot "feed"
-               >=> postPandoc
-  where postRender  = loadAndApplyTemplate postT postContext
-
+blogPostPage :: Tags -> Pipeline String String
+blogPostPage tags =   prePandoc >=> pandoc
+                  >=> postRender
+                  >=> saveSnapshot "feed"
+                  >=> postPandoc
+  where postRender  = loadAndApplyTemplate postT cxt
+        cxt         = postContext <> tagsField "postTags" tags
 
 -- | Generating feeds.
 compileFeeds :: Compiler [Item String]
@@ -47,11 +47,25 @@ getYear = takeWhile (/= '-') . takeFileName . toFilePath
 
 rules :: Rules ()
 rules = do
+  --
+  -- Classify posts based on tags.
+  --
+  postTags <- buildTags "posts/*"
+              $ fromCapture "posts/tags/*.html"
+
+  -- Generate the tags page
+  tagsRules postTags $ makeTagRules tagT
+
+  --
+  -- Compiling individual posts.
+  --
   match postsPat $ do
     route $ setExtension "html"
-    compilePipeline blogPostPage
+    compilePipeline $ blogPostPage postTags
 
+  --
   -- Create atom/rss feeds feeds.
+  --
   let feedContext = postContext <> bodyField "description" in do
     create ["posts/feeds/atom.xml"] $ do
       route idRoute
@@ -61,16 +75,11 @@ rules = do
       route idRoute
       compile $ compileFeeds >>= renderRss feedConfig feedContext
 
-  -- Classify posts based on tags.
-  postTags <- buildTags "posts/*"
-              $ fromCapture "posts/tags/*.html"
-
-  -- Generate the tags page
-  tagsRules postTags $ makeTagRules tagT
-
+  --
   -- Classifying the posts with respect to the year of posting.
-
+  --
   let yearTag ident = return [getYear ident] in do
     dateTags <- buildTagsWith yearTag "posts/*"
                 $ fromCapture "posts/archive/*.html"
+
     tagsRules dateTags $ makeTagRules archiveT
