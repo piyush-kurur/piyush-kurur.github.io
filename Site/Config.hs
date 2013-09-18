@@ -78,3 +78,6 @@ postItemT = "templates/post/item.html"
 
 tagT :: Identifier      -- ^ A template for a tags page.
 tagT = "templates/posts/tag.html"
+
+archiveT :: Identifier  -- ^ A template for a tags page.
+archiveT = "templates/posts/archive.html"

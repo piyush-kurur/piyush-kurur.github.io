@@ -7,6 +7,7 @@ module Site.Blog
 import Control.Monad
 import Data.Monoid
 import Hakyll
+import System.FilePath
 
 import Site.Config
 import Site.Compilers
@@ -39,6 +40,11 @@ makeTagRules template tag pat = do
                        <> constField "tag" tag
                        <> listField "posts" postContext (loadAll pat)
 
+-- | This function generates the year of the post from its
+-- identifier. This is used in building the archives.
+getYear :: Identifier -> String
+getYear = takeWhile (/= '-') . takeFileName . toFilePath
+
 rules :: Rules ()
 rules = do
   match postsPat $ do
@@ -61,3 +67,10 @@ rules = do
 
   -- Generate the tags page
   tagsRules postTags $ makeTagRules tagT
+
+  -- Classifying the posts with respect to the year of posting.
+
+  let yearTag ident = return [getYear ident] in do
+    dateTags <- buildTagsWith yearTag "posts/*"
+                $ fromCapture "posts/archive/*.html"
+    tagsRules dateTags $ makeTagRules archiveT
