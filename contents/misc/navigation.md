@@ -5,24 +5,23 @@
 
 ### Meta
 
-* [Home](/)
-* [Contact](/contact/)
+* [<i class="icon-home"/> Home](/)
+* [<i class="icon-envelope"/> Contact](/contact/)
 
 </div>
 
 <div class=navigation-work>
 ### Work
 
-* [Research](/research/)
-* [Teaching](/teaching/)
+* [<i class="icon-beaker"/> Research](/research/)
+* [<i class="icon-book"/> Teaching](/teaching/)
 
 </div>
 
 <div class=navigation-blog>
 
 ### Blog
-* [Archive](/posts/archive/)
-* [Atom](/posts/feeds/atom.xml)
-* [Rss](/posts/feeds/rss.xml)
+* [<i class="icon-archive"/> Archive](/posts/archive/)
+* [<i class="icon-rss"/> Atom](/posts/feeds/atom.xml)/[Rss](/posts/feeds/rss.xml)
 
 </div>
