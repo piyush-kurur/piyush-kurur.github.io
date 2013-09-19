@@ -13,9 +13,13 @@ rules :: Rules () -- ^ the actual rules for conversion
 rules = do
 
   -- Compass generated style sheets.
-  match "stylesheets/*.css" $ do
+  match "stylesheets/**.css" $ do
     route idRoute
     compile compressCssCompiler
+
+  match "font-awesome/font/*" $ do
+    route idRoute
+    compile copyFileCompiler
 
   -- Compile the templates.
   match "templates/**" $ compile templateCompiler
