@@ -6,6 +6,7 @@ import Site.Config -- Edit this file to change the configuration.
 import Site.Compilers
 
 import qualified Site.Blog as Blog  -- Rules to hand blog
+import qualified Site.Publication as Publication
 
 ----------------   Rules   --------------------------------------------
 
@@ -34,11 +35,13 @@ rules = do
     route $ setExtension "html"
     compilePipeline mainPage
 
+  Blog.rules
+  Publication.rules
+
   match "**/index.md" $ do
     route $ setExtension "html"
     compilePipeline stdPage
 
-  Blog.rules
 
 ----------------   Main and sundry   ------------------------------------
 
