@@ -43,10 +43,12 @@ import Control.Applicative
 import Control.Monad
 import Data.List(intercalate)
 import Data.Monoid
+import Data.String
 import Hakyll
 import System.FilePath
 
 import Site.Compilers
+import Site.RemoteFile
 
 
 -- | Pattern for all publication.
@@ -83,6 +85,16 @@ rules = do
     route $ setExtension "html"
     compilePipeline researchPage
 
+  --
+  -- Local download sources
+  --
+
+  do downloadItems <- allDownloads
+     forM_ downloadItems $ \ (ident, fp) -> do
+       create [ident] $ do
+         route idRoute
+         compile $ copyRemoteFileCompiler fp
+
 ------------------- Contexts and Compilers -----------------------------
 
 -- | The field that consists of all categories
@@ -114,7 +126,10 @@ pubContext = defaultContext
              <> field "downloads" (downloads . itemIdentifier)
              <> dateField "year" "%Y"
 
-sources :: Identifier -> Compiler [String]
+sources :: ( MonadMetadata m
+           , Functor m
+           )
+        => Identifier -> m [String]
 sources ident = maybe [] words <$> getMetadataField ident "sources"
 
 downloads :: Identifier -> Compiler String
@@ -125,6 +140,23 @@ downloads ident = do
     _  -> do key <- getMetadataField' ident "key"
              return $ intercalate ", " $ map (makeDownload key) srcs
 
+
+localDownloads :: Identifier -> Rules [(Identifier, FilePath)]
+localDownloads ident = do
+  srcs <- sources ident
+  case srcs of
+    [] -> return []
+    _  -> do key  <- getMetadataField' ident "key"
+             path <- getMetadataField' ident "path"
+             let identifierOf src = fromString $ "research/publication/"
+                                               </> key <.> takeExtension src
+                 pathOf      src = path </> src
+               in return $ [ (identifierOf src, pathOf src) | src <- srcs]
+
+allDownloads :: Rules [(Identifier, FilePath)]
+allDownloads =   getMatches pubPat
+             >>= concatMapM localDownloads
+  where concatMapM f = fmap concat . mapM f
 ------------------------ Helper functions ------------------------------
 
 makeDownload :: String -> String -> String
