@@ -22,6 +22,10 @@ rules = do
     route idRoute
     compile copyFileCompiler
 
+  match "legal/*.txt" $ do
+    route idRoute
+    compile copyFileCompiler
+
   -- Compile the templates.
   match "templates/**" $ compile templateCompiler
 
