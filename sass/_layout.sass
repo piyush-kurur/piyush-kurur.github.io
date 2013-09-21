@@ -11,12 +11,6 @@ $grid-padding: $gutter-width
 .page
   +container
   .header
-    border-bottom:
-      style: solid
-      color: lighten($color,50%)
-      width: 1px
-    padding-bottom: 3em
-
     +span-columns(12)
     .title
       +span-columns(4,12)
@@ -29,7 +23,6 @@ $grid-padding: $gutter-width
       .navigation-blog
         +span-columns(2 omega,6)
   .content
-    padding-top: 1em
     +span-columns(12)
     .about
       +span-columns(6, 12)
@@ -37,11 +30,8 @@ $grid-padding: $gutter-width
       +span-columns(6 omega, 12)
 
     .post-date
-      font-size: 80%
-      +span-columns(3,12)
+      +span-columns(4,12)
     .post-tags
-      font-size: 80%
       +span-columns(3 omega, 12)
-
     .post
       +span-columns(12, 12)

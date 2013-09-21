@@ -1,11 +1,21 @@
 @include establish-baseline
 
-$code-font: "andale mono", "lucida console", monospace !default
-
 html
-  font-family: "Warnock Pro", "Goudy Old Style","Palatino","Book Antiqua",Georgia, serif
+  font-family: $font
   color: $color
   background: $background
+
+
+.post-date, .post-tags
+  font-size: 80%
+
+.header
+  border-bottom:
+    style: solid
+    color: $border
+    width: 1px
+
+  padding-bottom: 3em
 
 .title
   @include adjust-font-size-to(1.27 * $base-font-size)
@@ -31,6 +41,7 @@ h3
 
 
 p
+  text-align: justify
   text-indent: $paragraph-indent
   padding-top: $paragraph-extra-sep
 
@@ -102,7 +113,8 @@ code
 .actual-code
   padding: 5px
   background-color: $code-background
-  border: 1px solid darken($background,20%)
+  border: 1px solid $border
+  border-radius: 5px
   overflow-x: auto
 
 pre.sourceCode
