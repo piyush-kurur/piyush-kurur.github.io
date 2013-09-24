@@ -1,6 +1,8 @@
 ---
 title: Home
 author: Piyush P Kurur
+atom: /posts/feeds/atom.xml
+rss: /posts/feeds/rss.xml
 ---
 
 <div class="about">
