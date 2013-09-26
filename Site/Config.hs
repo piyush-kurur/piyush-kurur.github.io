@@ -13,7 +13,7 @@ contentsDir  = "contents"
 
 
 rsyncDest :: String -- ^ Where to sync stuff to
-rsyncDest = "../piyush-kurur.github.com"
+rsyncDest = "ppk@turing:/homepages/global/ppk/"
 
 --
 -- Blog configuration
