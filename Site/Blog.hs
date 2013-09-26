@@ -15,8 +15,8 @@ import Site.Compilers
 -- | Blog post page
 blogPostPage :: Tags -> Pipeline String String
 blogPostPage tags =   prePandoc >=> pandoc
+                  >=> saveSnapshot "content"
                   >=> postRender
-                  >=> saveSnapshot "feed"
                   >=> postPandoc cxt
   where postRender  = loadAndApplyTemplate postT cxt
         cxt         = postContext <> tagsField "postTags" tags
@@ -36,7 +36,7 @@ blogArchivePage yearlyPosts tags = prePandoc >=> pandoc
 
 -- | Generating feeds.
 compileFeeds :: Compiler [Item String]
-compileFeeds =   loadAllSnapshots postsPat "feed"
+compileFeeds =   loadAllSnapshots postsPat "content"
              >>= fmap (take postsOnFeed) . recentFirst
              >>= mapM relativizeUrls
 
