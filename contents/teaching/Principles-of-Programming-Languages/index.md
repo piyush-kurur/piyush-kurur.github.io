@@ -13,6 +13,12 @@ programming. However, this is also its weakness. Therefore we will
 also look at candidate language for each of the paradigm to better
 appreciate the power/weakness of each of these paradigm.
 
+## Assignment submission
+
+* [Assignment submission procedure](./submission)
+* [Assignment 1][assignment1] - Due on the midnight of 30 Sep 2013
+  (Monday).
+
 ## Note:
 
 The Oz package for 64-bit is buggy. If you have trouble installing it
@@ -58,7 +64,7 @@ in the class
 
 1. Implement the general [unification algorithm]  described in the
    class. Use any of your favorite programming language although doing
-   it in C or Java might be be such a good idea.
+   it in C or Java might not be such a good idea.
 
    Beware: many algorithms described in literature have subtle bugs.
 
@@ -86,3 +92,6 @@ in the class
 [textbook]: <http://www.info.ucl.ac.be/~pvr/book.html>
 [image-file]: <http://ppk.cse.iitk.ac.in/ppk/cs350/virtual-image.7z> "Linux Image file"
 [satvik]: <http://cse.iitk.ac.in/users/satvikc> "Satvik's homepage"
+
+[assignment1]: <https://github.com/piyush-kurur/sample-code/blob/master/assignments/delhi-metro.pl>
+      "Assignment 1: Delhi Metro"
