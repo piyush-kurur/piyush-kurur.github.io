@@ -13,7 +13,7 @@
 <div class=navigation-work>
 ### Work
 
-* [<i class="icon-beaker"/> Research](/research/)
+* [<i class="icon-lightbulb"/> Research](/research/)
 * [<i class="icon-book"/> Teaching](/teaching/)
 * [<i class="icon-laptop"/> Software](/software/)
 </div>
