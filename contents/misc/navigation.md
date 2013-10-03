@@ -8,6 +8,7 @@
 * [<i class="icon-home"/> Home](/)
 * [<i class="icon-envelope"/> Contact](/contact/)
 * [<i class="icon-legal"/> Legalese](/legal/)
+
 </div>
 
 <div class=navigation-work>
@@ -16,6 +17,7 @@
 * [<i class="icon-lightbulb"/> Research](/research/)
 * [<i class="icon-book"/> Teaching](/teaching/)
 * [<i class="icon-laptop"/> Software](/software/)
+
 </div>
 
 <div class=navigation-blog>
