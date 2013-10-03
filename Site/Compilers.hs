@@ -12,6 +12,7 @@ import Control.Applicative
 import Control.Monad
 import Data.Monoid
 import Hakyll
+import System.FilePath
 
 import Site.Config
 
@@ -23,7 +24,8 @@ siteContext =  defaultContext
 
 postContext :: Context String
 postContext = siteContext <> dateField "date" dateFormat
-
+              <> field "disqus_identifier" postIdCompiler
+  where postIdCompiler = return . dropExtension . takeFileName . toFilePath . itemIdentifier
 ----------------   Compilers    ----------------------------------------
 
 
