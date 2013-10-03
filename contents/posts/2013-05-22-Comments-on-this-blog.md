@@ -20,5 +20,7 @@ me which will be incorporated.
 **Update 28 May 2013:** The entire hakyll source is available at
 ~~~<http://hub.darcs.net/ppk/website>~~~ <http://github.com/piyush-kurur-pages/website>
 
+**Update 03 Oct 2013:** Now uses disqus for commenting.
+
 [disqus]: <http://disqus.com>
 [xkcd-duty-calls]: <http://xkcd.com/386> "Duty Calls"
