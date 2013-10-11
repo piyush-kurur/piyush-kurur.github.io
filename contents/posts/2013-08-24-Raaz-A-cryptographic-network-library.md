@@ -93,7 +93,7 @@ be nice if such incidents are caught at compile time?
 We avoid this problem in [Haskell] by leveraging its type safety.
 Instead of representing cryptographically significant data types like
 hashes, macs etc. as mere byte string, we define [Haskell] data types
-for Them. For example sha1 hashes are represented (in a simplified
+for them. For example sha1 hashes are represented (in a simplified
 form) as follows:
 
 ~~~{ .haskell}
