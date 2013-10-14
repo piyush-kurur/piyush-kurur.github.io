@@ -30,7 +30,7 @@ blogArchivePage yearlyPosts tags = prePandoc >=> pandoc
                                    >=> postPandoc cxt
   where archiveRender = loadAndApplyTemplate archiveIndexT cxt
         cxt        = constField "title" "Posts Archive" <> siteContext
-                     <> tagCloudField "tags"    tagCloudMin tagCloudMax tags
+                     <> tagCloudField "tagcloud" tagCloudMin tagCloudMax tags
                      <> tagListField "oldPosts" yearlyPosts
         tagListField key tgs = field key $ \ _ -> renderTagList tgs
 
