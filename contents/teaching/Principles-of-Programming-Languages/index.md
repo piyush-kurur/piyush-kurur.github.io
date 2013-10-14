@@ -93,5 +93,5 @@ in the class
 [image-file]: <http://ppk.cse.iitk.ac.in/ppk/cs350/virtual-image.7z> "Linux Image file"
 [satvik]: <http://cse.iitk.ac.in/users/satvikc> "Satvik's homepage"
 
-[assignment1]: <https://github.com/piyush-kurur/sample-code/blob/master/assignments/delhi-metro.pl>
+[assignment1]: <https://github.com/piyush-kurur/sample-code/blob/master/assignments/delhi-metro/delhi-metro.pl>
       "Assignment 1: Delhi Metro"
