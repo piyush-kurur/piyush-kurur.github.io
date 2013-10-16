@@ -5,8 +5,11 @@
 
 module Site.Config where
 
-import Hakyll
-import Text.Pandoc
+import qualified Data.Map as Map
+import           Hakyll
+import           Text.Pandoc
+
+import Site.Pandoc.Links
 
 contentsDir  :: String -- ^ Where the actual webpage source reside
 contentsDir  = "contents"
@@ -59,9 +62,14 @@ writerOptions = defaultHakyllWriterOptions
    { writerHTMLMathMethod = MathML Nothing -- ^ I want math rendering
    }
 
+
+-- | Namespace for link expansion
+linkNamespaces :: Map.Map String Expand
+linkNamespaces = Map.fromList [("wikipedia", wikipedia)]
+
 -- | Plugins to use for processing Pandoc
 plugins :: Pandoc -> Compiler Pandoc
-plugins = return
+plugins = linkExpand linkNamespaces
 
 ----------------   Templates ------------------------------------------
 
