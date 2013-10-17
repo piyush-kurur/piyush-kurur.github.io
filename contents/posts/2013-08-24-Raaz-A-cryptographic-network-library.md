@@ -41,7 +41,7 @@ one would.
 1. High performance concurrency primitives for server
    applications. [Haskell] really has no competition in this
    department. Here are some of the features that GHC (and libraries)
-   supports: [Light weight threads (green threads)][green-threads],
+   supports: [wikipedia:Green threads]()
    [STM]s, [MVar]s etc. Using these features, servers written in
    [Haskell] have been competitive (often outperforming) servers
    written is [C]. See for example [mighttpd].
@@ -117,7 +117,6 @@ way that it will take time independent on the number of positions they
 match. A user is then be forced by the compiler to use this equality
 as we will not be exposing the constructor to her.
 
-
 ## Status of the project and how to contribute
 
 Currently we have just began. We have made no releases yet and we are
@@ -125,17 +124,16 @@ still experimenting with the API. All code is available under BSD3
 license from <http://github.com/piyush-kurur/raaz>).
 
 I look forward to your contributions. In particular, if computer
-architecture is your bread and butter and you are the [Chuck Norris]
-of assembly language programming, do join us for some fun coding: A
-lot of primitives require fast implementation often exploiting the
-platform specific features like [SIMD] instruction set.
+architecture is your bread and butter and you are the
+[wikipedia:Chuck Norris]() of assembly language programming, do join us
+for some fun coding: A lot of primitives require fast implementation
+often exploiting the platform specific features like [wikipedia:SIMD]()
+instruction set.
 
 
 [mighttpd]: <http://mew.org/~kazu/proj/mighttpd/en/>
 [satvik]: <http://github.com/satvikc>
 [rabisg]: <http://github.com/rabisg>
-[Chuck Norris]: <http://en.wikipedia.org/wiki/Chuck_Norris> "Wikipedia:Chuck Norris"
-[simd]: <http://en.wikipedia.org/wiki/SIMD> "Wikipedia:SIMD"
 [green-threads]: <http://en.wikipedia.org/wiki/Green_threads> "Wikipedia:Green threads"
 [stm]: <http://www.haskell.org/haskellwiki/Software_transactional_memory>
 [mvar]: <http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Concurrent-MVar.html>
