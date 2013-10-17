@@ -18,6 +18,7 @@ appreciate the power/weakness of each of these paradigm.
 * [Assignment submission procedure](./submission)
 * [Assignment 1][assignment1] - Due on the midnight of 30 Sep 2013
   (Monday).
+* [Assignment 2][assignment2] - To be decided.
 
 ## Note:
 
@@ -95,3 +96,5 @@ in the class
 
 [assignment1]: <https://github.com/piyush-kurur/sample-code/blob/master/assignments/delhi-metro/delhi-metro.pl>
       "Assignment 1: Delhi Metro"
+
+[assignment2]: <https://github.com/piyush-kurur/sample-code/blob/assignment/assignments/traffic/controller.erl>
