@@ -4,8 +4,8 @@
 -- of the kind [wiki:Title]() has wiki as the namespace.
 
 module Site.Pandoc.Links
-       ( Expand, ExpandIO
-       , linkExpand, linkExpandIO
+       ( Namespace
+       , linkExpand
        , wikipedia
        ) where
 
@@ -16,32 +16,23 @@ import           Text.Pandoc.Shared
 import           Hakyll
 import qualified Data.Map as M
 
--- | A pure link expander.
+-- | A link expander.
 type Expand      = [Inline] -- ^ The anchor text
                  -> String  -- ^ The title of the link
-                 -> Inline
--- | An link expander which can run an IO action generate the final
--- link.
-type ExpandIO    = [Inline]   -- ^ The anchor text
-                 -> String    -- ^ The title of the link
-                 -> IO Inline
+                 -> Compiler Inline
 
--- | A name space is just a map
-type Namespace a = M.Map String a
+-- | A name space is just a map of strings to link expanders
+type Namespace = M.Map String Expand
 
 -- | Expands all link which does not have a target url according to
 -- the name space. For a markdown link [wikipedia:Text]( "Title") the
 -- name space is wikipedia. If there is no namespace prefix then the
 -- name spaces is the empty string.
-linkExpand :: Namespace Expand -> Pandoc -> Compiler Pandoc
-linkExpand mp = return . bottomUp (expand mp)
+linkExpand :: Namespace -> Pandoc -> Compiler Pandoc
+linkExpand mp = bottomUpM $ expand mp
 
--- | Similar to `linkExpand` except uses an effectful expander.
-linkExpandIO :: Namespace ExpandIO -> Pandoc -> Compiler Pandoc
-linkExpandIO mp = unsafeCompiler . bottomUpM (expandIO mp)
-
--- | Apply the namespace function the the inline element.
-applyNs :: Namespace ([Inline] -> a) -> [Inline] -> Maybe a
+-- | Apply the namespace function to the the inline element.
+applyNs :: Namespace -> [Inline] -> Maybe (String -> Compiler Inline)
 applyNs mp ins = do
   (ns, cont) <- parseFieldIs ':' ins
   func       <- M.lookup (stringify ns) mp
@@ -50,22 +41,17 @@ applyNs mp ins = do
          return $ func ins
 
 -- | Expands a link using the namespace.
-expand :: Namespace Expand -> Inline -> Inline
-expand mp lnk@(Link ins ("", title)) = fromMaybe lnk $ do
+expand :: Namespace -> Inline -> Compiler Inline
+expand mp lnk@(Link ins ("", title)) = fromMaybe (return lnk) $ do
   func <- applyNs mp ins
   return $ func title
-expand _ inln = inln
-
--- | Expands the link making use of an IO action.
-expandIO :: Namespace ExpandIO -> Inline -> IO Inline
-expandIO mp lnk@(Link ins ("", title)) = fromMaybe (return lnk) $ do
-  func <- applyNs mp ins
-  return $ func title
-expandIO _ inln = return inln
+expand _ inln = return inln
 
 -- | The wikipedia link expander. It supports the pipe trick as well.
-wikipedia :: [Inline] -> String -> Inline
-wikipedia ins title = maybe nopipe pipe $ parseFieldIs '|' ins
+wikipedia :: [Inline] -> String -> Compiler Inline
+wikipedia ins title = return
+                    $ maybe nopipe pipe
+                    $ parseFieldIs '|' ins
   where nopipe      = Link ins $ wikipediaTarget ins title
         pipe        = wikipediaPipeTrick title
 

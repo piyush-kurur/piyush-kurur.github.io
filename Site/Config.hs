@@ -64,7 +64,7 @@ writerOptions = defaultHakyllWriterOptions
 
 
 -- | Namespace for link expansion
-linkNamespaces :: Map.Map String Expand
+linkNamespaces :: Namespace
 linkNamespaces = Map.fromList [("wikipedia", wikipedia)]
 
 -- | Plugins to use for processing Pandoc
