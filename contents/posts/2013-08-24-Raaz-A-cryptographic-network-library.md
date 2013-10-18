@@ -16,7 +16,7 @@ allow writing fast (as fast or better than any [C] library available)
 as well as secure cryptographic code. In this post, I attempt to
 explain some of the features of [Haskell] that we make use of.
 
-## Speed
+# Speed
 
 Let me first dispose of the one myth that seems to persist in the mind
 of people who have never seen a modern functional language. No one
@@ -64,7 +64,7 @@ compromise on the level of abstraction. This greatly enhances the
 maintainability and leads us to the next important feature that we
 want in our libraries, safety.
 
-## Safety.
+# Safety.
 
 Cryptographic implementations are full of corner cases and the bugs in
 them can be particularly lethal. A cryptographic library is usually
@@ -117,7 +117,7 @@ way that it will take time independent on the number of positions they
 match. A user is then be forced by the compiler to use this equality
 as we will not be exposing the constructor to her.
 
-## Status of the project and how to contribute
+# Status of the project and how to contribute
 
 Currently we have just began. We have made no releases yet and we are
 still experimenting with the API. All code is available under BSD3
