@@ -7,7 +7,7 @@ For quite some time, I have been toying with the idea of trying to get
 a grip on the various beautiful ideas that go under the name *type
 theory*. It looks to me that the time has come for a deep dive into
 the [hott] (no this is definitely not a typo) waters. This is the
-first in the series of posts that on type theory and its various
+first in a series of posts on type theory and its various
 ramifications to Functional programming and foundations of
 mathematics. I am not an expert in this area but by blogging I hope to
 gain the insights that has eluded me so far.
@@ -43,20 +43,38 @@ essentially *proof checking* (and vice-versa).
 Why is this connection interesting? In order to fully see the
 [wikipedia:Blind men and an elephant|type theory elephant](), we often
 need to acquire the split personalities of a programmer (functional
-programmer) and a mathematician. The programmer is actually interested
-in the expressions, as they are the programs. Types are a way of
-ensuring that the programs satisfy certain invariants. The stronger
-the type system, the larger is the class of invariants that can be
-expressed. Thus for her the types are a means to achieve correct
-programs. This also means that from a programmers perspective
-efficient implementation of the language is more important.
+programmer) and a mathematician.
+
+The programmer is actually interested in the expressions, as they are
+the programs. Types are a way of ensuring that the programs satisfy
+certain invariants. The stronger the type system, the larger is the
+class of invariants that can be expressed. Thus for her the types are
+a means to achieve correct programs. The holy grail in this line of
+thought is to have completely machine certified programs. A full
+fledged programming language which implements such types can thus be
+its own specification language.
 
 The mathematician is more interested in the types as they correspond
 to mathematical truths. Expressions are just proofs of these
 statements. The functional programming language with sufficiently
 powerful types can thus be used as a proof assistant to achieve
-completely automating mathematical proof checking. This viewpoint
-means that a mathematician is not that much concerned about efficiency.
+completely automated mathematical proof checking. However, proofs
+being values are now first class values. Much like in a functional
+programming language, where making functions first class values helped
+in a lot of simplification and abstraction, it is hoped that making
+proofs first class can give ways to manipulate and think about them
+which traditional mathematics could not.
+
+The above two viewpoint have sometimes slightly conflicting goals. A
+programmer is concerned in the performance of these languages. There
+are certain technical issues like the fact that all function should
+terminate if one wants to avoid inconsistency that can be a show
+stopper in writing non-terminating programs like servers etc.  The
+mathematician however is not much bothered about the actual efficiency
+of the running code. However, issues like consistency and termination
+is important. After all who wants a proof assistant that will accept
+all proofs.
+
 
 [type theory]: </posts/tags/Type theory.html> "Posts on Type theory"
 [hott]: <http://homotopytypetheory.org> "Homotopic Type Theory"
