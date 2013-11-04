@@ -76,5 +76,12 @@ is important. After all who wants a proof assistant that will accept
 all proofs.
 
 
+# Contents
+
+1. [Lambda Calculus][lambda-calculus]
+
+
+[lambda-calculus]: </posts/2013-11-04-Lambda-calculus.html>
+
 [type theory]: </posts/tags/Type theory.html> "Posts on Type theory"
 [hott]: <http://homotopytypetheory.org> "Homotopic Type Theory"
