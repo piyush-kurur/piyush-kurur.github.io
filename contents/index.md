@@ -13,6 +13,10 @@ I work at the [Department of Computer Science and Engineering][cse],
 through the tools of computer science: algorithms, complexity and
 logic.
 
+
+Check the [quantum computing course page][quantum computing] for the
+details of my course next semester
+
 </div>
 
 <div class="recent-posts">
@@ -24,3 +28,7 @@ $endfor$
 
 
 </div>
+
+[Quantum computing]:
+	</teaching/Quantum-computing/index.html>
+	"Quantum computing"
