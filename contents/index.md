@@ -12,6 +12,7 @@ I work at the [Department of Computer Science and Engineering][cse],
 through the tools of computer science: algorithms, complexity and
 logic.
 
+# Information for IITK students.
 
 Check the [quantum computing course page][quantum computing] for the
 details of my course next semester
