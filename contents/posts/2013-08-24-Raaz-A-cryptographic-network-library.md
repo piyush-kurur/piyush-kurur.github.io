@@ -80,8 +80,8 @@ password is proportional to length of the longest common prefix of the
 secret and the password. The attacker then can guess the password one
 character at a time by looking at the time it takes for you to reject
 the password. One would usually not compare the secrets directly but
-hash them together with a salt and the hashes. However, any
-comparisons that take time dependent on the user input is prone to
+hash them together with a salt and compare the hashes. However, any
+comparisons that take time *dependent* on the user input is prone to
 lead to future attacks when deployed without much thought.
 
 We could avoid this problem by asking users of our library to always
@@ -114,8 +114,8 @@ instance Eq Sha1 where
 
 The `Eq` instance for Sha1 has comparison operator defined in such a
 way that it will take time independent on the number of positions they
-match. A user is then be forced by the compiler to use this equality
-as we will not be exposing the constructor to her.
+match. A user is then forced by the compiler to use this equality as
+we will not be exposing the constructor to her.
 
 # Status of the project and how to contribute
 
@@ -123,12 +123,13 @@ Currently we have just began. We have made no releases yet and we are
 still experimenting with the API. All code is available under BSD3
 license from <http://github.com/piyush-kurur/raaz>).
 
-I look forward to your contributions. In particular, if computer
+I look forward to your contributions. Even if you are not comfortable
+with haskell, you can contribute. For example, if computer
 architecture is your bread and butter and you are the
-[wikipedia:Chuck Norris]() of assembly language programming, do join us
-for some fun coding: A lot of primitives require fast implementation
-often exploiting the platform specific features like [wikipedia:SIMD]()
-instruction set.
+[wikipedia:Chuck Norris]() of assembly language programming, do join
+us for some fun coding: A lot of primitives require fast
+implementation often exploiting the platform specific features like
+[wikipedia:SIMD]() instruction set.
 
 
 [mighttpd]: <http://mew.org/~kazu/proj/mighttpd/en/>
