@@ -11,7 +11,7 @@ have a look on [wikipedia:Lambda calculus|Wikipedia]() for details and
 references.
 
 The core idea of lambda calculus is an elegant notation invented by
-[Wikipedia:Alonzo Church]() to capture functions without naming them.
+[wikipedia:Alonzo Church]() to capture functions without naming them.
 Consider the function that increments its argument by 1. In notation
 of lambda calculus one can write such an increment function as $λ x
 . x + 1$ (assuming of course that $+$ has already been defined). This
