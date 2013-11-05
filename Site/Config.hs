@@ -18,6 +18,9 @@ contentsDir  = "contents"
 rsyncDest :: String -- ^ Where to sync stuff to
 rsyncDest = "ppk@turing:/homepages/global/ppk/"
 
+githubPages :: String -- ^ local git repo where github page is kept
+githubPages = "../piyush-kurur.github.com"
+
 --
 -- Blog configuration
 --

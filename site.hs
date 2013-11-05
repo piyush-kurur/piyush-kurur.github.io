@@ -56,7 +56,8 @@ main = hakyllWith config rules
 config :: Configuration -- ^ The configuration. Don't edit this
                         -- instead edit the stuff on the top section
 
-config = defaultConfiguration { deployCommand     = rsyncCommand
+config = defaultConfiguration { deployCommand     = deploy
                               , providerDirectory = contentsDir
                               }
-  where rsyncCommand = "rsync -avvz _site/ " ++ rsyncDest
+  where rsync  dest = "rsync -avvz _site/ " ++ dest
+        deploy = rsync rsyncDest ++ "; " ++ rsync githubPages
