@@ -6,9 +6,9 @@ tags: Type theory
 We begin the exploration of type theory by describing lambda
 calculus. This post is mostly to set up the notation and the standard
 reference for material here is the encyclopedic book
-[The lambda calculus: Its syntax and semantics][lambda calculus book]. Also
-have a look on [wikipedia:Lambda calculus|Wikipedia]() for details and
-references.
+[The lambda calculus: Its syntax and semantics][lambda calculus book].
+Also have a look on [wikipedia:Lambda calculus|Wikipedia]() for
+details and references.
 
 The core idea of lambda calculus is an elegant notation invented by
 [wikipedia:Alonzo Church]() to capture functions without naming them.
@@ -16,13 +16,13 @@ Consider the function that increments its argument by 1. In notation
 of lambda calculus one can write such an increment function as $λ x
 . x + 1$ (assuming of course that $+$ has already been defined). This
 notation has now found its way to many programming languages like
-Haskell (`\ x -> x + 1` the backslash is an ascii approximation of
-$λ$), python (`lambda x: x + 1`) etc. The lambda calculus we deal with
-here does not have the *built-in* function like $+$. All it has is a
-(countably infinite) supply of variables, which we will denote by
-small case letters $x$, $y$, $z$ etc and two fundamental operation
-namely application and abstraction. The lambda calculus expressions
-can be inductively defined as follows:
+Haskell (`\ x -> x + 1` the backslash is an [wikipedia:ASCII]()
+approximation of $λ$), python (`lambda x: x + 1`) etc. The lambda
+calculus we deal with here does not have the *built-in* function like
+$+$. All it has is a (countably infinite) supply of variables, which
+we will denote by small case letters $x$, $y$, $z$ etc and two
+fundamental operation namely application and abstraction. The lambda
+calculus expressions can be inductively defined as follows:
 
 $$ e = x | e_1 e_2 | λ x . e$$
 
