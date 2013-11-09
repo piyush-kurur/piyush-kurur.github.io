@@ -18,7 +18,7 @@ builds particularly in the context of [raaz] which I list below.
 
 1. The travis builds are done on an [Ubuntu] container. Therefore, the
    default builds are against whatever haskell platform comes with it.
-   Thanks to [Herbert Valerio Riedel's][hvr] for his
+   Thanks to [Herbert Valerio Riedel][hvr] for his
    [write up][hvr-instructions] and his [Ubuntu ppa][hvr-ppa], we now
    build across multiple haskell platform. The instructions need to be
    tweaked though as they assume that repository is a single directory
