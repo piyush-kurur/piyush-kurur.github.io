@@ -51,8 +51,8 @@ makeTagRules template tag pat = do
     >>= postPandoc tagContext
     where tagContext = postContext
                        <> constField "tag" tag
-                       <> listField "posts" postContext (loadAll pat)
-
+                       <> listField "posts" postContext tagPosts
+          tagPosts = loadAll pat >>= recentFirst
 -- | This function generates the year of the post from its
 -- identifier. This is used in building the archives.
 getYear :: Identifier -> String
