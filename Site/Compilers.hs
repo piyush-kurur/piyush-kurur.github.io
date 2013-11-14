@@ -5,7 +5,7 @@ module Site.Compilers
        , Pipeline, compilePipeline
        , mainPage, stdPage
        , siteContext, postContext
-
+       , loadPosts
        ) where
 
 import Control.Applicative
@@ -71,10 +71,12 @@ stdPage = prePandoc >=> pandoc >=> postPandoc siteContext
 mainPage :: Pipeline String String
 mainPage = prePandoc >=> applyAsTemplate cxt >=> pandoc >=> postPandoc cxt
   where cxt      = siteContext <> listField "posts" postContext postList
-        postList = take postsOnMainPage <$> loadAllPosts
+        postList = take postsOnMainPage <$> loadPosts postsPat
 
-loadAllPosts :: Compiler [Item String]
-loadAllPosts = loadAll postsPat >>= recentFirst
+-- | Load the posts matching a pattern. This arranges the posts in the
+-- reverse chronological order.
+loadPosts     :: Pattern -> Compiler [Item String]
+loadPosts pat = loadAll pat >>= recentFirst
 
 -- | Similar to compile but takes a compiler pipeline instead.
 compilePipeline ::  Pipeline String String -> Rules ()
