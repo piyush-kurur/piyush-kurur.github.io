@@ -15,7 +15,7 @@ logic.
 # Information for IITK students.
 
 Check the [quantum computing course page][quantum computing] for the
-details of my course next semester
+details of my course next semester.
 
 # Recent posts
 
