@@ -78,10 +78,11 @@ all proofs.
 
 # Contents
 
-1. [Lambda Calculus][lambda-calculus]
+1. [Lambda Calculus]
+2. [Typed lambda calculus]
 
-
-[lambda-calculus]: </posts/2013-11-04-Lambda-calculus.html>
+[lambda calculus]: </posts/2013-11-04-Lambda-calculus.html>
+[typed lambda calculus]: </posts/2014-01-11-Typed-lambda-calculus.html>
 
 [type theory]: </posts/tags/Type theory.html> "Posts on Type theory"
 [hott]: <http://homotopytypetheory.org> "Homotopic Type Theory"
