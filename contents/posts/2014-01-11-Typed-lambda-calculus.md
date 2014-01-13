@@ -227,9 +227,9 @@ We have a proof theoretic view of truth and falsity in this setting.
 Propositions are "true" if they can be proved by giving a $λ$-calculus
 expression of that type and not true otherwise. In that sense, we only
 have "truths" and "not truths" and every inhabited types, i.e. types
-for which we can construct an element with that type, is true. Suppose
-Explicit truth and falsity can be achieved by adding types $⊤$ and $⊥$
-to the basic types $𝒯$ and to make $⊤$ provable, we enrich the
+for which we can construct an element with that type, is
+true. Explicit truth and falsity can be achieved by adding types $⊤$
+and $⊥$ to the basic types $𝒯$ and to make $⊤$ provable, we enrich the
 $λ$-calculus with a single constant $\mathbf{obvious}$ of type
 $⊤$. That there is no constants with type $⊥$ is deliberate design
 choice as we do not want to prove $⊥$ in our logic. Once we have the
