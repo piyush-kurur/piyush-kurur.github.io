@@ -282,36 +282,56 @@ infinite loops, are *not* possible in this calculus.
 
 # Consistency and recursion
 
-In the last section, we saw that the typed $λ$-calculus that we
-defined does not support fixed point combinators and therefore does
-not support recursion. This severely limits in some sense the kind of
-programs that we can write in such a language. Moreover, we do know
-that fixed points can be implemented on a computer. Can we enrich the
-$λ$-calculus to include a fixed point combinator by force? After all
-we do know how to compile it into machine code. What would happen if
-we just enrich the calculus with a constant $\mathbf{fix}$, much like
-the way we included a constant $\mathbf{obvious}$ or $\mathrm{lem}$
-(if we want LEM in the logic). For this to workout, we would need to
-augment our type inference rules with the following rule for
+The Curry-Howard isomorphism gives us a way to define logical system
+out of typed lambda calculus. Enriching the basic typed lambda
+calculus with constants like $\mathbf{obvious}$ or $\mathbf{lem}$ is
+like adding axioms to the logical system assoicated with the language.
+In any logical system, we need to worry about consistency. In
+classical logic, a set of axioms together with the inference rules
+form an *inconsistent* system if one can prove a statement $τ$ and its
+negation $¬τ$. This definition is not very useful in the type
+theoretic setting as it is crucially dependent on negation which we
+want to avoid as much as possible. An alternate way to define
+inconsistency is to define inconsistent system as those which proves
+all statements. It is this definition of inconsistency that is easier
+to work with in the type theoretic framework. We say that a type
+theoretic system, i.e. the under lying typed $λ$-calculus and its type
+inference rules, is inconsistent if every type in inhabited. This
+makes sense because an inhabitant of a type $τ$ is the proof of the
+statement (associated) to $τ$. In this section, we want to connect
+consistency and the ability to do recursion. In fact, arbitrary
+recursion, or equivalently a uniform way to compute fixed points, is
+dangerous from a consistency perspective.
+
+We saw that the typed $λ$-calculus that we defined does not support
+fixed point combinators and therefore does not support recursion. This
+severely limits the kind of programs that one can write in such a
+language. However, we *do* know that fixed points can be implemented
+on a computer. Can we enrich the $λ$-calculus to include a fixed point
+combinator by force? After all, we do know how to compile it into
+machine code. What would happen if we just enrich the calculus with a
+constant $\mathbf{fix}$, much like the way we included a constant
+$\mathbf{obvious}$ or $\mathrm{lem}$. For this to workout, we would
+need to augment our type inference rules with the following rule for
 $\mathbf{fix}$
 
 **FIX**
 	: $$ \frac{Γ ⊢ f : τ → τ}
 		{Γ ⊢ \mathbf{fix}\;f\;:\; τ}.$$
 
-This would mean that if we some how create a function of type $τ→τ$
-then we can prove for it $τ$. In the previous section, we showed we
-can prove $τ→τ$ by the proof $λ x : τ . x$. This would mean that if we
-add a fixed point combinator to the language, we end up getting a
-logical system in which every statement has a proof. Or in other words
-we have an inconsistent logical system. The moral of the story is that
-we need to be very careful in what features we want to include in the
-language if we want to keep logical consistency of the underlying type
-system. Real world programming languages like Haskell does not care
-about this issue as writing infinite loops are too important for a
-programmer. In fact every type in Haskell has an inhabitant namely
-$\mathbf{undefined}$. This means that Haskell's types may not be use
-to prove mathematical theorems.
+This would mean that, if we some how create a function of type $f:τ→τ$
+then we can prove $τ$ using the proof $\mathbf{fix} f$. Recall that,
+for any type $τ$, the typed lambda calculus expression $I = λ x : τ
+. x$ has type $τ → τ$. Taking its fixed point $\mathbf{fix}\; I$ will
+give an inhabitant of $τ$. Therefore, adding arbitrary fixed points
+will make the logic inconsistent.
+
+Real world programming languages like Haskell does not care about this
+issue as writing infinite loops are too important for a programmer. In
+fact, every type in Haskell has an inhabitant, namely
+`undefined`. What this means is that the type system of Haskell is not
+directly suitable as a theorem prover although we can still use it to
+catch many bugs at compile time.
 
 Languages like agda which has to double up as a proof assistant allow
 certain restricted kinds of recursion by making sure that the
