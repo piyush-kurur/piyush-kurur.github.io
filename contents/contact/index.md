@@ -12,14 +12,17 @@ author: Piyush P Kurur
 
 # Before emailing me.
 
-Email is the prefered means of contacting me. However, take a few
+Email is the preferred means of contacting me. However, take a few
 seconds to read the following before hitting the the send button.
 
 1. No unsolicited emails. In particular, please do not invite me to
    join facebook, linkedin or whatever is the latest madness.  I have
    *no interest* even if you are [wikipedia:Amitabh Bachan]()
 
-2. Make sure you emails have valid from/reply-to and subject
+2. Editors of Elsevier Journals, please *do not* send me referee
+   requests.
+
+3. Make sure you emails have valid from/reply-to and subject
    fields. Subjects should be brief. Students doing a course with me
    please mention the course number in the subject. Examples below.
 
@@ -30,6 +33,6 @@ seconds to read the following before hitting the the send button.
 
 ~~~
 
-3. Follow basic email etiquette: as far as possible plain text mails
+4. Follow basic email etiquette: as far as possible plain text mails
    and definitely not doc files, use inline style and no thread
    hijacking
