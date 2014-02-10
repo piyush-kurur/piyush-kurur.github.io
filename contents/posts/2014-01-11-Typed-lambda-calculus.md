@@ -16,14 +16,16 @@ logic.
 
 We fix a set $𝒯$ of base types that can be thought of as the
 *built-in* types of the language. For this post, the set of types are
-all terms generated inductively as the follows:
+all terms generated inductively as follows:
 
 $$ τ ≔ t ∈ 𝒯  | τ_1 → τ_2.$$
 
 The above inductive definition means that a type is either a basic
-type $t$, i.e an element of the set $𝒯$, or it is $τ_1 → τ_2$ where
-$τ_1$ and $τ_2$ are themselves types. There are few points that we
-want to clarify right away.
+type $t$, i.e. an element of the set $𝒯$, or it is the function type
+$τ_1 → τ_2$ where $τ_1$ and $τ_2$ are themselves types. The type $τ_1
+→ τ_2$ captures the type of functions whose domain is of type $τ_1$
+and range is of type $τ_2$. There are few points that we want to
+clarify right away.
 
 1. Consider the set of propositional logic formulas where the base set
    of propositions is $𝒯$ and the only logical connective is the
@@ -45,9 +47,9 @@ Intuitively, a typed lambda calculus is a version of lambda calculus
 where each expression is assigned a *type*. This type is used to
 ensure that function application is of the correct type, i.e. whenever
 an expression $f$ of type $σ$ is applied on another expression $e$ of
-type $τ$, the type $σ$ *should be* a function type from $τ → τ′$, for
-type $τ′$. This requires us to assign types to lambda calculus terms
-in a systematic way. We use the notation $e:τ$ to assert that the
+type $τ$, the type $σ$ *should be* a function type $τ → τ′$, for type
+$τ′$. This requires us to assign types to lambda calculus terms in a
+systematic way. We use the notation $e:τ$ to assert that the
 expression $e$ has type $τ$. Recall that a $λ$-calculus term is a
 variable, or an application or a $λ$-abstraction. Therefore, we need
 to give systematic rules for assigning types for these three cases.
@@ -104,9 +106,9 @@ each of these rules informally:
 
 **ABS**
 	: This rules assign types to the bound variables. This rule needs
-	a bit of getting used to a we normally think in the other
-	direction, i.e in the expression $λ x : τ_1 . e$, the occurrence of
-	$x$ in $e$ has type $τ_1$.
+	a bit of getting used to as we normally think in the other
+	direction, i.e. in the expression $λ x : τ_1 . e$, the occurrence
+	of $x$ in $e$ has type $τ_1$.
 
 In all the above rules, we assume that the type assumptions that arise
 on the left hand side of the $⊢$ symbol satisfies some obvious
@@ -161,11 +163,11 @@ rules of type inference as rules of building proofs.
 	$τ_2$. Here $e[x := p]$ denotes replacing all free occurrence of
 	$x$ by $p$.
 
-This essentially is crux of the types as proofs view point. If we want
-to effectively use this logical content of the type theory, we need to
-look at richer and richer types and that is what we would be doing. We
-make some modest enriching in this post and leave the rest for future
-posts.
+This essentially is the crux of the "types as proofs" view point. If
+we want to effectively use this logical content of type theory, we
+need to look at richer and richer types and that is what we would be
+doing. We make some modest enriching in this post and leave the rest
+for future posts.
 
 # The operators $∨$ and $∧$.
 
@@ -179,8 +181,8 @@ $$ τ ≔ t ∈ 𝒯 | τ_1 → τ_2 | τ_1 ∧ τ_2 | τ_1 ∨ τ_2.$$
 To prove conjunctions and disjunctions, we need ways to create values
 (remember they are our proofs) of type $τ_1 ∧ τ_2$ and $τ_1 ∨ τ_2$
 respectively. For conjunctions, we introduce the primitive $(.,.)$
-that pairs up two expressions to give you a new expression. A value of
-Typed $τ_1 ∨ τ_2$ can be created in two ways: by applying the
+that pairs up two expressions to give a new expression. A value of
+type $τ_1 ∨ τ_2$ can be created in two ways: by applying the
 *constructor* $\mathbf{inl}$ on a value of type $τ_1$ or by applying
 the constructor $\mathbf{inr}$ on a value of type $τ_2$. The
 corresponding inference rules are:
@@ -200,17 +202,17 @@ proofs where the first component is a proof of $τ_1$ and the second a
 proof of $τ_2$. Similarly, we give a proof of $τ_1 ∨ τ_2$ by giving
 either a proof of $τ_1$ or $τ_2$ except that we need to explicitly
 state which is the case by using the appropriate constructor
-$\mathrm{inl}$ or $\mathrm{inr}$.
+$\mathbf{inl}$ or $\mathbf{inr}$.
 
 For taking apart a conjunction into its components we also assume that
-we are given two more primitive $\mathrm{fst}$ and $\mathrm{snd}$ with
+we are given two more primitive $\mathbf{fst}$ and $\mathbf{snd}$ with
 the additional rules.
 
 **PROJ**
 	: $$ \frac{Γ ⊢ e : τ_1 ∧ τ_2}{Γ ⊢ \mathbf{fst}\; e \; :\; τ_1},$$ $$
 	\frac{Γ ⊢ e : τ_1 ∧ τ_2}{Γ ⊢ \mathbf{snd}\;e \;:\; τ_2}.$$
 
-Similarly, to do case by case analysis we would need the builtin
+Similarly, to do case by case analysis, we would need the builtin
 $\mathbf{either}$
 
 **CASE**
@@ -236,14 +238,14 @@ choice as we do not want to prove $⊥$ in our logic. Once we have the
 type $⊥$, we can define the negation $¬ τ$ of $τ$ to be the type $τ →
 ⊥$.
 
-The *law of excluded middle*, LEM for short, is the statement $τ ↔ ¬
-¬ τ$ and is *not* a basic axiom of our logic. We can in fact prove one
+The *law of excluded middle*, LEM for short, is the statement $τ ↔ ¬ ¬
+τ$ and is *not* a basic axiom of our logic. We can in fact prove one
 direction $τ → ¬ ¬ τ$: Consider the function $λ x f . f x$. It is easy
 to see that we can assign to it the type $τ → (τ → σ) → σ$ for any
-types $σ$ and $τ$. In particular if $σ$ is the type $⊥$, we have $τ →
+types $σ$ and $τ$. In particular, if $σ$ is the type $⊥$, we have $τ →
 ¬¬τ$. The converse however is not provable. This might be considered
 as a weakness of the logic because LEM is used through out
-mathematics. However there is a distinct advantage here.
+mathematics. However, there is a distinct advantage here.
 
 1. The proofs that we build are *constructive* and
 
@@ -276,7 +278,7 @@ we also need $α$-conversions. It is easy to see that notion of
 $α$-conversion and $β$-reduction can be defined in a straight forward
 way for typed $λ$-calculus. What then is the difference?  The typed
 version of $β$-reduction is *strongly normalising*. It turns out that
-Terms like $Ω= (λx . xx) (λx .xx)$ and fixed point combinators cannot
+term like $Ω= (λx . xx) (λx .xx)$ and fixed point combinators cannot
 be consistently typed. As a result general recursion, and hence
 infinite loops, are *not* possible in this calculus.
 
@@ -296,12 +298,12 @@ inconsistency is to define inconsistent system as those which proves
 all statements. It is this definition of inconsistency that is easier
 to work with in the type theoretic framework. We say that a type
 theoretic system, i.e. the under lying typed $λ$-calculus and its type
-inference rules, is inconsistent if every type in inhabited. This
-makes sense because an inhabitant of a type $τ$ is the proof of the
-statement (associated) to $τ$. In this section, we want to connect
-consistency and the ability to do recursion. In fact, arbitrary
-recursion, or equivalently a uniform way to compute fixed points, is
-dangerous from a consistency perspective.
+inference rules, is *inconsistent* if *every* type in
+*inhabited*. This makes sense because an inhabitant of a type $τ$ is
+the proof of the statement (associated) to $τ$. In this section, we
+want to connect consistency and the ability to do recursion. In fact,
+arbitrary recursion, or equivalently a uniform way to compute fixed
+points, is dangerous from a consistency perspective.
 
 We saw that the typed $λ$-calculus that we defined does not support
 fixed point combinators and therefore does not support recursion. This
@@ -311,7 +313,7 @@ on a computer. Can we enrich the $λ$-calculus to include a fixed point
 combinator by force? After all, we do know how to compile it into
 machine code. What would happen if we just enrich the calculus with a
 constant $\mathbf{fix}$, much like the way we included a constant
-$\mathbf{obvious}$ or $\mathrm{lem}$. For this to workout, we would
+$\mathbf{obvious}$ or $\mathbf{lem}$. For this to workout, we would
 need to augment our type inference rules with the following rule for
 $\mathbf{fix}$
 
@@ -320,7 +322,7 @@ $\mathbf{fix}$
 		{Γ ⊢ \mathbf{fix}\;f\;:\; τ}.$$
 
 This would mean that, if we some how create a function of type $f:τ→τ$
-then we can prove $τ$ using the proof $\mathbf{fix} f$. Recall that,
+then we can prove $τ$ using the proof $\mathbf{fix}\; f$. Recall that,
 for any type $τ$, the typed lambda calculus expression $I = λ x : τ
 . x$ has type $τ → τ$. Taking its fixed point $\mathbf{fix}\; I$ will
 give an inhabitant of $τ$. Therefore, adding arbitrary fixed points
