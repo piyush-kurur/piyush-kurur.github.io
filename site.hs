@@ -18,6 +18,10 @@ rules = do
     route idRoute
     compile compressCssCompiler
 
+  match "notes/*" $ do
+    route idRoute
+    compile copyFileCompiler
+
   match "font-awesome/font/*" $ do
     route idRoute
     compile copyFileCompiler
