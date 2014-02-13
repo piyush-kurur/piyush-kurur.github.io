@@ -5,6 +5,10 @@ tags: Type theory
 
 ##In memory of [Sanjeev Kumar Aggarwal (ska)][ska].
 
+**Update**: An implementation of propositional logic in agada is
+available on my github repository
+[sample-code/agda/Logic.agda][sample-code-logic]
+
 In this post, I briefly introduce typed lambda calculus in its
 simplest form and explain the type inference rules. The
 [wikipedia:Curry-Howard correspndence|Curry-Howard isomorphism]()
@@ -344,3 +348,4 @@ leave these issues for future posts.
 
 
 [ska]: <http://cse.iitk.ac.in/users/ska> "Sanjeev Kumar Aggarwal"
+[sample-code-logic]: <https://github.com/piyush-kurur/sample-code/blob/master/agda/Logic.agda>
