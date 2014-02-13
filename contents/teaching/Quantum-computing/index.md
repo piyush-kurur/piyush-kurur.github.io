@@ -33,6 +33,16 @@ spaces. Tensor products. Basic group theory, Finite fields etc.
 I will do a brief review of these topics but do not expect me to go in
 detail. Above all what is required is Mathematical maturity
 
+# Some online reading
+
+1. [K R Parthasarathy's notes][krp]
+
+2. [Ambainis Quantum adversary method][quantum-adversary]
+
+
 [qc-book]:
     <http://www.amazon.com/Quantum-Computation-Information-Cambridge-Sciences/dp/0521635039>
 	"Quantum Computation and Quantum Information"
+
+[quantum-adversary]: <http://arxiv.org/abs/quant-ph/0002066>
+[krp]: </notes/krp.pdf>
