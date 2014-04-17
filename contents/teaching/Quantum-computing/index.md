@@ -39,6 +39,7 @@ detail. Above all what is required is Mathematical maturity
 
 2. [Ambainis Quantum adversary method][quantum-adversary]
 
+3. [Survey article on quantum codes][quantum-codes-survey]
 
 [qc-book]:
     <http://www.amazon.com/Quantum-Computation-Information-Cambridge-Sciences/dp/0521635039>
@@ -46,3 +47,4 @@ detail. Above all what is required is Mathematical maturity
 
 [quantum-adversary]: <http://arxiv.org/abs/quant-ph/0002066>
 [krp]: </notes/krp.pdf>
+[quantum-codes-survey]: </research/publication/K2005.pdf>
