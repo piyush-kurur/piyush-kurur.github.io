@@ -10,6 +10,7 @@ module Site.Pandoc.Links
        ) where
 
 import           Control.Applicative
+import           Data.List          (intercalate)
 import           Data.Maybe
 import           Text.Pandoc
 import           Text.Pandoc.Shared
@@ -48,49 +49,67 @@ expand mp lnk@(Link ins ("", title)) = fromMaybe (return lnk) $ do
 expand _ inln = return inln
 
 -- | The wikipedia link expander. It supports the pipe trick as well.
-wikipedia :: [Inline] -> String -> Compiler Inline
+wikipedia :: Expand
 wikipedia ins title = return
                     $ maybe nopipe pipe
                     $ parseFieldIs '|' ins
   where nopipe      = Link ins $ wikipediaTarget ins title
         pipe        = wikipediaPipeTrick title
 
--- | Compute the target from an given anchor text and title.
-wikipediaTarget :: [Inline] -- ^ anchor text
+-- | Compute the target from an given wiki page title and title.
+wikipediaTarget :: [Inline] -- ^ wiki page title
                 -> String   -- ^ title
                 -> (String, String)
-wikipediaTarget inlns title = (url, actualTitle)
-  where url = "http://en.wikipedia.org/wiki/" ++ map tr (stringify inlns)
-        actualTitle | null title = "Wikipedia: " ++ stringify inlns
-                    | otherwise  = title
-        tr c | c == ' '  = '_'
-             | otherwise = c
+wikipediaTarget pageTitle title = (url, actualTitle)
+  where pageTitleStr = stringify pageTitle
+        url = "http://en.wikipedia.org/wiki/"
+              ++ map tr pageTitleStr
+        actualTitle
+          | null title = "Wikipedia: " ++ pageTitleStr
+          | otherwise  = title
+        --
+        -- transform spaces to _
+        --
+        tr c
+          | c == ' '  = '_'
+          | otherwise = c
+
 
 -- | Generate the anchor text, title and link using the wikipedia pipe
 -- trick <http://en.wikipedia.org/wiki/Help:Pipe_trick>.
+--
+-- <piped-anchor-text> =
+--                 <namespace>*<wiki-link><pipechar><actual-anchor-text>
+--
+-- 1. Generate the actual url and title from the wiki-link.
+--
+-- 2. If the actual-anchor-text exists then use it as the actual
+--    anchor text otherwise guess it from wiki-link as follows.
+--
+--    2.1 foo, bar, biz will become foo, bar
+--    2.2 foo, bar, biz (bhur) will become foo, bar, biz
+--
+
 wikipediaPipeTrick  :: String -- ^ Title
                     -> ([Inline],[Inline]) -- ^ stuff before and after
                                            -- the pipe
                     -> Inline
-wikipediaPipeTrick title (lnk, cont)
-  | not $ null cont  = Link cont                   target
-  | isParen lastWord = Link initial                target
-  | null rst         = Link lnk                    target
-  | otherwise        = Link (normalizeSpaces rst') target
-   where initial  = normalizeSpaces $ init lnk
-         lastWord = last lnk
-         (_,rst)  = break checkComma $ reverse lnk
-         rst'     = reverse $ dropComma (head rst) : tail rst
-         isParen (Str ('(' : cs)) = last cs == ')'
-         isParen _                = False
-         target = wikipediaTarget lnk title
+wikipediaPipeTrick title (pageTitle, txt)
+  | null txt   = Link [guessTxt]  target
+  | otherwise  = Link txt         target
+   where target   = wikipediaTarget pageTitle title
+         guessTxt = Str
+                  $ wikiPipeText
+                  $ stringify
+                  $ normalizeSpaces pageTitle
 
-         dropComma (Str xs)  = Str $ init xs
-         dropComma _         = error "drop comma: this should not have happend"
-         checkComma (Str xs) | null xs         = False
-                             | last xs  == ',' = True
-                             | otherwise       = False
-         checkComma _                          = False
+wikiPipeText :: String -> String
+wikiPipeText str =  intercalate ","
+                 $ init commaSep ++ handleLast (last commaSep)
+  where commaSep = splitField ',' str
+        handleLast x
+          | last x == ')' = maybeToList $ fst <$> parseField '(' x
+          | otherwise     = []
 
 -- | Code to parse at a field value pair.
 parseField :: Char -> String -> Maybe (String, String)
@@ -98,6 +117,11 @@ parseField c str
   | null rest = Nothing
   | otherwise = Just (first, tail rest)
   where (first,rest) = break (==c) str
+
+-- Splits the string at those fields.
+splitField :: Char -> String -> [String]
+splitField c str = maybe [str] rec $ parseField c str
+  where rec (x,xs) = x : splitField c xs
 
 -- | Code to parse at a field value pair on an Inline.
 parseFieldI :: Char
