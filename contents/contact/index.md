@@ -20,7 +20,9 @@ seconds to read the following before hitting the the send button.
    *no interest* even if you are [wikipedia:Amitabh Bachan]()
 
 2. Editors of Elsevier Journals, please *do not* send me referee
-   requests.
+   requests. I have pledged to [boycott Elsevier][whykick] and you
+   might also want to join it at <http://thecostofknowledge.com>.
+
 
 3. Make sure you emails have valid from/reply-to and subject
    fields. Subjects should be brief. Students doing a course with me
@@ -36,3 +38,5 @@ seconds to read the following before hitting the the send button.
 4. Follow basic email etiquette: as far as possible plain text mails
    and definitely not doc files, use inline style and no thread
    hijacking
+
+[whykick]: </posts/2012-02-20-Why-Kick-Elsevier.html>
