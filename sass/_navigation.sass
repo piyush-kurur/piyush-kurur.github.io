@@ -1,7 +1,9 @@
-.navigation ul
+.navigation
   color: $navigation-color
-  margin-left: 0px
-  @include adjust-font-size-to(0.8 * $base-font-size)
-  +no-bullets
   a
     +link-colors($navigation-item-color, $hover: $navigation-hover-color)
+  border-bottom:
+    style: solid
+    color: $border
+    width: 2px
+  padding-bottom: 1em

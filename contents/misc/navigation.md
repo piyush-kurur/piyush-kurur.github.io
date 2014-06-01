@@ -1,29 +1,11 @@
 
 <!-- Add your navigation menu here !-->
 
-<div class=navigation-meta>
-
-### Meta
-
-* [<i class="icon-home"/> Home](/)
-* [<i class="icon-envelope"/> Contact](/contact/)
-* [<i class="icon-legal"/> Legalese](/legal/)
-
-</div>
-
-<div class=navigation-work>
-### Work
-
-* [<i class="icon-lightbulb"/> Research](/research/)
-* [<i class="icon-book"/> Teaching](/teaching/)
-* [<i class="icon-laptop"/> Software](/software/)
-
-</div>
-
-<div class=navigation-blog>
-
-### Blog
-* [<i class="icon-archive"/> Archive](/posts/archive/)
-* [<i class="icon-rss"/> Atom](/posts/feeds/atom.xml)/[Rss](/posts/feeds/rss.xml)
-
-</div>
+[<i class="icon-home " title="Home"/>](/)
+[<i class="icon-envelope " title="Contact"/>](/contact/)
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+[<i class="icon-lightbulb " title="Research"/>](/research/)
+[<i class="icon-book " title="Teaching"/>](/teaching/)
+[<i class="icon-laptop " title="Software"/>](/software/)
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+[<i class="icon-rss " title="Follow"/>](/posts/feeds/atom.xml)

@@ -23,18 +23,16 @@ html
   @include adjust-font-size-to(1.6 * $base-font-size)
 
 .header
-  border-bottom:
-    style: solid
-    color: $border
-    width: 1px
-
-  padding-bottom: 3em
+  color: $title-color
+  text-align: center
+  @include adjust-font-size-to(2 * $base-font-size)
+  padding-bottom: 0.25em
+  +single-text-shadow($hoff:2px, $voff:2px,$color: lighten($title-color,50%))
 
 .title
   @include adjust-font-size-to(1.27 * $base-font-size)
-  color: $title-color
   font-weight: bold
-  +single-text-shadow($hoff:2px, $voff:2px,$color: lighten($title-color,50%))
+
 
 h1
   @include adjust-font-size-to(1.27 * $base-font-size)
