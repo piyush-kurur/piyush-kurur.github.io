@@ -1,9 +1,12 @@
 .navigation
+  background: $navigation-background
   color: $navigation-color
   a
     +link-colors($navigation-item-color, $hover: $navigation-hover-color)
+  padding:
+    left: 1em
+    bottom: 1em
   border-bottom:
     style: solid
     color: $border
-    width: 2px
-  padding-bottom: 1em
+    width: 1px

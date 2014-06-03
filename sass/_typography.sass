@@ -24,10 +24,15 @@ html
 
 .header
   color: $title-color
+  margin-top: 2em
   text-align: center
   @include adjust-font-size-to(2 * $base-font-size)
   padding-bottom: 0.25em
   +single-text-shadow($hoff:2px, $voff:2px,$color: lighten($title-color,50%))
+  border-bottom:
+    style: solid
+    color: $border
+    width: 1px
 
 .title
   @include adjust-font-size-to(1.27 * $base-font-size)

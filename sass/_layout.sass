@@ -15,18 +15,23 @@ $grid-padding: $gutter-width
   +container
   .header
     +span-columns($total-columns)
-  .navigation
-    +span-columns($total-columns)
-    i
-      +span-columns(1)
-    .navigation-meta
-      +span-columns(3)
-    .navigation-work
-      +span-columns(3)
-    .navigation-blog
-      +span-columns(3 omega)
   .content
     +span-columns($total-columns)
-
     .post
       +span-columns($total-columns)
+
+.navigation
+  position: fixed
+  left: 0
+  right: 0
+  top: 0
+
+  +container
+  i
+    +span-columns(1)
+  .navigation-meta
+    +span-columns(3)
+  .navigation-work
+    +span-columns(3)
+  .navigation-blog
+    +span-columns(3 omega)
