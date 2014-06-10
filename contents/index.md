@@ -10,18 +10,20 @@ rss: /posts/feeds/rss.xml
 I work at the [Department of Computer Science and Engineering][cse],
 [IIT Kanpur][iitk]. I try to make sense of the complex world around us
 through the tools of computer science: algorithms, complexity and
-logic.
+logic. My research interests are centred around algorithms and
+complexity. Specifically, I am interested in computational algebra,
+quantum computation computational number theory. Recently, I have
+been interested in functional programming and type theory.
 
-# Information for IITK students.
-
-Check the [quantum computing course page][quantum computing] for the
-details of my course this semester.
 
 # Recent posts
 
 $for(posts)$
 * [$title$]($url$) - $date$
 $endfor$
+* [<i class="icon-archive"></i>Archives](/posts/archive/)
+
+
 
 [Quantum computing]:
 	</teaching/Quantum-computing/index.html>

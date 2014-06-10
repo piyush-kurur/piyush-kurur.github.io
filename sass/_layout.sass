@@ -3,7 +3,7 @@
 
 // Layout configuration
 
-$total-columns: 9
+$total-columns: 12
 $length: 90%
 $column-width: 4em
 $gutter-width: 1em
@@ -20,18 +20,9 @@ $grid-padding: $gutter-width
     .post
       +span-columns($total-columns)
 
-.navigation
-  position: fixed
-  left: 0
-  right: 0
-  top: 0
 
-  +container
-  i
-    +span-columns(1)
-  .navigation-meta
-    +span-columns(3)
-  .navigation-work
-    +span-columns(3)
-  .navigation-blog
-    +span-columns(3 omega)
+.blog-nav
+  ul
+    +horizontal-list
+    +no-bullet
+    float: right

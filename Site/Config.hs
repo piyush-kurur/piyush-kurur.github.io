@@ -29,7 +29,7 @@ postsPat :: Pattern
 postsPat = "posts/*"
 
 postsOnMainPage :: Int -- ^ How many posts to show on main page.
-postsOnMainPage = 10
+postsOnMainPage = 5
 
 postsOnFeed :: Int -- ^ How many posts on atom feeds.
 postsOnFeed = 42
