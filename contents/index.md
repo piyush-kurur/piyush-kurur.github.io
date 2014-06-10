@@ -21,7 +21,7 @@ been interested in functional programming and type theory.
 $for(posts)$
 * [$title$]($url$) - $date$
 $endfor$
-* [<i class="icon-archive"></i>Archives](/posts/archive/)
+* [<i class="fa fa-archive"></i>Archives](/posts/archive/)
 
 
 
