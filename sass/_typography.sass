@@ -6,8 +6,15 @@ html
   background: $background
 
 #powered-by
+  background: $powered-by-background
   text-align: right
   font-size: 70%
+  border-top:
+    style: solid
+    color: $border
+    width: 1px
+  @media screen and (max-width: $break-small)
+    display: none
 
 .post-date
   font-size: 80%
