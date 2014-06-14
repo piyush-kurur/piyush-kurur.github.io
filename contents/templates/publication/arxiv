@@ -1,1 +1,1 @@
-$if(arxiv)$ [arxiv](http://arxiv.org/abs/$arxiv$ "Download from arxiv.org")$if(downloads)$,$endif$$endif$
+$if(arxiv)$<li>[arxiv](http://arxiv.org/abs/$arxiv$ "Download from arxiv.org")</li>$endif$

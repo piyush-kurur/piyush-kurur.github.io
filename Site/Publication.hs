@@ -70,7 +70,9 @@ rules = do
   --
   -- Compile each publication
   --
-  match pubPat $ compilePipeline $ loadAndApplyTemplate pubItemT pubContext
+  match pubPat
+    $ compilePipeline
+    $ loadAndApplyTemplate pubItemT pubContext
 
   --
   -- Categorise publications
@@ -138,7 +140,7 @@ downloads ident = do
   case srcs of
     [] -> return []
     _  -> do key <- getMetadataField' ident "key"
-             return $ intercalate ", " $ map (makeDownload key) srcs
+             return $ concatMap (makeDownload key) srcs
 
 
 localDownloads :: Identifier -> Rules [(Identifier, FilePath)]
@@ -149,7 +151,7 @@ localDownloads ident = do
     _  -> do key  <- getMetadataField' ident "key"
              path <- getMetadataField' ident "path"
              let identifierOf src = fromString $ "research/publication/"
-                                               </> key <.> takeExtension src
+                                    </> key <.> takeExtension src
                  pathOf      src = path </> src
                in return $ [ (identifierOf src, pathOf src) | src <- srcs]
 
@@ -157,16 +159,22 @@ allDownloads :: Rules [(Identifier, FilePath)]
 allDownloads =   getMatches pubPat
              >>= concatMapM localDownloads
   where concatMapM f = fmap concat . mapM f
+
 ------------------------ Helper functions ------------------------------
 
 makeDownload :: String -> String -> String
-makeDownload key src =  bracket extName
-                        ++ paren (unwords [url, show title])
+makeDownload key src =  li $ markdownLink extName url title
   where ext = takeExtension src
         extName = tail ext
         url     = "/research/publication" </> key <.> ext
         title   = "Download as " ++ extName
 
+li :: String -> String
+li = between "<li>" "</li>"
+
+markdownLink :: String -> String -> String -> String
+markdownLink txt url title = bracket txt
+                             ++ paren (unwords [url, show title])
 
 between :: String -> String -> String -> String
 between begin end str = begin ++ str ++ end
