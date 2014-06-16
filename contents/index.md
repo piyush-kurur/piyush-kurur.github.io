@@ -10,11 +10,7 @@ rss: /posts/feeds/rss.xml
 I work at the [Department of Computer Science and Engineering][cse],
 [IIT Kanpur][iitk]. I try to make sense of the complex world around us
 through the tools of computer science: algorithms, complexity and
-logic. My research interests are centred around algorithms and
-complexity. Specifically, I am interested in computational algebra,
-quantum computation computational number theory. Recently, I have
-been interested in functional programming and type theory.
-
+logic.
 
 # Recent posts
 
