@@ -1,6 +1,6 @@
 ---
 title: Fast integer multiplication using modular arithmetic.
-authors: [Anindya De], Piyush P Kurur, [Chandan Saha] and [Ramprasad Saptharishi],
+authors: [Anindya De], [Piyush P Kurur], [Chandan Saha] and [Ramprasad Saptharishi],
 details: In the 40th ACM [Symposium on Theory of Computing][stoc] (STOC),
          pages 499--506,
 key: DKSS2008
