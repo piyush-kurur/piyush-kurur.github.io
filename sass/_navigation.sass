@@ -1,10 +1,6 @@
 .navigation
   background: $navigation-background
   color: $navigation-color
-  position: fixed
-  left: 0
-  right: 0
-  top: 0
   padding:
     left: 1em
     bottom: 1em
@@ -13,23 +9,13 @@
     color: $border
     width: 1px
 
+  a
+    +link-colors($navigation-item-color, $hover: $navigation-hover-color)
 
   ul
     +no-bullets
-    +horizontal-list
-
+    +horizontal-list-container
     li
-      padding-left: 0.5em
-      .nav-text
-        display: none
-
+      +horizontal-list-item($direction: right)
     li:first-child
-      padding-left: 0
-
-    li:nth-last-child(2)
-      float: right
-    li:last-child
-      float: right
-
-  a
-    +link-colors($navigation-item-color, $hover: $navigation-hover-color)
+      +horizontal-list-item($direction: left)

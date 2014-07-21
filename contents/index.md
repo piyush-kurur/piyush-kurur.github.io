@@ -12,14 +12,19 @@ I work at the [Department of Computer Science and Engineering][cse],
 through the tools of computer science: algorithms, complexity and
 logic.
 
-# Recent posts
+* [Research and publications page](/research/).
+
+* [Teaching](/teaching/)
+
+* [Software](/software/).
+
+
+# Recent blog posts
 
 $for(posts)$
 * [$title$]($url$) - $date$
 $endfor$
 * [<i class="fa fa-archive"></i>Archives](/posts/archive/)
-
-
 
 [Quantum computing]:
 	</teaching/Quantum-computing/index.html>

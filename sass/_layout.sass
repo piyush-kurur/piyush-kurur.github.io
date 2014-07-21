@@ -3,23 +3,30 @@
 
 // Layout configuration
 
-$total-columns: 12
+$about: 5
+$pages: 4
+$total-columns: $about + $pages
+
 $length: 90%
-$column-width: 4em
+$column-width: 5em
 $gutter-width: 1em
 $grid-padding: $gutter-width
 
 +sticky-footer(3em, "#root", "#powered-by-footer", "#powered-by")
 
+.navigation
+  +container
+  position: fixed
+  left: 0
+  right: 0
+  top: 0
+
 .page
   +container
   .header
     +span-columns($total-columns)
-  .content
-    +span-columns($total-columns)
-    .post
-      +span-columns($total-columns)
-
+  .main-content
+    +container
 
 .blog-nav
   ul
