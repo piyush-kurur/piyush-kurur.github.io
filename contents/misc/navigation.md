@@ -1,9 +1,9 @@
 
 <!-- Add your navigation menu here !-->
 
-* [<i class="fa fa-home  "></i>][Home]
-* [<i class="fa fa-rss  "></i>](/posts/feeds/atom.xml)
-* [<i class="fa fa-envelope  "></i>][Contact]
+* [<i class="fa fa-home"></i>][Home]
+* [<i class="fa fa-rss"></i>](/posts/feeds/atom.xml)
+* [<i class="fa fa-envelope"></i>][Contact]
 
 <!--
 
@@ -16,4 +16,4 @@
 [Research]: </research/>       "Research"
 [Teaching]: </teaching/>       "Teaching"
 [Software]: </software/>       "Software"
-[Contact]:  </contact/>         "Contact"
+[Contact]:  </contact/>        "Contact"
