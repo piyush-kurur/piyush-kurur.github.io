@@ -173,6 +173,22 @@ need to look at richer and richer types and that is what we would be
 doing. We make some modest enriching in this post and leave the rest
 for future posts.
 
+## Introduction/Elimination rules.
+
+For the logical operator $→$, the **ABS** rule serves as the
+*introduction* rule as its post-condition is an implication. Any proof
+of a formula that is essentially an implication therefore would have
+**ABS** as its last step. On the other hand **APP** serves the dual
+purpose. It is the *elimination* rule for the operator $→$.  You may
+think of **VAR** rules as both an introduction as well as an
+elimination rule (it introduces nothing and eliminates nothing). This
+style of presentation of logical rules is due to Gentzen and plays an
+important role in designing type theoretic systems. The introduction
+rules gives ways to "construct" objects of a given type and
+elimination rules gives ways to "use" the objects in expressions. All
+other operators that we introduce here will also have introduction and
+elimination rules.
+
 # The operators $∨$ and $∧$.
 
 We would like our logic to have the conjunctions and disjunctions. At
@@ -188,17 +204,17 @@ respectively. For conjunctions, we introduce the primitive $(.,.)$
 that pairs up two expressions to give a new expression. A value of
 type $τ_1 ∨ τ_2$ can be created in two ways: by applying the
 *constructor* $\mathbf{inl}$ on a value of type $τ_1$ or by applying
-the constructor $\mathbf{inr}$ on a value of type $τ_2$. The
-corresponding inference rules are:
-
-**CONJ**
-	: $$ \frac{Γ ⊢ e_1 : τ_1;\; Γ ⊢ e_2 : τ_2}
-		{Γ ⊢ (e_1,e_2) : τ_1 ∧ τ_2}.$$
+the constructor $\mathbf{inr}$ on a value of type $τ_2$. These give
+the required introduction rules for the logical operators $∧$ and
+$∨$:
 
 **DISJ**
 	: $$ \frac{Γ ⊢ e : τ_1}{Γ ⊢ \mathbf{inl}\; e \;: τ_1 ∨ τ_2},$$
 	$$ \frac{Γ ⊢ e : τ_2}{Γ ⊢ \mathbf{inr} \;e \;: τ_1 ∨ τ_2}.$$
 
+**CONJ**
+	: $$ \frac{Γ ⊢ e_1 : τ_1;\; Γ ⊢ e_2 : τ_2}
+		{Γ ⊢ (e_1,e_2) : τ_1 ∧ τ_2}.$$
 
 The justification of these rules from a proof theoretic point of view
 is that one can give a proof of $τ_1 ∧ τ_2$ by giving a *pair* of
@@ -208,20 +224,20 @@ either a proof of $τ_1$ or $τ_2$ except that we need to explicitly
 state which is the case by using the appropriate constructor
 $\mathbf{inl}$ or $\mathbf{inr}$.
 
-For taking apart a conjunction into its components we also assume that
-we are given two more primitive $\mathbf{fst}$ and $\mathbf{snd}$ with
-the additional rules.
+Next we give the elimination rule for $∧$. The corresponding language
+primitive that we need is the projection operators which we add as
+built in functions in our calculus.
 
 **PROJ**
 	: $$ \frac{Γ ⊢ e : τ_1 ∧ τ_2}{Γ ⊢ \mathbf{fst}\; e \; :\; τ_1},$$ $$
 	\frac{Γ ⊢ e : τ_1 ∧ τ_2}{Γ ⊢ \mathbf{snd}\;e \;:\; τ_2}.$$
 
-Similarly, to do case by case analysis, we would need the builtin
-$\mathbf{either}$
+Similarly, to obtain the elimination rules for $∨$, we add the
+function $\mathbf{either}$ that does case by case analysis.
 
 **CASE**
-	: $$ \frac{Γ ⊢ l : τ_1 → τ;\; Γ ⊢ r : τ_2 → τ}
-		{Γ ⊢ \mathbf{either}\;l\;r\;:\;τ_1 ∨ τ_2 → τ}.$$
+	: $$ \frac{Γ ⊢ e : τ_1 ∨ τ_2;\;Γ ⊢ l : τ_1 → τ;\; Γ ⊢ r : τ_2 → τ}
+		{Γ ⊢ \mathbf{either}\;l\;r\;e\;:τ}.$$
 
 
 We define the the type $σ ↔ τ$ of logical equivalence of $τ$ and $σ$
