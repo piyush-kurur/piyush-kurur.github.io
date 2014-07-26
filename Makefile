@@ -40,7 +40,10 @@ dist-clean: clean
 site: site.hs
 	ghc --make -Wall site.hs
 
-deploy: build
+deploy-cse: build
 	./site deploy
+deploy: deploy-cse deploy-extern
+
+deploy-extern: deploy-cse
 	export COMMIT=`git rev-list HEAD --max-count=1`;\
 	make -C ../piyush-kurur.github.com deploy
