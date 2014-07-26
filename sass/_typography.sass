@@ -30,10 +30,11 @@ html
   @include adjust-font-size-to(1.6 * $base-font-size)
 
 .header
+  font-family: $header-font
   color: $title-color
   margin-top: 2.5em
   text-align: center
-  @include adjust-font-size-to(2 * $base-font-size)
+  @include adjust-font-size-to(3 * $base-font-size)
   padding-bottom: 0.25em
   +single-text-shadow($hoff:2px, $voff:2px,$color: lighten($title-color,50%))
   border-bottom:
