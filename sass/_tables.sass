@@ -1,0 +1,19 @@
+$odd-row: darken($background, 1%)
+$even-row: lighten($background,1%)
+
+.zebra-table
+
+  +table-scaffolding
+
+  margin: 1em
+
+  td
+    padding: 1em
+
+  tr
+    &:hover
+      +single-box-shadow($color: darken($border,20%), $blur: 3px)
+
+  +outer-table-borders(1px,$border)
+  +inner-table-borders(1px,$border)
+  +alternating-rows-and-columns($odd-row, $even-row,0)
