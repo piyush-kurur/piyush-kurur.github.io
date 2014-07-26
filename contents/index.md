@@ -18,6 +18,9 @@ logic.
 
 * [Software](/software/).
 
+# Teaching this semester
+
+This semester I am teaching [Algorithms] (CS345).
 
 # Recent blog posts
 
@@ -25,7 +28,3 @@ $for(posts)$
 * [$title$]($url$) - $date$
 $endfor$
 * [<i class="fa fa-archive"></i>Archives](/posts/archive/)
-
-[Quantum computing]:
-	</teaching/Quantum-computing/index.html>
-	"Quantum computing"
