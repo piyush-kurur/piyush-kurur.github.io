@@ -1,14 +1,39 @@
 
 <!-- Global urls -->
 
+<!-- Course home pages -->
 
-[cse]: <http://cse.iitk.ac.in> "Department of Computer Science and Engineering"
+[Functional Programming]: </teaching/Functional-Programming/index.html>
+    "Functional Programming"
+
+[Computational number theory and algebra]:
+    </teaching/Computational-number-theory-and-algebra/index.html>
+    "Computational number theory and algebra"
+
+
+[Principles of Programming languages]:
+    </teaching/Principles-of-Programming-Languages/index.html>
+    "Principles of Programming languages"
+
+
+[Quantum Computing]:
+    </teaching/Quantum-computing/index.html>
+    "Quantum computing"
+
+[Algorithms]:
+   </teaching/Algorithms/index.html>
+   "Algorithms"
+
+[cse]: <http://cse.iitk.ac.in>
+       "Department of Computer Science and Engineering"
 [iitk]:  <http://www.iitk.ac.in> "IIT Kanpur"
-[imsc]: <http://www.imsc.res.in> "Institute of Mathematical Sciences, Chennai"
+[imsc]: <http://www.imsc.res.in>
+	"Institute of Mathematical Sciences, Chennai"
 
 <!-- My coding stuff   -->
 
-[raaz]: <http://github.com/piyush-kurur/raaz> "Raaz: A Cryptographic Network library for Haskell"
+[raaz]: <http://github.com/piyush-kurur/raaz>
+	"Raaz: A Cryptographic Network library for Haskell"
 
 <!-- Some websites -->
 
@@ -26,6 +51,7 @@
 [python]: <http://www.python.org>
 [ruby]: <http://www.ruby-lang.org>
 [java]: <http://en.wikipedia.org/wiki/Java_%28programming_language%29>
+
 <!-- Haskell packages  -->
 
 [attoparsec]:   <http://hackage.haskell.org/package/attoparsec>
@@ -80,8 +106,10 @@
 	"Tobias Friedrich"
 [Daniel Johannsen]: <http://www.danieljohannsen.net/>
 	"Daniel Johannsen"
-[Johannes Lengler]: <http://www.math.uni-sb.de/ag/gekeler/PERSONEN/Lengler/johannes.html>
-	  "Johannes Lengler"
+
+[Johannes Lengler]:
+   <http://www.math.uni-sb.de/ag/gekeler/PERSONEN/Lengler/johannes.html>
+  "Johannes Lengler"
 
 <!-- Conference/Journal links -->
 
