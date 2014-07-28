@@ -41,3 +41,9 @@ Course TAs    Abhra Dasgupta <abhra@cse>,
 -----------   ------------------------------------------------
 
 </div>
+
+
+# Books and reading material (will keep updating).
+
+1. Algorithms, Thomas H Cormen, Charles E. Leiserson, Ronald L. Rivest
+   Prentice-Hall India.
