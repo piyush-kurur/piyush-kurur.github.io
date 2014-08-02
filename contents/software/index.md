@@ -20,7 +20,6 @@ use it.
 The entire source code for this webpage is available at
 <http://github.com/piyush-kurur-pages/website>.
 
-[raaz]: <http://github.com/piyush-kurur/raaz>
 [indentparser]: <http://hub.darcs.net/ppk/indentparser>
 [make-ssl-server]: <http://hub.darcs.net/ppk/make-ssl-server>
 [make-ssl-server-ca]: <http://hub.darcs.net/ppk/make-ssl-server-ca>
