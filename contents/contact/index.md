@@ -3,7 +3,7 @@ title: Contact
 author: Piyush P Kurur
 ---
 
->  Room No 224,\
+>  502, Rajiv Motwani building\
 >  [Dept of Computer Science and Engg][cse]\
 >  [Indian Institute of Technology Kanpur][iitk]\
 >  Kanpur, UP, India,\
