@@ -32,11 +32,9 @@ Venue         RM 101 (New CSE building)
 
 Office hours  16:00-17:00 hrs Monday
 
-Course TAs    Abhra Dasgupta <abhra@cse>,
-              Anshu Avinash  <anshuavi@cse>,
+Course TAs    Anshu Avinash  <anshuavi@cse>,
               Abhimanyu Jaju <abhijaju@cse>,
               Jitendra Kumar Dhakar <jdhakar@cse>,
-              Gaganpreet Singh Kalra <gpskalra@cse>
 
 -----------   ------------------------------------------------
 
