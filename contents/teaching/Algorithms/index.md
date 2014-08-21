@@ -7,6 +7,10 @@ where will study some important algorithms and algorithmic techniques.
 
 # Assignments
 
+0. [Hello world][hello-world-assignment]. This assignment is ungraded
+   and is meant to familiarise yourselves with the programming judge.
+   Please make sure that you try it out.
+
 1. [Implementation of Minimum spanning tree algorithms.][mst-assignment]
    Uploading instructions and deadline will be decided shortly.
 
@@ -35,4 +39,6 @@ Course TAs    Anshu Avinash  <anshuavi@cse>,
 1. Algorithms, Thomas H Cormen, Charles E. Leiserson, Ronald L. Rivest
    Prentice-Hall India.
 
-[mst-assignment]: <https://github.com/piyush-kurur/algorithms/blob/master/assignments/mst.markdown> "Minimum spanning tree assignment."
+[mst-assignment]: <https://github.com/piyush-kurur/algorithms/blob/master/assignments/MST.markdown> "Minimum spanning tree assignment."
+
+[hello-world-assignment]: <https://github.com/piyush-kurur/algorithms/blob/master/assignments/HelloWorld.markdown> "Minimum spanning tree assignment."
