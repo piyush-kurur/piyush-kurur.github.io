@@ -29,6 +29,9 @@ Course TAs    Anshu Avinash  <anshuavi@cse>,
               Abhimanyu Jaju <abhijaju@cse>,
               Jitendra Kumar Dhakar <jdhakar@cse>,
 
+Programming   Pankaj Prateek <pratikkr@cse.iitk.ac.in>,
+Judge TAs     Harshvardhan Sharma <harsh@cse.iitk.ac.in>
+
 -----------   ------------------------------------------------
 
 </div>
