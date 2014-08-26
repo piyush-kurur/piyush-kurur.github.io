@@ -1,6 +1,7 @@
 ---
 title: Types, proofs and programming.
 tags: Type theory
+next: /posts/2013-11-04-Lambda-calculus.html
 ---
 
 For quite some time, I have been toying with the idea of trying to get

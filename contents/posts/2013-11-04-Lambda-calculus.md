@@ -1,6 +1,8 @@
 ---
 title: Lambda calculus
 tags: Type theory
+prev: /posts/2013-10-18-Type-theory-series.html
+next: /posts/2014-01-11-Typed-lambda-calculus.html
 ---
 
 We begin the exploration of type theory by describing lambda
