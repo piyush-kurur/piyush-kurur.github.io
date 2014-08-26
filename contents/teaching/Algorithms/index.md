@@ -12,7 +12,7 @@ where will study some important algorithms and algorithmic techniques.
    Please make sure that you try it out.
 
 1. [Implementation of Minimum spanning tree algorithms.][mst-assignment]
-   Uploading instructions and deadline will be decided shortly.
+   **Dead line September 5, 2014 (Friday)**
 
 # Some useful information.
 
