@@ -2,6 +2,7 @@
 title: Typed lambda calculus
 tags: Type theory
 prev: /posts/2013-11-04-Lambda-calculus.html
+next: /posts/2014-08-27-Dependent-Types.html
 ---
 
 ##In memory of [Sanjeev Kumar Aggarwal (ska)][ska].
