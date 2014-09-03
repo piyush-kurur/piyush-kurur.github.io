@@ -81,9 +81,12 @@ all proofs.
 
 1. [Lambda Calculus]
 2. [Typed lambda calculus]
+3. [Dependent Types]
 
 [lambda calculus]: </posts/2013-11-04-Lambda-calculus.html>
-[typed lambda calculus]: </posts/2014-01-11-Typed-lambda-calculus.html>
+[typed lambda calculus]:
+</posts/2014-01-11-Typed-lambda-calculus.html>
+[dependent types]: </posts/2014-08-27-Dependent-Types.html>
 
 [type theory]: </posts/tags/Type theory.html> "Posts on Type theory"
 [hott]: <http://homotopytypetheory.org> "Homotopic Type Theory"
