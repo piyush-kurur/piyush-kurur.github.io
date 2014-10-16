@@ -12,7 +12,10 @@ where will study some important algorithms and algorithmic techniques.
    Please make sure that you try it out.
 
 1. [Implementation of Minimum spanning tree algorithms.][mst-assignment]
-   **Dead line September 5, 2014 (Friday)**
+   **Deadline expired**
+
+2. [Max-flow and related problems.][flow-assignment]
+   **Due on November 2, 2014 (Sunday) at mid-night**
 
 # Some useful information.
 
@@ -45,3 +48,5 @@ Judge TAs     Harshvardhan Sharma <harsh@cse.iitk.ac.in>
 [mst-assignment]: <https://github.com/piyush-kurur/algorithms/blob/master/assignments/MST.markdown> "Minimum spanning tree assignment."
 
 [hello-world-assignment]: <https://github.com/piyush-kurur/algorithms/blob/master/assignments/HelloWorld.markdown> "Minimum spanning tree assignment."
+
+[flow-assignment]: <https://github.com/piyush-kurur/algorithms/blob/master/assignments/flow.markdown> "Max-flow and related problems."
