@@ -1,45 +1,44 @@
 # The targets that are provided by this makefile.
+# The hakyll targets.
+HAKYLL_TARGETS= watch build rebuild clean
+.PHONY: ${HAKYLL_TARGETS}
 
-# The webpage targets. They get activated only when the content
-# changes not when the compass files are tweaked or the hakyll source
-# changes.
-.PHONY: build	    # builds the webpage. This will *not* regenerate
-		    # the css files from the compass nor will it build
-		    # hakyll expecutable.
+# Compass targets.
+.PHONY: stylesheets stylesheets-clean stylesheets-rebuild
 
-.PHONY: deploy      # deploys the webpage
-.PHONY: clean       # cleans  the webpage
-.PHONY: rebuild     # rebuilds the webpage
+.PHONY: deploy deploy-cse deploy-extern     # deploys the webpage
 
-# Targets that build the hakyll source and compass files.
-.PHONY: stylesheets # compiles the compass files to css
-.PHONY: site        # compiles the actual hakyll executable.
-.PHONY: compile     # compiles stylesheets and site
 .PHONY: dist-clean  # cleans up every thing.
 
-build:
-	./site build
+# Rules for hakyll building.
 
-compile: stylesheets site
+build:   stylesheets
+rebuild: stylesheets-rebuild
+clean:   stylesheets-clean
 
+${HAKYLL_TARGETS}: site
+	./site $@
 
-rebuild:
-	./site rebuild
-
+# Rules for compass operations.
 stylesheets:
 	compass compile
 
-clean:  site
+stylesheets-clean:
 	compass clean
-	./site clean
+
+stylesheets-rebuild: stylesheets-clean stylesheets
+
 
 dist-clean: clean
+	compass clean
 	rm -f $(addprefix site, .o .hi)
 	rm -f site
 
 site: site.hs
 	ghc --make -Wall site.hs
 
+
+# Deployment Rules.
 deploy-cse: build
 	./site deploy
 deploy: deploy-cse deploy-extern
