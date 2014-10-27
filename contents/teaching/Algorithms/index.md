@@ -15,7 +15,7 @@ where will study some important algorithms and algorithmic techniques.
    **Deadline expired**
 
 2. [Max-flow and related problems.][flow-assignment]
-   **Due on November 2, 2014 (Sunday) at mid-night**
+   **Due on November 3, 2014 (Monday) at mid-night**
 
 # Some useful information.
 
