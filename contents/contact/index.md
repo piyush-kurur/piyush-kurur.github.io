@@ -35,8 +35,14 @@ seconds to read the following before hitting the the send button.
 
 ~~~
 
-4. Follow basic email etiquette: as far as possible plain text mails
-   and definitely not doc files, use inline style and no thread
-   hijacking
+4. Follow basic email etiquette: as far as possible please send only
+*plain text mails* and definitely not doc files. When replying please
+use *[wikipedia:Posting style#Interleaved style|inline style]()*. Also
+do not hijack threads by replying to old mails with subjects changed.
+Compose a new mail instead. Mail clients (except some stupid ones like
+the gmail webclient) figures out threads by looking at `In-Reply-To`
+field so your email then gets connected to a different thread.
+
+
 
 [whykick]: </posts/2012-02-20-Why-Kick-Elsevier.html>
