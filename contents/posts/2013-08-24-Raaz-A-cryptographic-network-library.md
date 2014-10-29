@@ -121,7 +121,7 @@ we will not be exposing the constructor to her.
 
 Currently we have just began. We have made no releases yet and we are
 still experimenting with the API. All code is available under BSD3
-license from <http://github.com/piyush-kurur/raaz>).
+license from <http://github.com/raaz-crypto/raaz>).
 
 I look forward to your contributions. Even if you are not comfortable
 with haskell, you can contribute. For example, if computer
