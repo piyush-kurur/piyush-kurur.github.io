@@ -1,5 +1,4 @@
 .navigation
-
   +adjust-font-size-to(1.1*$base-font-size)
   +single-text-shadow($hoff:2px, $voff:2px,$color: lighten($navigation-item-color, 15%))
   a
@@ -10,5 +9,6 @@
     +horizontal-list-container
     li
       +horizontal-list-item($direction: right)
+      padding: 0.5em
     li:first-child
       +horizontal-list-item($direction: left)
