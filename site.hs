@@ -22,6 +22,10 @@ rules = do
     route idRoute
     compile copyFileCompiler
 
+  match "images/*" $ do
+    route idRoute
+    compile copyFileCompiler
+
   match "font-awesome/font/*" $ do
     route idRoute
     compile copyFileCompiler
