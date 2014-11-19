@@ -1,15 +1,7 @@
 .navigation
-  // background: $navigation-background
-  +background-image(image-url($background-image-url))
-  color: $navigation-color
-  padding:
-    left: 1em
-    bottom: 1em
-  border-bottom:
-    style: solid
-    color: $border
-    width: 1px
 
+  +adjust-font-size-to(1.1*$base-font-size)
+  +single-text-shadow($hoff:2px, $voff:2px,$color: lighten($navigation-item-color, 15%))
   a
     +link-colors($navigation-item-color, $hover: $navigation-hover-color)
 
