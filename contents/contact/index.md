@@ -21,7 +21,6 @@ seconds to read the following before hitting the the send button.
    requests. I have pledged to [boycott Elsevier][whykick] and you
    might also want to join it at <http://thecostofknowledge.com>.
 
-
 3. Make sure you emails have valid from/reply-to and subject
    fields. Subjects should be brief. Students doing a course with me
    please mention the course number in the subject. Examples below.
@@ -40,7 +39,5 @@ do not hijack threads by replying to old mails with subjects changed.
 Compose a new mail instead. Mail clients (except some stupid ones like
 the gmail webclient) figures out threads by looking at `In-Reply-To`
 field so your email then gets connected to a different thread.
-
-
 
 [whykick]: </posts/2012-02-20-Why-Kick-Elsevier.html>
