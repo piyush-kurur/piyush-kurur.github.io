@@ -41,7 +41,6 @@ module Site.Publication
 
 import Control.Applicative
 import Control.Monad
-import Data.List(intercalate)
 import Data.Monoid
 import Data.String
 import Hakyll
