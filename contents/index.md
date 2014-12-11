@@ -8,8 +8,8 @@ rss: /posts/feeds/rss.xml
 # About me
 
 I work at the [Department of Computer Science and Engineering][cse],
-[IIT Kanpur][iitk]. I try to make sense of the complex world around us
-through the tools of computer science: algorithms, complexity and
+of [IIT Kanpur][iitk]. I try to make sense of the complex world around
+us through the tools of computer science: algorithms, complexity and
 logic.
 
 * [Research and publications page](/research/).
