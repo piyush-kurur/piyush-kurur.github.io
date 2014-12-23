@@ -19,4 +19,4 @@
 [Software]: </software/>       "Software"
 [Contact]:  </contact/>        "Contact"
 [github]: <https://github.com/piyush-kurur> "On GitHub"
-[bitbucket]: <https://bitbucket.org/piyush-kurur> "On GitHub"
+[bitbucket]: <https://bitbucket.org/piyush-kurur> "On BitBucket"
