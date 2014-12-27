@@ -54,8 +54,8 @@ be seen as the $Σ$-type $\Sigma_{a:A} P$ where $P$ is the type family
 that assigns $B$ to every $a$ in $A$. We can also define the ordinary
 sum type $A + B$ (or $A ∨ B$ in the [last post]) as the $Σ$-type
 $Σ_{x:𝔹} P$, $𝔹$ is the boolean type containing two values
-$\mathrm{True}$ and $\mathrm{False}$ and $P$ is the *type family* $λ x
-. if x then A else B$.
+$\mathrm{True}$ and $\mathrm{False}$ and $P$ is the type family $λ x
+. \mathbf{if}\; x\; \mathbf{then}\;A\;\mathbf{else}\;B$.
 
 The first component of any element $z$ of $Σ_{a:A} P(a)$ gives an
 element of $A$. For types $A$ that do not have any inhabitants, it is
@@ -119,20 +119,21 @@ type assumption. Thus our strategy of defining types independent of
 terms like in the [previous post] will not work; we need to define
 them hand in hand.
 
-The type assumptions themselves should now be an ordered sequence of
-assumptions of the form $x:A$ with the added restriction that any
-assumption $x:A$ in the sequence, all the variables that appear free
-in the type $A$ should themselves be defined previous assumptions in
-the sequence. As a result type assumption $Γ$ are no more sets but
-*ordered* sequences which we call *telescopes*. Finally, we can form
+The type assumptions themselves should now be an ordered sequence $Γ$
+of assumptions of the form $x:A$ with the added restriction that for
+any assumption $x:A$ in the sequence $Γ$, all the variables that
+appear free in the type $A$ should themselves be defined in previous
+assumptions of $Γ$. Therefore the order of the assumptions in $Γ$
+matters and they cannot be treated as mere sets. Such sequences will
+be called *telescopes* of type assumptions. Finally, we can form
 expressions like $λ x: A → e$ only if $A$ is known to be a valid type
 which in turn depends on the telescope that is effective at that
 context. The inference rules for dependently typed lambda calculus
-thus needs to define simultaneously what are the valid types, terms,
-telescopes and type judgements. This we capture via the following
+thus needs to define *simultaneously* what the valid types, terms,
+telescopes and type judgements are. This we capture via the following
 judgements.
 
-1. $e\;\mathbf{term}$ which asserts that e is a valid term,
+1. $e\;\mathbf{term}$ which asserts that $e$ is a valid term,
 
 2. $Γ\;\mathbf{telescope}$ which asserts that $\Gamma$ is a valid
    telescope,
