@@ -24,6 +24,10 @@
    </teaching/Algorithms/index.html>
    "Algorithms"
 
+[Tools for programming]:
+	</teaching/Tools-for-Programming/>
+	"Tools for computing"
+
 [cse]: <http://cse.iitk.ac.in>
        "Department of Computer Science and Engineering"
 [iitk]:  <http://www.iitk.ac.in> "IIT Kanpur"
@@ -37,6 +41,7 @@
 
 <!-- Some websites -->
 
+[bitbucket]: <http://bitbucket.org> "Bitbucket"
 [github]: <https://github.com> "Github"
 [travis]: <https://travis-ci.org> "Travis CI"
 
