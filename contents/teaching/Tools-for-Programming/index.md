@@ -31,6 +31,17 @@ CS251. The topics covered include.
 * Document preparation (LaTeX and friends)
 * Basics of secure communication (SSH and GPG).
 
+### Slides
+
+Here are the slides for some of the lectures. It uses [reveal.js] for
+presentation.  The key bindings for presentation are `PAGEDOWN/SPACE`
+for next `PAGEUP` for previous and `ESC` for overview
+
+1. [Getting started]
+
+
 [repo]: <https://bitbucket.org/ppk-teach/tools> "Course repository"
 [wiki]: <https://bitbucket.org/ppk-teach/tools/wiki/Home> "Course Wiki"
 [issues]: <https://bitbucket.org/ppk-teach/tools/issues> "Issue tracker"
+[getting started]: <./slides/GettingStarted.html>
+[reveal.js]: <http://lab.hakim.se/reveal-js/>
