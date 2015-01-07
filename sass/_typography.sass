@@ -74,18 +74,12 @@ h3
 
 p
   text-align: justify
-  text-indent: $paragraph-indent
   padding-top: $paragraph-extra-sep
 
-  // skip padding if it is the first paragraph in the box.
-  &:first-child
-    text-indent: 0px
-
-// Avoid paragraph indentation immediately after a heading
-
+// Ignore space just after headings.
 h1 + p, h2 + p, h3 + p
-  text-indent: 0px
   padding-top: 0px
+
 
 a
   +link-colors($link-color,$link-color,$link-color,$link-visited-color)
