@@ -3,10 +3,11 @@ title: Contact
 author: Piyush P Kurur
 ---
 
->  502, Rajiv Motwani building\
->  [Dept of Computer Science and Engg][cse]\
->  [Indian Institute of Technology Kanpur][iitk]\
->  Kanpur, UP, India,\
+502, Rajiv Motwani building\
+[Dept of Computer Science and Engg][cse]\
+[Indian Institute of Technology Kanpur][iitk]\
+Kanpur, UP, India,\
+
 
 # Before emailing me.
 
