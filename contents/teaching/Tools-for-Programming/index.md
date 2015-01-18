@@ -31,6 +31,12 @@ CS251. The topics covered include.
 * Document preparation (LaTeX and friends)
 * Basics of secure communication (SSH and GPG).
 
+## Assignment
+
+The list of assignment together with how to submit is available at
+
+<https://bitbucket.org/ppk-teach/tools/src/master/Assignments.md>
+
 ### Slides
 
 Here are the slides for some of the lectures. It uses [reveal.js] for
