@@ -46,11 +46,14 @@ for next `PAGEUP` for previous and `ESC` for overview
 1. [Getting started]
 2. [Document preparation using LaTeX][latex]
 3. [Using make]
+4. [Shell Programming]
 
 [repo]: <https://bitbucket.org/ppk-teach/tools> "Course repository"
 [wiki]: <https://bitbucket.org/ppk-teach/tools/wiki/Home> "Course Wiki"
 [issues]: <https://bitbucket.org/ppk-teach/tools/issues> "Issue tracker"
 [getting started]: <./slides/GettingStarted.html>
 [latex]: <./slides/DocumentsUsingLaTeX.html>
+
 [using make]: <./slides/UsingMake.html>
+[shell programming]: <./slides/ShellProgramming.html>
 [reveal.js]: <http://lab.hakim.se/reveal-js/>
