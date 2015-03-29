@@ -44,6 +44,7 @@ import Control.Monad
 import Data.Monoid
 import Data.String
 import Hakyll
+import System.Directory
 import System.FilePath
 
 import Site.Compilers
@@ -142,8 +143,10 @@ downloads ident = do
              return $ concatMap (makeDownload key) srcs
 
 
-localDownloads :: Identifier -> Rules [(Identifier, FilePath)]
-localDownloads ident = do
+localDownloads :: FilePath -- ^ Home directory
+               -> Identifier
+               -> Rules [(Identifier, FilePath)]
+localDownloads homeDir ident = do
   srcs <- sources ident
   case srcs of
     [] -> return []
@@ -151,12 +154,16 @@ localDownloads ident = do
              path <- getMetadataField' ident "path"
              let identifierOf src = fromString $ "research/publication/"
                                     </> key <.> takeExtension src
-                 pathOf      src = path </> src
+                 pathOf      src = attachHome homeDir (splitPath path) </> src
                in return $ [ (identifierOf src, pathOf src) | src <- srcs]
 
+attachHome :: FilePath -> [FilePath] -> FilePath
+attachHome homeDir ( "~/" : ps) = joinPath $ homeDir : ps
+attachHome _       paths        = joinPath $ paths
+
 allDownloads :: Rules [(Identifier, FilePath)]
-allDownloads =   getMatches pubPat
-             >>= concatMapM localDownloads
+allDownloads =  do homeDir <- preprocess $ getHomeDirectory
+                   getMatches pubPat >>= concatMapM (localDownloads homeDir)
   where concatMapM f = fmap concat . mapM f
 
 ------------------------ Helper functions ------------------------------
