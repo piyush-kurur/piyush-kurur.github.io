@@ -12,12 +12,14 @@ $column-width: 5em
 $gutter-width: 1em
 $grid-padding: $gutter-width
 
+$susy: ( columns: $total-columns, gutters: $gutter-width/ $column-width, column-width: $column-width)
+
 +sticky-footer(3em, "#root", "#powered-by-footer", "#powered-by")
 
 .page
   +container
   .header
-    +span-columns($total-columns)
+    +span($total-columns)
   .main-content
     +container
 
