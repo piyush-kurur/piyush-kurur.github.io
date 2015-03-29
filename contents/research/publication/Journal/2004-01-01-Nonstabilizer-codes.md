@@ -5,5 +5,5 @@ details: Quantum Information, Statistics and Probability, pages 1--29,
 arxiv: quant-ph/0210097
 key: APK2004
 sources: NonStab.ps NonStab.pdf NonStab.dvi cite.bib
-path: /home/ppk/tex/publication/all/nonstab
+path: ~/tex/publication/all/nonstab
 ---

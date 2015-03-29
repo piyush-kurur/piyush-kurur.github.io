@@ -5,5 +5,5 @@ details: In the 14th Annual International Symposium on Algorithms and Computatio
          (ISAAC), LNCS 2906, pages 716--725,
 key: AK2003
 sources: paper.dvi paper.pdf cite.bib
-path: /home/ppk/tex/publication/all/upperBounds/conference
+path: ~/tex/publication/all/upperBounds/conference
 ---

@@ -4,5 +4,5 @@ authors: [Anindya De], [Piyush P Kurur], [Chandan Saha] and [Ramprasad Saptharis
 details: SIAM Journal on Compution, 42(2), pages 685--699,
 key: DKSS2013
 sources: intMult.pdf intMult.dvi cite.bib
-path: /home/ppk/tex/publication/all/FastIntMul/journal
+path: ~/tex/publication/all/FastIntMul/journal
 ---

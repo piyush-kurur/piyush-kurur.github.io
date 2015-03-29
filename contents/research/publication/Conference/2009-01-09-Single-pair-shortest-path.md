@@ -7,5 +7,5 @@ details: In the [10th ACM Foundations of Genetic Algorithms][foga2009] (FOGA),
          pages 59-66.
 key: BBDFKN2009
 sources: SSSP.pdf SSSP.ps SSSP.dvi cite.bib
-path: /home/ppk/tex/publication/all/sssp/conference
+path: ~/tex/publication/all/sssp/conference
 ---

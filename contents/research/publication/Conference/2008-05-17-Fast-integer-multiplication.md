@@ -6,5 +6,5 @@ details: In the 40th ACM [Symposium on Theory of Computing][stoc] (STOC),
 key: DKSS2008
 sources: intMult.pdf intMult.dvi cite.bib
 arxiv: 0801.1416
-path: /home/ppk/tex/publication/all/FastIntMul/conference
+path: ~/tex/publication/all/FastIntMul/conference
 ---
