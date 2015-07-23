@@ -19,8 +19,8 @@ the tools of computer science: algorithms, complexity and logic.
 
 # Teaching this semester
 
-This semester I am teaching CS251, the first part of the
-*[Tools for programming]* aka *Computing Laboratory - I* course.
+This semester I am teaching [Functional Programming] and *[Tools for
+programming] season II* aka *Computing Laboratory - II* course.
 
 # Recent blog posts
 
