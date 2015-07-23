@@ -47,12 +47,18 @@ for next `PAGEUP` for previous and `ESC` for overview
 2. [Document preparation using LaTeX][latex]
 3. [Using make]
 4. [Shell Programming]
+5. [Basic Cryptography][crypto]
+6. [Graphviz and tikz for high quality pictures][pictures]
+7. [Styling websites using Sass and Compass][sass and compass]
 
 [repo]: <https://bitbucket.org/ppk-teach/tools> "Course repository"
 [wiki]: <https://bitbucket.org/ppk-teach/tools/wiki/Home> "Course Wiki"
 [issues]: <https://bitbucket.org/ppk-teach/tools/issues> "Issue tracker"
 [getting started]: <./slides/GettingStarted.html>
 [latex]: <./slides/DocumentsUsingLaTeX.html>
+[crypto]: <./slides/BasicCrypto.html>
+[pictures]: <slides/HighQualityPictures.html>
+[sass and compass]: <slides/SassAndCompass.html>
 
 [using make]: <./slides/UsingMake.html>
 [shell programming]: <./slides/ShellProgramming.html>
