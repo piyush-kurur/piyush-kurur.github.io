@@ -19,8 +19,8 @@ the tools of computer science: algorithms, complexity and logic.
 
 # Teaching this semester
 
-This semester I am teaching [Functional Programming] and *[Tools for
-programming] season II* aka *Computing Laboratory - II* course.
+This semester I am teaching [Programs, proofs and types][ppt].
+
 
 # Recent blog posts
 
@@ -28,3 +28,5 @@ $for(posts)$
 * [$title$]($url$) - $date$
 $endfor$
 * [<i class="fa fa-archive"></i>Archives](/posts/archive/)
+
+[ppt]: </teaching/Programs-Proofs-and-Types> "Programs, Proofs and Types"
