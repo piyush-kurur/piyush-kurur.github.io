@@ -32,6 +32,13 @@ We will be using [Haskell] as the programming language for this
 course. [Haskell] is the de facto standard when it comes to pure
 functional programming language.
 
+## Basic information
+
+* [Course repository][repository]
+* [Course wiki][wiki]
+* [Course issue tracker][issues]
+
+
 ## Tentative list of topics to be covered.
 
 * Basic types : integers characters strings lists
@@ -54,3 +61,8 @@ functional programming language.
 
 * [Darcs]  a version control system
 * [Xmonad] a window manager
+
+
+[repository]: <http://bitbucket.org/ppk-teach/functional-programming/>
+[wiki]: <http://bitbucket.org/ppk-teach/functional-programming/wiki>
+[issues]: <http://bitbucket.org/ppk-teach/functional-programming/issues>
