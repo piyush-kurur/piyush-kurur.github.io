@@ -16,7 +16,7 @@ seconds to read the following before hitting the the send button.
 
 1. No unsolicited emails. In particular, please do not invite me to
    join facebook, linkedin or whatever is the latest madness.  I have
-   *no interest* even if you are [wikipedia:Amitabh Bachan]()
+   *no interest* even if you are [wikipedia:Amitabh Bachchan]()
 
 2. Editors of Elsevier Journals, please *do not* send me referee
    requests. I have pledged to [boycott Elsevier][whykick] and you
