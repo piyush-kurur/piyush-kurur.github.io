@@ -1,7 +1,4 @@
 
-<!-- Global urls -->
-
-<!-- Course home pages -->
 
 [Functional Programming]: </teaching/Functional-Programming/index.html>
     "Functional Programming"
@@ -34,43 +31,42 @@
 [imsc]: <http://www.imsc.res.in>
 	"Institute of Mathematical Sciences, Chennai"
 
-<!-- My coding stuff   -->
 
 [raaz]: <http://github.com/raaz-crypto/raaz>
 	"Raaz: A Cryptographic Network library for Haskell"
 
-<!-- Some websites -->
+
 
 [bitbucket]: <http://bitbucket.org> "Bitbucket"
 [github]: <https://github.com> "Github"
 [travis]: <https://travis-ci.org> "Travis CI"
 
-<!-- Some distros -->
+
 
 [debian]: <http://www.debian.org> "Debian"
 [ubuntu]: <http://www.ubuntu.com> "Ubuntu"
 
-<!-- Other languages  -->
+
 
 [c]: <http://en.wikipedia.org/wiki/C_%28programming_language%29>
 [python]: <http://www.python.org>
 [ruby]: <http://www.ruby-lang.org>
 [java]: <http://en.wikipedia.org/wiki/Java_%28programming_language%29>
 
-<!-- Haskell packages  -->
+
 
 [attoparsec]:   <http://hackage.haskell.org/package/attoparsec>
 [binary]:       <http://hackage.haskell.org/package/binary>
 [blaze-builder]: <http://hackage.haskell.org/package/blaze-builder>
 
-<!-- Web stuff         -->
+
 
 [hakyll]:   <http://jaspervdj.be/hakyll/> "Hakyll"
 [compass]:  <http://compass-style.org> "Compass"
 [markdown]: <http://daringfireball.net/projects/markdown/> "Markdown"
 [sass]:     <http://sass-lang.com> "Sass"
 
-<!-- Haskell links     -->
+
 
 [realworld]: <http://book.realworldhaskell.org/read/>
           "Online edition of the book Real world haskell"
@@ -88,7 +84,6 @@
 [xmonad]: http://xmonad.org		   "XMonad"
 [ghc]:  http://haskell.org/haskellwiki/GHC "GHC"
 
-<!-- Co-authors         -->
 
 [Piyush P Kurur]: <http://cse.iitk.ac.in/users/ppk> "Piyush P Kurur"
 [Anindya De]: <http://www.cs.berkeley.edu/~anindya> "Anindya De"
@@ -116,7 +111,7 @@
    <http://www.math.uni-sb.de/ag/gekeler/PERSONEN/Lengler/johannes.html>
   "Johannes Lengler"
 
-<!-- Conference/Journal links -->
+
 
 [focs]: <http://ieee-focs.org> "IEEE FOCS"
 [ccc]: <http://computationalcomplexity.org>
