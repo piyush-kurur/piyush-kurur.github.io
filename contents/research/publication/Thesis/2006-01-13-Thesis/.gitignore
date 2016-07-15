@@ -1,0 +1,13 @@
+*.pdf
+*.dvi
+*.aux
+*.bbl
+*.blg
+*.idx
+*.ind
+*.ilg
+*.glo
+*.gls
+*.log
+*.toc
+auxfile
