@@ -44,9 +44,10 @@ import Control.Monad
 import Data.Monoid
 import Data.String
 import Hakyll
-import System.Directory
 import System.FilePath
+import System.Cmd
 
+import Site.Config
 import Site.Compilers
 import Site.RemoteFile
 
@@ -67,6 +68,7 @@ pubItemT = "templates/publication/item.md"
 
 rules :: Rules ()
 rules = do
+
   --
   -- Compile each publication
   --
@@ -90,12 +92,7 @@ rules = do
   --
   -- Local download sources
   --
-
-  do downloadItems <- allDownloads
-     forM_ downloadItems $ \ (ident, fp) -> do
-       create [ident] $ do
-         route idRoute
-         compile $ copyRemoteFileCompiler fp
+  getMatches pubPat >>= mapM_ buildDownloads
 
 ------------------- Contexts and Compilers -----------------------------
 
@@ -134,6 +131,7 @@ sources :: ( MonadMetadata m
         => Identifier -> m [String]
 sources ident = maybe [] words <$> getMetadataField ident "sources"
 
+-- Create the download list.
 downloads :: Identifier -> Compiler String
 downloads ident = do
   srcs <- sources ident
@@ -143,29 +141,41 @@ downloads ident = do
              return $ concatMap (makeDownload key) srcs
 
 
-localDownloads :: FilePath -- ^ Home directory
-               -> Identifier
+-- | Identifier and path for local download files.
+localDownloads :: Identifier
                -> Rules [(Identifier, FilePath)]
-localDownloads homeDir ident = do
+localDownloads ident = do
   srcs <- sources ident
   case srcs of
     [] -> return []
     _  -> do key  <- getMetadataField' ident "key"
-             path <- getMetadataField' ident "path"
              let identifierOf src = fromString $ "research/publication/"
                                     </> key <.> takeExtension src
-                 pathOf      src = attachHome homeDir (splitPath path) </> src
+                 pathOf      src = texSourceDir ident </> src
                in return $ [ (identifierOf src, pathOf src) | src <- srcs]
 
-attachHome :: FilePath -> [FilePath] -> FilePath
-attachHome homeDir ( "~/" : ps) = joinPath $ homeDir : ps
-attachHome _       paths        = joinPath $ paths
+texSourceDir  :: Identifier -> FilePath
+texSourceDir = dropExtension . toFilePath
 
-allDownloads :: Rules [(Identifier, FilePath)]
-allDownloads =  do homeDir <- preprocess $ getHomeDirectory
-                   getMatches pubPat >>= concatMapM (localDownloads homeDir)
-  where concatMapM f = fmap concat . mapM f
 
+
+runMake :: Identifier -> Rules ()
+runMake ident = preprocess $ void $ system $ unwords ["make", "-C", contentsDir </> texSourceDir ident, "all"]
+  
+-- | Build the local d
+buildDownloads :: Identifier -> Rules ()
+buildDownloads ident = do
+  runMake ident
+  localDownloads ident >>= mapM_ rulesDownloadItem
+  
+-- Rules for a local download
+rulesDownloadItem :: (Identifier, FilePath) -> Rules ()
+rulesDownloadItem (i,fp) = do
+  create [i] $ do
+    route idRoute
+    compile $ copyRemoteFileCompiler fp
+
+  
 ------------------------ Helper functions ------------------------------
 
 makeDownload :: String -> String -> String
