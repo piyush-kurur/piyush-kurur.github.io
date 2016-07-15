@@ -1,0 +1,859 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{algorithm2e}
+\usepackage{amssymb}
+%\pagestyle{empty}
+\newtheorem{theorem}{Theorem}[section]
+
+%\input{header}
+
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{observation}{Observation}[theorem]
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{problem}[theorem]{Problem}
+
+\newcommand{\FuncProblem}[3][]
+{
+        \begin{problem}#1 
+        \end{problem}
+        \begin{tabbing}
+        \ \ \ \ \={\bf Input:\ \=}#2\\
+        \ \ \ \ \={\bf Output:\ \=}#3 \\
+        \end{tabbing}
+}
+\newcommand{\DecProblem}[3][]
+{
+        \begin{problem}#1 
+        \end{problem}
+        \begin{tabbing}
+        \ \ \ \ \={\bf Input:\ \=}#2\\
+        \ \ \ \ \={\bf Question:\ \=}#3\\
+        \end{tabbing}
+}
+
+\newcommand {\ket} [1] {\ensuremath{\vert}{#1}\ensuremath{\rangle}}
+\newcommand {\bra} [1] {\ensuremath{\langle}{#1}\ensuremath{\vert}}
+\newcommand {\braket} [2]
+{\ensuremath{\langle}{#1}\ensuremath\,{\vert}\,{#2}\ensuremath{\rangle}}
+\newcommand {\norm} [1] {\ensuremath{\Vert}\,#1\,\ensuremath{\Vert}}
+\newcommand {\abs} [1] {\ensuremath{\vert \ }#1\ensuremath{\ \vert}}
+\newcommand {\card} [1] {\ensuremath{\vert }#1\ensuremath{\vert}}
+\newcommand{\Prob}[1]{\ensuremath{Prob[\ }#1\ensuremath{\ ]}}
+\newcommand {\proof}{{\bf Proof:\newline \indent}}
+
+%\input{complexityclass}
+%%
+%%      End of Header file
+%%
+
+\newcommand{\bproof}{\noindent{\it Proof}}
+\newcommand{\cproof}{\noindent{\it Proof of Claim}}
+\newcommand{\eproof}{\hspace*{\fill}$\rule{2mm}{2mm}$~~~~~\bigskip}
+\renewenvironment{proof}{\bproof. }{\eproof}
+\newenvironment{psketch}{\bproof~{\it Sketch}. }{\eproof}
+\newenvironment{claimproof}{\cproof. }{\hspace*{\fill}\vspace{5mm}}
+
+\newenvironment{remark}{\begin{trivlist}%
+\item[\hskip\labelsep{\bf Remark.}]~}{\end{trivlist}}
+
+\newcommand{\UP}{\mbox{\rm UP}}
+\newcommand{\PP}{\mbox{\rm PP}}
+\newcommand{\GapP}{\mbox{\rm GapP}}
+\newcommand{\NP}{\mbox{\rm NP}}
+\newcommand{\FP}{\mbox{\rm FP}}
+\newcommand{\coNP}{\mbox{\rm co-NP}}
+\newcommand{\ParityP}{\mbox{$\oplus$\rm P}}
+\newcommand{\ModkP}{\mbox{\rm Mod$_k$P}}
+\newcommand{\numP}{\mbox{\rm \#P}}
+\newcommand{\LWPP}{\mbox{\rm LWPP}}
+\newcommand{\UPSV}{\mbox{\rm UPSV}}
+\newcommand{\SPP}{\mbox{\rm SPP}}
+\newcommand{\AM}{\mbox{\rm AM}}
+\newcommand{\coAM}{\mbox{\rm coAM}}
+
+\newcommand{\CeqP}{\mbox{\rm C$_=$P}} 
+\newcommand{\gap}{\mbox{\it gap}}
+\newcommand{\BQP}{\mbox{\rm BQP}}
+\newcommand{\AWPP}{\mbox{\rm AWPP}}
+
+\newcommand{\Ints}{{\mathbb{Z}}}
+\newcommand{\GA}{{\rm{GA}}}
+\newcommand{\AUTO}{\mbox{\small\rm AUTO}}
+\newcommand{\FINDGROUP}{\mbox{\small\rm FIND{-}GROUP}}
+\newcommand{\HSP}{\mbox{\small\rm HSP}}
+\newcommand{\GI}{{\rm{GI}}}
+\newcommand{\CONJGP}{\mbox{\small\rm CONJ{-}GROUP}}
+\newcommand{\NORM}{\mbox{\small\rm NORM}}
+\newcommand{\TI}{{\rm{TI}}}
+\newcommand{\MEMB}{{\rm{MEMB}}}
+
+
+\newcommand{\TA}{{\tt{TA}}}
+\newcommand{\V}[1]{{\large \ensuremath{\mathcal{V}}}(#1)}
+\newcommand{\E}[1]{{\large \ensuremath{\mathcal{E}}}(#1)}
+\newcommand{\Graph}[1]{\ensuremath{\mathcal{G}_{#1}}}
+\newcommand{\Tour}[1]{\ensuremath{\mathcal{T}_{#1}}}
+\newcommand{\Sym}[1]{{\rm Sym(}#1{\bf )}}
+\newcommand{\sym}[1]{\ensuremath{\bf S_#1}}
+\newcommand {\Aut}[1]{{\rm Aut}({#1})}
+\newcommand{\lexleast}{{\rm{lex{-}least}}}
+\newcommand {\iso}{\ensuremath{\cong} }
+\newcommand {\niso}{\ensuremath{\ncong} }
+\renewcommand{\th}[1]{\ensuremath{#1^{th}}}
+
+\renewcommand{\angle}[1]{\langle #1\rangle}
+
+\title{{\bf Graph Isomorphism is in SPP}}
+
+\author{
+  V. Arvind  and Piyush P Kurur \\
+  Institute of Mathematical Sciences, C.I.T Campus\\ 
+  Chennai 600113, India\\
+  email: {\tt\{arvind,ppk\}@imsc.ernet.in}\\
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  We show that Graph Isomorphism is in the complexity class SPP, and
+  hence it is in $\ParityP$ (in fact, it is in $\ModkP$ for each
+  $k\geq 2$). We derive this result as a corollary of a more general
+  result: we show that a {\em generic problem} $\FINDGROUP$ has an
+  $\FP^{\SPP}$ algorithm.
+  
+  This general result has other consequences: for example, it follows
+  that the {\em hidden subgroup problem} for permutation groups,
+  studied in the context of quantum algorithms, has an $\FP^{\SPP}$
+  algorithm. Also, some other algorithmic problems over permutation
+  groups known to be at least as hard as Graph Isomorphism (e.g.\ 
+  coset intersection) are in $\SPP$, and thus in $\ModkP$ for each
+  $k\geq 2$.
+\end{abstract}
+
+\section{Introduction}
+
+The Graph Isomorphism problem ---of testing if two graphs are
+isomorphic--- is a well-studied algorithmic problem in the class NP.
+Formally, the decision problem $\GI$ can be defined as:
+\begin{eqnarray*}
+\GI=\{\angle{X_1,X_2}\mid X_1\mbox{ and }X_2\mbox{ are isomorphic}\\
+\mbox{ graphs}\}. 
+\end{eqnarray*}
+Graph Isomorphism has attracted a lot of research because there is no
+known polynomial-time algorithm for it and on the other hand there is
+strong evidence that it is not $\NP$-complete. In~\cite{boppana87does}
+it was shown that Graph Nonisomorphism is in AM implying that GI is in
+$\NP\cap\coAM$. It follows that GI cannot be NP-complete unless the
+polynomial hierarchy collapses to
+$\Sigma^p_2$~\cite{boppana87does,schoning87graph}. Sch\"oning, who
+introduced the notion of lowness in complexity theory, pointed out in
+\cite{schoning87graph} that GI is {\em low\/} for $\Sigma^p_2$.  I.e.\ 
+GI is powerless as oracle for $\Sigma^p_2$.
+
+Subsequently, it was shown in~\cite{kobler92graph} that GI is also
+{\em low\/} for the class PP (the language class corresponding to
+$\numP$). This result is proven using the machinery of $\GapP$
+functions introduced in the seminal paper of
+\cite{fenner91gapdefinable}. In \cite{fenner91gapdefinable} the
+languages classes $\SPP$ and $\LWPP$ are introduced as generalizations
+of Valiant's class $\UP$. It is shown in \cite{fenner91gapdefinable}
+that $\UP\subseteq\SPP\subseteq\LWPP$, and $\LWPP$ is low for $\PP$.
+
+$\SPP$ is perhaps the most important and natural of the counting
+classes. It is known that $\SPP$ is in and low for the classes
+$\ParityP$, $\CeqP$, $\PP$ etc. $\SPP$ has a host of other nice
+properties as well (see \cite{fenner91gapdefinable} for details). For
+instance, \SPP\ is characterized exactly as the class of languages low
+for $\GapP$. In summary, \SPP\ can be seen as the $\GapP$ analogue of
+$\UP$. In \cite{fenner91gapdefinable} it is also shown that SPP is the
+{\em smallest} reasonable gap-definable class.
+
+Coming back to \cite{kobler92graph}, the result that GI is low for
+$\PP$ is shown in that paper by proving that $\GI$ is in $\LWPP$. It
+is also shown in \cite{kobler92graph} that $\GA$ (testing if a given
+graph has a nontrivial graph automorphism) is in $\SPP$. It is known
+that $\GA$ is polynomial-time reducible to $\GI$, but the converse is
+open.
+
+\subsection{ Summary of new results}
+
+In this paper, we show that $\GI$ is in the class $\SPP$. This was
+left as an open question in \cite{kobler92graph} (also see 
+\cite{fenner91gapdefinable}).
+
+As a consequence it follows that $\GI$ is in and low for $\ParityP$
+(in fact, $\GI\in\ModkP$ for each $k\geq 2$), $\CeqP$ etc. Previously,
+only a special case of Graph Isomorphism, namely Tournament
+Isomorphism, was known to be in $\ParityP$.\footnote{Tournament
+  Isomorphism in $\ParityP$ follows because any tournament has an odd
+  number of automorphisms. There are special cases of Graph
+  Isomorphism, e.g.\ Graph Isomorphism for bounded-degree graphs or
+  bounded genus graphs, that have polynomial-time algorithms.}
+
+What we prove is a more general result: we show that a generic problem
+$\FINDGROUP$ is in $\FP^{\SPP}$ as a consequence of which $\GI$ and
+some other algorithmic problems on permutation groups that are not
+known to have polynomial-time algorithms also turn out to be in
+$\SPP$. In particular, as another corollary, we show that the hidden
+subgroup problem (\HSP) over permutation groups is in $\FP^{\SPP}$.
+The hidden subgroup problem is of interest in the area of quantum
+algorithms.
+
+%The plan of the paper is as follows: in the next section we explain
+%notation and give preliminary definitions and results. In Sections 3
+%and 4 we prove our main result that there is an $\FP^{\SPP}$ algorithm
+%for the $\FINDGROUP$ problem and derive as corollary that GI is in
+%SPP.  In Section 5 we give further applications of the main result to
+%other permutation group problems. Finally, we state some open
+%problems.
+
+\section{Preliminaries and Notation}\label{defs}
+
+Let $\Sigma=\{0,1\}$ be the finite alphabet. Let $\log$ denote
+logarithm to base 2.  Let FP denote the class of polynomial-time
+computable functions and NP denotes all languages accepted by
+polynomial-time nondeterministic Turing machines.
+
+Let $\Ints$ denotes the set of integers. A function
+$f:\Sigma^*\rightarrow\Ints$ is said to be {\em gap-definable} if
+there is an NP machine $M$ such that, for each $x\in\Sigma^*$, $f(x)$
+is the difference between the number of accepting paths and the number
+of rejecting paths of $M$ on input $x$. Let GapP denote the class of
+gap-definable functions~\cite{fenner91gapdefinable}. For each NP
+machine $M$ let $\gap_M$ denote the GapP function defined by it. The
+language class PP is defined as follows: $L$ is in PP if there is an
+$f\in\GapP$ such that $x\in L$ if and only if $f(x)>0$.
+
+The language classes UP, SPP and LWPP are defined using GapP
+functions~\cite{fenner91gapdefinable}. $L$ is in UP if there is an NP machine 
+$M$ accepting $L$ such that $M$ has at most one accepting path on any
+input. $L$ is in $\SPP$ if there is an NP machine $M$ such that $x\in
+L$ implies that $\gap_M(x)=1$, and $x\not\in L$ implies that
+$\gap_M(x)=0$. $L$ is in $\LWPP$ if there are an NP machine $M$ and
+$h\in\FP$ such that $x\in L$ implies that $\gap_M(x)=h(0^{|x|})$, and
+$x\not\in L$ implies that $\gap_M(x)=0$. For $L\in\SPP$ (or in LWPP)
+we say that the language $L$ is {\em accepted} by the machine $M$. The
+containments $\UP\subseteq\SPP\subseteq\LWPP$ is shown in 
+\cite{fenner91gapdefinable}.
+
+We say that $f$ is in $\GapP^A$, for oracle $A \subseteq \Sigma^*$, if
+there is an $\NP^A$ machine $M^A$ such that, for each $x\in\Sigma^*$,
+$f(x)$ is the difference between the number of accepting paths and the
+number of rejecting paths of $M^A$ on input $x$. For any oracle $A$,
+we can define the standard relativized classes $\UP^A$, $\SPP^A$, and
+$\LWPP^A$ and we can easily see the containments
+$\UP^A\subseteq\SPP^A\subseteq\LWPP^A$ for any oracle $A$.
+
+We say that $A \subseteq \Sigma^*$ is {\em low} for $\PP$ if
+$\PP^A=\PP$.  In~\cite{fenner91gapdefinable} it is shown that every
+language in $\LWPP$ is low for PP.
+
+Similarly, we say that $A \subseteq \Sigma^*$ is {\em low} for $\GapP$
+if $\GapP^A=\GapP$. Again, it is shown in \cite{fenner91gapdefinable}
+that $A$ is low for $\GapP$ if and only if $A\in\SPP$.
+
+Let $M$ be an oracle NP machine, let $A\in\NP$ be accepted by an NP
+machine $N$. We say that $M^A$ makes {\em UP-like queries} to $A$ if
+on all inputs $x$, $M^A(x)$ makes {\em only} such queries $y$ for
+which $N(y)$ has {\em at most} one accepting path.  Effectively, it is
+like $M$ having access to a UP oracle. We state a useful variant of a
+result from \cite{kobler92graph,gi-book}.
+
+\begin{theorem}[\cite{kobler92graph}]\label{KST-theorem}
+  Let $M$ be a nondeterministic polynomial-time oracle machine with
+  oracle $A\in\NP$ such that $M^A$ makes UP-like queries to $A$ then
+  the function $h(x)=\gap_{M^{A}}(x)$ is in $\GapP$.
+\end{theorem} 
+
+Next, we recall an important property of the class SPP shown in
+\cite{fenner91gapdefinable}.
+
+\begin{theorem}[\cite{fenner91gapdefinable}]\label{SPP-self-low}
+  If $L$ is in $\SPP^A$ for some oracle $A\in\SPP$ then $L\in\SPP$.
+  I.e.\ $\SPP^{\SPP}=\SPP$.
+\end{theorem}
+
+The following lemma, which is a straightforward consequence of
+Theorem~\ref{KST-theorem} and of Theorem~\ref{SPP-self-low}, is in a
+form useful for this paper.
+
+\begin{lemma}\label{KST-cor}\mbox{}
+\begin{itemize}
+\item Suppose $L$ is in $\SPP^A$ accepted by the nondeterministic
+  polynomial-time oracle machine $M^A$ with oracle $A\in\NP$ (i.e.\ 
+  $x\in L$ implies that $\gap_{M^A}(x)=1$, and $x\not\in L$ implies
+  that $\gap_{M^A}(x)=0$), such that the machine $M^A$ makes UP-like
+  queries to $A$, then $L$ is in $\SPP$.
+\item Suppose a function $f:\Sigma^*\rightarrow\Sigma^*$ is in $\FP^A$
+  (i.e.\ $f$ is computed by a polynomial-time oracle transducer $M^A$)
+  where $A\in\NP$, such that the machine $M^A$ makes UP-like queries
+  to $A$, then $f$ is in $\FP^{\SPP}$.
+\end{itemize}
+\end{lemma}
+
+\subsection{Permutation group preliminaries}
+
+In general, $\Sym\Omega$ denotes the symmetric group on the {\em
+  finite} set $\Omega$. A {\em permutation group} on $\Omega$ is a
+subgroup of $\Sym\Omega$. For $|\Omega|=n$, in this paper we let
+$\Omega=[n]$ and identify $\Sym\Omega$ with the group $S_n$ of all
+permutations on $[n]=\{1,2\ldots,n\}$.
+
+We use letters $g,h,\ldots,\sigma,\tau ,\pi,\dots$ with subscripts and
+superscripts to denote elements of $S_n$ and $i,j$ and $k$ for the
+elements of the set $\Omega=\{1,2\ldots,n\}$.  Subgroups (and in
+general subsets) of \Sym{$\Omega$} will be usually denoted by capital
+letters $A$, $G$, $H$ etc. We use the following notation which is
+standard in permutation group theory
+\cite{wielandt64finite,luks93permutation}.  Given $g\in S_n$ and
+$i\in[n]$, we denote by $i^g$ the image of $i$ under permutation $g$.
+The composition $g_1g_2$ of permutations $g_1, g_2\in S_n$ is defined
+{\em left to right}: i.e.\ applying $g_1$ first and then $g_2$. More
+precisely, $i^{g_1g_2}=(i^{g_1})^{g_2}$ for all $i\in[n]$.  For subset
+$A \subseteq S_n$ and $x \in \Omega$ we use $x^A$ to denote the set
+$\left\{ x^g | g \in A \right\}$. In particular if $A$ is a subgroup
+of $S_n$, $x^A$ is the orbit of $x$ under the action of $A$ on
+$\Omega$.
+
+For a subset $\Delta$ of $[n]$, let $G_{\Delta}$ denote the subgroup
+of $G$ that fixes each element of $\Delta$. In particular, if $G\leq
+S_n$ then for each $i\in[n]$, we let $G^{(i)}$ denote the subgroup
+$\{g\in G\mid j^g=j$ for each $j\in[i]\}$. $G^{(i)}$ is called the
+{\em pointwise stabilizer} of $[i]$ in $G$. 
+
+The identity permutation is denoted by $1$ (we use $1$ to denote the
+identity of all groups) and the subgroup consisting of only $1$ is
+denoted ${\bf 1}$. The permutation group {\em generated} by a subset $A$ of
+$S_n$ is the smallest subgroup of $S_n$ containing $A$ and is denoted
+$\angle{A}$. We assume that subgroups of $S_n$ are presented by
+generator sets. For a generator set $A\subseteq S_n$, each permutation
+$\psi\in A$ is a list of $n$ ordered pairs $\angle{i,j}\in[n]\times
+[n]$.
+
+For permutation groups $G$ and $H$, the expression $H\leq G$ means
+that $H$ is a subgroup of $G$ (not necessarily a proper subgroup). For
+$\varphi\in G$ the subset $H\varphi=\{\pi\varphi:\pi\in H\}$ of $G$ is
+a {\em right coset} of $H$ in $G$. Two right cosets of $H$ in $G$ are
+either disjoint or identical. Thus, the right cosets of $H$ in $G$
+form a partition of $G$ written as $G=H\varphi_1+H\varphi_2
++\dots+H\varphi_k$. Each right coset of $H$ has cardinality equal to
+$|H|$ and the set $\{\varphi_1,\varphi_2,\dots,\varphi_k\}$ is a set
+of coset representatives of $H$ in $G$.
+
+As developed by Sims~\cite{sims70computational}, pointwise stabilizers
+are fundamental in the design of algorithms for permutation group
+problems. The structure used is the chain of stabilizers subgroups in
+$G$ given by: ${\bf 1}=G^{(n)}\leq G^{(n-1)}\leq \dots \leq
+G^{(1)}\leq G^{(0)}=G.$ Let $C_i$ be a complete set of right coset
+representatives of $G^{(i)}$ in $G^{(i-1)}, 1\leq i\leq n$. Then
+$\bigcup_{i=1}^{n-1} C_i$ forms a generator set for $G$. Such a
+generator set is called a {\it strong generator set} for
+$G$~\cite{sims70computational,furst80polynomialtime}. Any $g\in G$
+has a unique factorization $g=g_1g_2\dots g_n$, with $g_i\in C_i$.
+
+We now recall two basic algorithmic results concerning permutation
+groups. Given as input the generator set $S$ for a permutation group
+$G\leq S_n$, the following two basic algorithmic tasks can be
+implemented in time polynomial in $n$ (see e.g.
+\cite{sims70computational,furst80polynomialtime} for these and other results 
+and \cite{luks93permutation,hoffmann82group} for a comprehensive treatment).
+  
+\begin{theorem}\label{perm-group-algos}\mbox{}
+\begin{enumerate}{}
+\item For each element $i\in[n]$ the orbit of $i$, defined as
+  $\{i^g\mid g\in G\}$, can be computed in polynomial time.
+\item The tower of subgroups ${\bf 1}=G^{(n)}\leq G^{(n-1)} \leq
+  \ldots \leq G^{(1)}\leq G$ can be computed in time polynomial in
+  $n$. (I.e.\ the right coset representative sets $C_i$ for the groups
+  $G^{(i)}$ in $G^{(i-1)}, 1\leq i\leq n$ can be computed in
+  polynomial time giving a strong generator set for each $G^{(i)}$
+  including $G$).
+%\item Given a polynomial-time membership test in a subgroup $H$ of
+%  $G$, where the index of $H$ in $G$ is polynomially bounded, the
+%  generator set of $H$ can be computed in polynomial time.
+\end{enumerate}
+\end{theorem}
+
+\section{Computing the least element of a right coset}
+      
+In this section we describe a simple polynomial-time algorithm that
+takes as input a permutation group $\angle{A}=G \leq S_n$ and a
+permutation $\sigma\in S_n$ and computes the lexicographically least
+element of the right coset $G \sigma$ of $G$ in $S_n$. Here, we use
+the standard lexicographic ordering of permutations in $S_n$ given by
+the ordering of the set $[n]=\{1,2,\ldots,n\}$. This algorithm is a
+crucial ingredient in the proof of the main theorem in the next
+section. 
+
+\begin{theorem}\label{lexleast}
+  There is a polynomial-time algorithm that takes as input a
+  permutation group $\angle{A}=G \leq S_n$ and a permutation
+  $\sigma\in S_n$ and computes the lexicographically least element of
+  the right coset $G \sigma$.
+\end{theorem}
+
+\begin{proof}
+
+ We describe the easy algorithm and then argue its correctness.
+
+\begin{algorithm}[H]
+        \caption{{\bf Lexicographically least in a Right Coset}}
+        %\SetLine
+        \KwIn{$G \leq S_n$, $\sigma \in S_n$}
+        \KwOut{Lexicographically least element in $G \sigma$}
+        Let $G^{(n)}\leq G^{(n-1)}\leq\ldots\leq G^{(1)}\leq G$ be 
+        the tower of subgroups of $G$ where, by 
+         Theorem~\ref{perm-group-algos}, the generator set for 
+        each $G^{(i)}$ and the strong generator set for $G$ can 
+        be computed in polynomial time\;
+        $\pi_0 = \sigma$\;
+        \For{ $i := 0$ \KwTo $n-1$ }
+        {
+                let $x := i+1$\;
+                find the element $y$ in $x^{G^{(i)}}$ such that
+                $y^{\pi_i}$ is minimum\;
+\{ This can be done in polynomial time as the entire orbit 
+$x^{G^{(i)}}$ of $x$ in $G^{(i)}$, which is a set of size at most $n-i$, 
+can be computed in polynomial time by applying 
+Theorem~\ref{perm-group-algos}, and finding the minimum in the orbit 
+takes linear time.\}\;
+                Let $g_i \in G^{(i)}$ be such that $x^{g_i} = y$\;
+                $\pi_{i+1} := g_i \pi_i$\;
+        }
+        \KwResult{$\pi_n$}
+\end{algorithm}
+
+Since $\pi_0 = \sigma$ and $G^{(n-1)} = \{ 1 \}$, it suffices to prove
+the following claim in order to show that the algorithm computes the
+lexicographically least element of $G\sigma$.
+
+\begin{claim}\label{claim1}
+  For all $0 \leq i <n-1$ the lexicographically least element of
+  $G^{(i)}\pi_i$ is in $G^{(i+1)} \pi_{i+1}$.
+\end{claim}
+
+\begin{claimproof}
+  Let $x^H$ denote the orbit of any point $x\in[n]$ under the action
+  of $H\leq S_n$. By definition, $\pi_{i+1}=g_i\pi_i$, where $g_i$ is
+  in $G^{(i)}$ such that $g_i$ maps $i+1$ to $y\in (i+1)^{G^{(i)}}$
+  and such that $y^{\pi_i}=x$ is the minimum element in
+  $\{z^{\pi_i}\mid z\in (i+1)^{G^{(i)}}\}$.  Since $G^{(i)}$ fixes
+  each element in the set $[i]$ and since $g_i \in G^{(i)}$, we can
+  see that for every $1 \leq k \leq i$ , for each $g \in G^{(i)}$ and
+  $h \in G^{(i+1)}$, we have $ k^{h \pi_{i+1}} = k^{\pi_{i+1}} =
+  k^{g_i \pi_i} = k^{\pi_i} = k^{g \pi_i} $. In particular if $\rho$
+  is the lex-least element of $G^{(i)} \pi_i$, every element in
+  $G^{(i+1)} \pi_{i+1}$ agrees with $\rho$ on the first $i$ elements.
+  
+  Furthermore, for each $g\in G^{(i+1)}$ notice that $(i+1)^{g
+    \pi_{i+1}} = (i+1)^{\pi_{i+1}} = (i+1)^{g_i \pi_i}=x$, where $x$
+  is defined above. It is clear that $G^{(i+1)}\pi_{i+1}$ is precisely
+  the subset of $G^{(i)}\pi_i$ each of whose elements maps $i+1$ to $x$.
+  Together with the fact that $(i+1)^\rho = x$ (by the lex-least
+  property of $\rho$), we get the desired conclusion.
+\end{claimproof}
+
+By induction and the above Claim it follows that the lex-least element
+of $G\sigma=G^{(0)}\pi_0$ is in $G^{(n)}\pi_n=\{\pi_n\}$. Hence $\pi_n$
+is the desired lex-least element of $G\sigma$.
+\end{proof}
+
+We can easily extend the above result to show the following.
+
+\begin{theorem}
+  There is a polynomial-time algorithm that takes as input a
+  permutation group $\angle{A}=G \leq S_n$ and two permutations $\tau,
+  \sigma\in S_n$, and computes the lexicographically least element of
+  $\tau G \sigma$.
+\end{theorem}
+
+\begin{remark}
+  The above theorem implies, in particular, that the lexicographically
+  least element of a left coset $\tau G$ can be computed in polynomial
+  time.
+\end{remark}
+
+\section{Graph Isomorphism in SPP}
+
+We are ready to prove the main theorem of the paper. Recall that the
+Graph Isomorphism problem is the following decision problem:
+$\GI=\{(X_1,X_2)\mid X_1$ and $X_2$ are isomorphic$\}$. A related
+problem is $\AUTO$ which is a functional problem: given a graph $X$ as
+input the problem is to output a strong generator set for $\Aut X$.
+It is well-known from the result of Mathon \cite{mathon79anote} (see
+e.g.  \cite{gi-book}) that \GI\ and \AUTO\ are polynomial-time Turing
+equivalent.
+
+Thus, in order to show that $\GI\in\SPP$ it suffices to show that
+$\AUTO\in\FP^{\SPP}$. In other words, it suffices to show that there
+is a deterministic polynomial-time Turing machine $M$ with oracle
+$A\in\SPP$ that takes a graph $X$ as input and outputs a strong
+generator set for $\Aut X$.
+
+We observe here that the problem \AUTO\ itself is one among a class of
+problems, each of which we will show is in $\FP^{\SPP}$ by giving such
+an algorithm for the following {\em generic} problem $\FINDGROUP$
+which we formally describe below:
+
+To each instance $\angle{x,0^n}$ of $\FINDGROUP$ there is associated
+an unknown subgroup $G_x\leq S_n$ for which there is polynomial time
+membership test. More precisely, a polynomial-time function
+$\MEMB(x,g)$ is given, that takes $x$ and $g\in S_n$ as input and
+evaluates to {\bf true} if and only if $g\in G_x$.  The $\FINDGROUP$
+problem is to compute a strong generator set for $G_x$ given
+$\angle{x,0^n}$ as input.
+
+Notice that $\AUTO$ is an example of the generic $\FINDGROUP$ problem,
+as checking whether $g\in S_n$ is an automorphism of a graph $X$ on
+$n$ nodes can be done in time polynomial in $n$.
+
+\begin{remark}
+  The advantage of solving the generic problem $\FINDGROUP$ is that it
+  allows us to show at one stroke that several group-theoretic
+  problems apart from \GI\ are all in SPP. In particular, as a
+  corollary to Theorem~\ref{maintheorem} we will show in the next
+  section that the hidden subgroup problem (of interest in quantum
+  computing) in the case of permutation groups is also in the class
+  $\FP^{\SPP}$.
+\end{remark}
+
+\begin{theorem}\label{maintheorem}
+  There is an $\FP^{\SPP}$ algorithm for the $\FINDGROUP$ problem.
+\end{theorem}
+
+\begin{proof} 
+  Let $\angle{x,0^n}$ be an input instance of $\FINDGROUP$. The goal
+  is to compute a strong generator set for $G_x\leq S_n$ using \MEMB\ 
+  as subroutine. As we have fixed the input, we will sometimes drop
+  the subscript and write $G$ instead of the group $G_x$.
+  
+  Our goal is to design an $\FP^{\SPP}$ algorithm for finding the
+  coset representatives of $G^{(i)}$ in $G^{(i-1)}$ for each $i$ in the
+  tower of subgroups ${\bf 1}=G^{(n-1)}\leq G^{(n-2)}\leq\ldots\leq
+  G^{(1)}\leq G^{(0)}=G$. Starting with $G^{(n-1)}$, which is trivial, the
+  algorithm will build a strong generator set for $G^{(i)}$ in decreasing
+  order of $i$ until finally it computes a strong generator set for
+  $G^{(0)}=G$. Thus, it suffices to describe how the algorithm will
+  compute the coset representatives of $G^{(i)}$ in $G^{(i-1)}$ assuming
+  that a strong generator set for $G^{(i)}$ is already computed.
+  To this end we first define a language:\\
+
+\newpage
+\noindent $L = \{\angle{x,0^n,S,i,j,\pi}\mid \pi$ is a partial
+  permutation that pointwise fixes $1,\ldots,i-1$ and maps 
+$i \textrm{ to } j, S\subseteq G_x, \mbox{ and } \angle{S}$ 
+  pointwise fixes $ [i]$,  and $ \exists~g\in G_x^{(i-1)}$
+  such that  $i^g=j,\lexleast(\angle{S}g)$ and
+  extends $\pi\}$.
+
+%\end{eqnarray*}
+
+Here, we use $\lexleast(Hg)$ for a group $H$ to denote the
+  lexicographically least permutation in the coset $Hg$.
+    
+  Partial permutation $\pi$ is part of instance
+  $\angle{x,0^n,S,i,j,\pi}$, as we will be using $L$ as oracle to do a
+  prefix search for the lexicographically least $g\in G^{(i-1)}$ such
+  that $i^g=j$. We now describe an NP machine $N$ that accepts $L$.
+
+\begin{algorithm}[H]
+        %\SetLine
+        { Description of Machine $N$ }\;
+        \KwIn{ $\angle{x,0^n,S,i,j,\pi}$ }
+        Verify using \MEMB\ that $S\subseteq G^{(i)}$\;
+        Guess $g \in S_n$\;
+        \If{$g\in G^{(i-1)}$ and $i^g=j$ and $g$ extends $\pi$
+        and $g = \lexleast(\angle{S}g)$}
+        { ACCEPT \; }
+        \Else{ REJECT \; }
+\end{algorithm}
+
+Clearly, $N$ is an NP machine that accepts $L$. The crucial point is
+that if $i^g=j$ then for every element $h\in\angle{S}g$, $i^h=j$.
+Also, using the algorithm in Theorem~\ref{lexleast} the
+lexicographically least element of $\angle{S}g$ can be computed in
+polynomial time.
+
+\begin{claim}\label{claim2}
+  If $\angle{S}=G^{(i)}$ then the number of accepting paths of $N$ on
+  input $\angle{x,0^n,S,i,j,\pi}$ is either $0$ or $1$. In general, on
+  input $\angle{x,0^n,S,i,j,\pi}$, $N$ has either $0$ or
+  $\frac{|G^{(i)}|}{|\angle{S}|}$.
+\end{claim}
+
+\claimproof {Suppose $\angle{x,0^n,S,i,j,\pi}$ is in $L$ and
+  $\angle{S}=G^{(i)}$. Notice that if for some $g\in G^{(i-1)}$ we
+  have $i^g=j$ (for $j>i$), then $\angle{S}g$ consists of all elements
+  in $G^{(i-1)}$ that map $i$ to $j$. Thus the only guessed element
+  $g\in S_n$ by the machine $N$ that leads to acceptance corresponds
+  to the unique lexicographically least element of $\angle{S}g$.
+  
+  On the other hand, if $\angle{S}$ is a proper subgroup of $G^{(i)}$ then
+  we can easily see that $G^{(i)}g$ can be written as a disjoint union of
+  $|G^{(i)}|/|\angle{S}|$ many right cosets of $\angle{S}$. Thus, in
+  general $N$ would have $|G^{(i)}|/|\angle{S}|$ many accepting paths if
+  $\angle{x,0^n,S,i,j,\pi}$ is in $L$.}
+
+We are now ready to describe an $\FP^L$ algorithm for $\FINDGROUP$.
+The algorithm is designed in a way that it will query $L$ for some
+$\angle{x,0^n,S,i,j,\pi}$ {\em only if} $\angle{S}=G^{(i)}$, thereby
+ensuring that it makes only UP-like queries to $L$. Finally, by
+Lemma~\ref{KST-cor} we can convert this algorithm to an $\FP^{\SPP}$
+algorithm.
+  
+\begin{algorithm}[H]
+%  \SetLine 
+   \SetKw{KwDownTo}{down to}
+        \caption{$\FP^L$ algorithm CONSTRUCT($\angle{x,0^n}$)}
+        $C_i := \emptyset$ for every $0 \leq i \leq n-2$\;
+        \{$C_i$ will finally be a complete set of coset representatives of 
+         $G^{(i+1)}$ in $G^{(i)}$.
+        \}      \\
+        $D_i := \emptyset$ for every $0 \leq i \leq n-2$\;
+        $D_{n-1}=1$\;
+        \{$D_i$ will finally be a strong generator set for $G^{(i)}$
+        for each $i$.
+        \}      \\
+        \For{$i := n - 1$ \KwDownTo $1$}
+        {
+          \{ $D_i$ is already computed at the beginning of the $\th{i}$ 
+          iteration 
+         and at the end of the $\th{i}$ iteration we have $D_{i-1}$ 
+         \} \\
+                Let $\pi:[i-1] \rightarrow [n]$ be the partial 
+                permutation that fixes all elements from $1$ to $i-1$ \\
+               \{ in case $i = 1$ this is the everywhere undefined
+               partial permutation \}\\
+                \For{ $j := i+1$ \KwTo $n$}
+                {
+                        $\pi' := \pi[i := j]$\;
+                        \If{$\angle{x,0^n,D_i,i,j,\pi'} \in L$}
+                        {       
+                                \{
+                                   There is an element in $G^{(i-1)}$ 
+                                    that maps $i$ to $j$.
+                                    We will find it by a prefix search that
+                                    extends the partial permutation $\pi'$\\
+                                \}
+
+                                \For{$k := i+1$ \KwTo $n$}
+                                {
+                                   find the element $l$ not in the 
+                                   range of $\pi'$ such that\\
+                                $\angle{x,0^n,D_{i},i,j,\pi'[ k := l]} \in L$\;
+                                $\pi' := \pi'[ k := l ]$\;
+                                }
+                                \{ At this point $\pi'$ will be a 
+                                permutation in $S_n$\}\\
+                                $C_{i-1}:= C_{i-1} \cup \{\pi'\}$;
+                        }
+                }
+
+               \{ At this point $C_{i-1}$ is a complete set of coset
+                representatives of $G^{(i)}$ in $G^{(i-1)}$\}\\
+                $D_{i-1} = D_i \cup C_{i-1}$
+        }
+\KwResult{$D_0$}
+\end{algorithm}
+        
+We claim that a call to the $\FP^L$ algorithm
+CONSTRUCT($\angle{x,0^n}$) outputs a strong generator set $D_0$ for
+the group $G=G_x$. We show this by induction. Initially, $D_{n-1}=1$
+clearly generates $G^{(n-1)}={\bf 1}$. Suppose at the beginning of the
+$\th{i}$ iteration it holds that $D_i$ is a strong generator set for
+$G^{(i)}$. It suffices to show that at the end of the $\th{i}$
+iteration $D_{i-1} = D_i \cup C_{i-1}$ is a strong generator set for
+$G^{(i-1)}$.  For each $j: i+1\leq j\leq n$, the query
+$\angle{x,0^n,D_i,i,j,\pi'} \in L$ checks if there is an element in
+$G^{(i-1)}$ that maps $i$ to $j$. The subsequent prefix search with
+queries to $L$ computes the lexicographically least element in
+$G^{(i-1)}$ that maps $i$ to $j$.  Furthermore, by Claim~\ref{claim2},
+as $D_i$ generates $G^{(i)}$, all queries made to $L$ are UP-like.
+Thus, at the end of the $\th{i}$ iteration $C_{i-1}$ is a complete set
+of coset representatives for $G^{(i)}$ in $G^{(i-1)}$ and hence
+$D_{i-1}$ is a strong generator set for $G^{(i-1)}$.  Thus at the end
+$D_0$ is a a strong generator set for $G$. Therefore, we have an
+$\FP^L$ algorithm problem for $\FINDGROUP$.
+
+Finally, since the $\FP^L$ algorithm makes only UP-like queries to the
+NP oracle $L$, it follows from Lemma~\ref{KST-cor} that $\FINDGROUP$
+has an $\FP^{\SPP}$ algorithm.
+\end{proof}
+
+\begin{remark}
+  We note that there is alternative way to conceive of an $\FP^{\SPP}$
+  algorithm for the $\FINDGROUP$ problem: we can first design an
+  $\UPSV^{\SPP}$ algorithm, where the prefix search that we do in
+  CONSTRUCT($\angle{x,0^n}$) is replaced by directly guessing a
+  permutation in the right coset (consisting of elements that fix $1$
+  to $i-1$ and map $i$ to $j$) and rejecting along all paths on which
+  we do not guess the lexicographically least element of the coset.
+  Then, by a general prefix search argument we can see that
+  $\FP^{\SPP}$ and $\UPSV^{\SPP}$ are the same and hence conclude that
+  $\FINDGROUP$ is in $\FP^{\SPP}$.
+\end{remark}
+
+As we already noted, $\GI$ and $\AUTO$ are polynomial-time equivalent
+and $\AUTO$, being an instance of $\FINDGROUP$ has an $\FP^{\SPP}$
+algorithm by Theorem~\ref{maintheorem}. Since $\SPP^{\SPP}=\SPP$ and
+$\SPP\subseteq\ModkP$ for each $k\geq 2$, the next corollary is an
+immediate consequence.
+
+\begin{corollary}
+  Graph Isomorphism is in $\SPP$ and hence in $\ModkP$ for every
+  $k\geq 2$.
+\end{corollary}
+
+\section{Hidden subgroup problem and {other applications}}
+
+We recall the general definition of the hidden subgroup problem.
+
+\begin{definition}\label{hsp}
+  The {\em hidden subgroup problem} \HSP\ has an input instance a
+  finite group $G$ (presented by a finite generator set) and we are
+  given (in the form of an oracle) a function $f$ from $G$ to some
+  finite set $X$ such that $f$ is constant and distinct on different
+  right cosets of a hidden subgroup $H$ of $G$. The problem is to
+  determine a generator set for $H$.
+\end{definition}
+
+Many natural problems like Graph Isomorphism, integer factorization
+etc, can be cast as a special case of \HSP. An efficient quantum
+algorithm for the general problem will result in efficient quantum
+algorithm for all these. Based on suitable generalizations of Shor's
+technique \cite{shor97polynomialtime}, the above problem has efficient
+quantum algorithms for the case when $G$ is an abelian group (see
+e.g.~\cite{moscaphd} for an exposition).  However, the status of
+$\HSP$ is open for general nonabelian groups, except for some special
+cases where it is settled (see, e.g.\ 
+\cite{hallgren00normal,ivanyos01efficient}). In particular, even when
+we restrict attention to $G$ being the permutation group $S_n$, it is
+not known if $\HSP$ has quantum polynomial time algorithms except in
+special cases.
+
+Independently, it is shown by Fortnow and Rogers \cite{fortnow98complexity} 
+that the class BQP of languages that have polynomial-time quantum algorithms is
+closely connected with language classes that are low for PP. In
+particular, it is shown in \cite{fortnow98complexity} that $\BQP\subseteq\AWPP$
+where AWPP is a language class that generalizes both BPP and LWPP.
+
+\begin{theorem}{\rm\cite{fortnow98complexity}}
+$\BQP\subseteq\AWPP$ and hence $\BQP$ is low for $\PP$.
+\end{theorem}
+
+In this section we show as a corollary to Theorem~\ref{maintheorem}
+that there is an $\FP^{\SPP}$ algorithm for the $\HSP$ problem over
+permutation groups.
+
+\begin{theorem}
+  There is an $\FP^{\SPP}$ algorithm for the $\HSP$ problem over
+  permutation groups, and hence $\HSP$ over permutation groups is low
+  for $\PP$, $\GapP$, $\ParityP$, $\CeqP$ etc.
+\end{theorem}
+
+\begin{psketch}
+  We are given (in the form of an oracle) a function $f$ from $S_n$ to
+  a finite set $X$ such that $f$ is constant and distinct on different
+  right cosets of a hidden subgroup $H$ of $S_n$. The $\FP^{\SPP}$
+  will first compute $f(1)$ with one query to $f$. Now, notice that
+  $f$ gives a membership test for the unknown subgroup $H$, because a
+  permutation $g\in S_n$ is in $H$ if and only if $f(g)=f(1)$. Thus we
+  essentially have a membership test as required for the $\FINDGROUP$
+  problem of Theorem~\ref{maintheorem}. The result now follows by
+  invoking the algorithm described in the proof of
+  Theorem~\ref{maintheorem}. Lowness for PP also follows as SPP is low
+  for PP.
+\end{psketch}
+
+\subsection{ Other applications}
+
+Using the $\FP^{\SPP}$ algorithm for the $\FINDGROUP$ problem we can
+show that other algorithmic problems on permutation groups 
+\cite{luks93permutation} which are not known to have polynomial-time algorithms
+are also in SPP. Among the different problems mentioned in
+\cite{luks93permutation} we pick the following two examples as most other 
+problems are known to be polynomial time reducible to these.
+
+The input instance to the $\CONJGP$ problem consists of three
+subgroups $\angle{S}=G$, $\angle{S_1}=H_1$, and $\angle{S_2}=H_2$ of
+$S_n$, and the problem is to determine if there is a $g\in G$ such
+that $gH_1g^{-1}=H_2$ (i.e.\ $H_1$ and $H_2$ are $G$-conjugate).
+
+A closely related problem $\NORM$ has input instance two subgroups $G$
+and $H$ of $S_n$, and the problem is to determine a generator set for
+the normalizer subgroup $N_G(H)=\{g\in G\mid gHg^{-1}=H\}$. Just as
+\GI\ and \AUTO\ are polynomial-time equivalent, it turns out that
+$\CONJGP$ and $\NORM$ are also polynomial-time equivalent
+\cite{luks93permutation}.
+
+\begin{theorem}
+  The problem $\NORM$ is in $\FP^{\SPP}$ and the problem $\CONJGP$ is
+  in $\SPP$.
+\end{theorem}
+
+\begin{proof}
+  We show that $\NORM$ is an example of the generic problem
+  $\FINDGROUP$. The theorem will follow as a direct consequence of
+  Theorem~\ref{maintheorem}. It suffices to observe that given
+  subgroups $\angle{S}=G$ and $\angle{T}=H$ of $S_n$, testing if $g\in
+  N_G(H)$ (i.e.\ $gHg^{-1}=H$) can be carried out in polynomial time.
+  More precisely, it is clear that $gHg^{-1}=H$ if and only if
+  $gtg^{-1}\in H$ for every $t\in T$, which can be checked in
+  polynomial time by Theorem~\ref{perm-group-algos}.
+\end{proof}
+
+As already mentioned, a consequence of the above theorem is that
+several other decision problems in permutation groups (e.g.\ coset
+intersection, double coset equality, set transporter) which are
+polynomial-time many-one reducible to $\CONJGP$ are also in $\SPP$.
+
+\section{Conclusion}
+
+In this paper we have shown that Graph Isomorphism is in $\SPP$. We
+have also shown that several other problems on permutation groups are
+in $\SPP$. All these results are byproducts of the $\FP^{\SPP}$
+algorithm for the problem FIND-GROUP. We would like to know if better
+upper bounds can be shown for the complexity of special cases of graph
+isomorphism especially tournament isomorphism. Specifically, is
+tournament isomorphism in UP? It is known that the automorphisms of a
+tournaments forms a solvable group and has odd order. Can this
+additional property be somehow exploited?
+
+A related problem is Graph Canonization. Let $f$ be a function from
+the family of finite graphs, $\mathcal{G}$, to itself. We say that $f$
+is a \emph{canonization} if for every $X \in \mathcal{G}$, $f(X) \cong
+X$ and for every $X_1,X_2 \in \mathcal{G}$, $f(X_1) = f(X_2)$ iff $X_1
+\cong X_2$. There is an $O(n^{log n})$ algorithm for Tournament
+Isomorphism by giving a canonization procedure for tournements
+\cite{babai83canonical}. The complexity of Graph Canonization is
+intriguing. The only known upper bound for the problem is $\FP^{\NP}$.
+It is known that Graph Isomorphism is polynomial-time reducible to
+Graph Canonization. Is the converse true, at least for tournaments? Is
+Graph Canonization for tournaments low for PP?
+
+Babai and others, in a series of papers \cite{babai85matrix,
+  babai88arthur, babai92bounded}, developed a theory of black-box
+groups to study the complexity of group-theoretic problems in a
+general setting. The main results in \cite{babai85matrix,
+  babai88arthur, babai92bounded} were to put these problems in
+$\NP\cap\coAM$ or $\AM\cap\coAM$. However, lowness for $\PP$ has been
+addressed only for the case of \emph{solvable} black-box groups in
+\cite{arvind97solvable,vinodchandran97improved}, where many of these
+problems are shown to be in $\SPP$. It is interesting to ask if our
+approach of showing membership in $\SPP$ via finding the
+lexicographically least element in a coset can be generalized to
+black-box groups. More precisely, what is the complexity of finding a
+canonical element in the right coset of a black-box group?
+
+\bibliographystyle{plain}
+\bibliography{bib}
+\end{document}
