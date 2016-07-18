@@ -1,0 +1,1958 @@
+\documentclass[prodmod,acmtalg]{acmsmall}
+%\documentclass{article}
+%\usepackage{fullpage}
+
+%\usepackage{a4}
+%\usepackage{hyperref}
+\usepackage{amsmath}
+%\usepackage{amsthm}
+\usepackage{amssymb}
+
+\usepackage{algorithm2e}
+
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{corollary}[theorem]{Corollary}
+%\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+%\newtheorem{remark}[theorem]{Remark}
+
+%% \newcommand{\cproof}{\noindent{\it Proof of Claim}}
+
+
+%% \newenvironment{claimproof}{\cproof. }{\hspace*{\fill}}
+
+\newcommand{\size}[1]{{\ensuremath{\mathrm{size}\left(#1\right)}}}
+\newcommand{\Gal}[1]{{\ensuremath{\mathrm{Gal}\left(#1\right)}}}
+\newcommand{\Blocks}[1]{{\ensuremath{\mathcal{B}\left(#1\right)}}}
+\newcommand{\Gof}[1]{{\ensuremath{\mathrm{G}\left(\scriptstyle #1\right)}}}
+
+\newcommand{\Sym}[1]{{\ensuremath{\mathrm{Sym}\left(#1\right)}}}
+\newcommand{\pr}[2]{{\ensuremath{\left.{#1}\right\vert_{#2}}}}
+
+\newcommand{\abs}[1]{\ensuremath{\left\vert#1\right\vert}}
+
+\newcommand{\norm}[1]{\ensuremath{\left\Vert#1\right\Vert}}
+
+\newcommand{\Height}[1]{\ensuremath{\mathrm{H}\left(#1\right)}}
+
+\newcommand{\Q}{\ensuremath{\mathbb{Q}}}
+\newcommand{\F}{\ensuremath{\mathbb{F}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+
+
+
+\title{Testing Nilpotence of Galois Groups in Polynomial Time
+\footnote{preliminary version of this paper was presented at the MFCS
+  2006 conference~\cite{AK2006}(see also~\cite{K2006})}.}
+
+
+\author{V. ARVIND
+  \affil{Institute of Mathematical Sciences,\\
+    CIT Campus, Chennai, India 600113.\\
+    {\tt arvind@imsc.res.in}.
+  }
+  PIYUSH P KURUR\footnote{Most of the work was done as a Ph.D student at the
+    Institute of Mathematical Sciences.}
+  \affil{Department of Computer Science and Engineering,\\
+    Indian Institute of Technology, Kanpur,\\
+    Kanpur, UP 208016, India.\\
+    {\tt ppk@cse.iitk.ac.in}
+  }
+}
+
+\begin{abstract}
+  We give the first polynomial-time algorithm for checking whether the
+  Galois group $\Gal{f}$ of an input polynomial $f(X) \in \Q[X]$ is
+  nilpotent: the running time of our algorithm is bounded by a
+  polynomial in the size of the coefficients of $f$ and the degree of
+  $f$. Additionally, we give a deterministic polynomial-time algorithm
+  that, when given as input a polynomial $f(X) \in \Q[X]$ with
+  nilpotent Galois group, computes for each prime factor $p$ of $\#
+  \Gal{f}$, a polynomial $g_p(X)\in \Q[X]$ whose Galois group of is
+  the $p$-Sylow subgroup of $\Gal{f}$.
+\end{abstract}
+
+\category{F.2.1}{Numerical Algorithms and Problems}{Computations on
+  polynomials}
+
+\terms{Algorithms, Theory}
+
+\keywords{Galois group, nilpotence, univariate polynomials, polynomial
+  time}
+
+%pagestyle{plain}
+%\usepackage{showlabels}
+\begin{document}
+\maketitle
+
+
+\section{Introduction}
+
+Computing the Galois group of a polynomial $f(X)$ with rational
+coefficients is a fundamental problem in algorithmic number
+theory. For a polynomial $f(X)$ it is well known that the Galois group
+$\Gal{f}$ acts faithfully as a permutation group on the roots of
+$f(X)$. Thus, for a polynomial $f$ without repeated factors, we can
+think of the Galois group of $f$ as a group of permutations on the set
+of distinct roots of $f$. In this paper, by computing the Galois
+group, we mean finding a generating set for the Galois group as a
+permutation group. This characterizes the group only up to a
+relabeling of the roots. However, this gives $\Gal{f}$ a compact
+representation because any subgroup of $S_n$ has a generating set of
+size at most $n-1$ \cite{Jerrum1986}. Furthermore, since there is a
+substantial library of efficient algorithms for permutation groups
+that takes as input subgroups of $S_n$ given by generating sets, this
+compact representation of Galois groups can be computationally
+useful. The book by Seress~\cite{seress2003permutationalgo} contains a
+comprehensive treatment of permutation group algorithms.
+
+There are algorithms for computing the Galois group of polynomials
+over rationals that even go back to the nineteenth century
+\cite{TS50}. However, no general polynomial-time algorithm for this
+problem is known to date. Asymptotically, the best known algorithm is
+due to Landau~\cite{landau84galois}: given a polynomial $f(X)$, as a
+list of its coefficients in binary, it takes time polynomial in its
+input size and the order of Galois group of $f$. Landau's algorithm
+explicitly lists all elements of its Galois group $\Gal{f}$. However,
+for a degree $n$ polynomial $f(X)$, $\Gal{f}$ can have $n!$ many
+elements. Hence, Landau's algorithm takes exponential time in the
+worst case. It is a long standing open problem if there is an
+asymptotically faster algorithm. Lenstra's survey
+\cite{lenstra92algorithm} discusses this and related problems.
+
+In the absence of efficient asymptotic algorithms, considerable
+research has gone into designing practical algorithms for Galois group
+computation. The work of Stauduhar~\cite{St73} describes an algorithm
+that could compute the Galois group of polynomials up to degree
+8. Recent implementations with the computer algebra software KANT
+apparently work up to degree 15. This method is described in detail by
+Cohen~\cite{Co93}. Stauduhar's method has the drawback of precision
+problems as it involves numerical approximation of the roots of the
+polynomial. Instead of the numerical approximation, using $p$-adic
+approximation Geissler and Kl\"uners~\cite{GK00} gave a variant of
+Stauduhar's algorithm that could work for polynomials up to degree
+15. Another well-studied practical method~\cite{SM85,MM97}, which
+avoids the precision problems due to root approximations, works by
+computing certain invariants called the absolute resolvents of the
+given polynomial. However, this approach has the drawback of being
+computationally more intensive as it involves factoring of very large
+degree resolvent polynomials.  An entire special issue~\cite{jsc2000}
+is devoted to algorithmic Galois theory, with practical
+implementations as the main goal.
+
+Although computing the Galois group of a polynomial remains hard in
+general, often it is sufficient to check whether the Galois group
+satisfies some specific property. Knowing the nature of the Galois
+group of a polynomial can provide insight into the structure of the
+roots of the polynomial. There is no better example than the
+celebrated work of Galois \cite{galois1830analyse,galois1830note} in
+which he shows that a polynomial $f(X)$ over rationals is solvable by
+radicals if and only if its Galois group is solvable.
+
+In this paper we study the problem of testing nilpotence of the Galois
+group of a polynomial $f(X)$ over $\Q$. Landau's
+algorithm~\cite{landau84galois} to compute the Galois group, although
+exponential in general, yields efficient algorithms in certain
+cases. For example, we can test whether the Galois group is
+abelian~\cite{landau84galois} in polynomial time. We give a quick
+overview. Assume that the input polynomial $f(X)$ is irreducible;
+otherwise factor $f(X)$ by applying the LLL algorithm~\cite{lll} and
+test whether the Galois group of each of its irreducible factors is
+abelian. Since the Galois group of $f(X)$ is a subgroup of the direct
+product of the Galois groups of each of its irreducible factors, this
+is clearly sufficient. Any abelian transitive group of $S_n$ is of
+order $n$. Hence, if the input polynomial is irreducible and abelian
+then its Galois group is polynomially bounded. One can use Landau's
+algorithm~\cite{landau84galois} and compute the Galois group
+explicitly and verify that it is abelian. Similarly, for solvability
+and nilpotence test, we can assume that the input polynomial is
+irreducible. However, transitive solvable subgroups of $S_n$ can be of
+size exponential in $n$. As far as efficient algorithms are concerned,
+this does not give a satisfactory answer to the problem of checking
+whether a given polynomial is solvable by radicals. Landau and Miller
+made a remarkable breakthrough by giving a polynomial-time algorithm
+for checking whether the Galois group of an input polynomial is
+solvable\cite{landau85solvability}.
+
+%% The key idea in their algorithm was to
+%% check the solvability of $\Gal{f}$ by testing the solvability of some
+%% small (i.e. polynomially bounded) extensions of $\Q$.
+
+The class of nilpotent groups is a subclass of the class of solvable
+groups that contains the class of abelian groups. Just as in the case
+of solvable groups, transitive nilpotent subgroups of $S_n$ can have
+order exponential in $n$. This rules out a nilpotence test which
+explicitly computes the Galois group. Besides, the Landau-Miller
+solvability test does not give a nilpotence test.  A key idea used in
+the Landau-Miller algorithm is to reduce the problem of checking the
+solvability of the Galois group $G$ of the input polynomial into
+checking the the solvability of each factor group $G_{i-1}/G_i$ in
+some special composition series $G = G_0 \rhd \ldots \rhd G_n = 1$ of
+$G$. Despite each of the groups $G_i$ being large, Landau-Miller could
+compute enough information of the factor groups $G_{i-1}/G_i$
+implicitly from the input polynomial. However, one cannot infer
+nilpotence of $G$, even if all the factor groups $G_{i-1}/G_i$ are
+given explicitly. The simplest example that illustrates this are the
+groups $S_3$ and $\Z_2\times \Z_3$. The factor groups are $\Z_2$ and
+$\Z_3$ in the composition series for both the groups. However, $S_3$
+is not nilpotent (though it is solvable) and $\Z_2\times \Z_3$ is
+nilpotent (even cyclic). Thus, the composition factors a group alone
+do not suffice to determine if it is solvable or nilpotent or even
+abelian.
+
+%To see why this is the case, notice that any solvable group $G$ has a
+%composition series $G = G_0\rhd \ldots \rhd G_t =1$ such that the
+%composition factors $G_{i-1}/G_i$, $0\leq i \leq t$, is a cyclic group
+%of order $p_i$. On the other hand, consider any sequence of primes
+%$p_1,\ldots,p_t$ and consider the product group $H = \prod_i
+%\mathbb{Z}/p_i \mathbb{Z}$. The tower of groups $H_i = \prod_{k=i+1}^t
+%\mathbb{Z}/p_k \mathbb{Z}$ give a composition series of $H$ such that
+%$H_{i-1}/H_i$ is a cyclic group of order $p_i$.
+
+
+\subsection*{Overview of our result}
+
+We give the first deterministic polynomial-time algorithm for testing
+whether the Galois group of an input polynomial $f(X) \in \Q[X]$ is
+nilpotent. The running time of our algorithm is bounded by a
+polynomial in $\size{f}$ and thus is polynomial in the input size.
+Although our algorithm is polynomial time, it is unlikely to perform
+well in practise as it involves factoring polynomials over number
+fields. Testing nilpotence has been addressed before from the point of
+view of developing practical algorithms. For example,
+Fernandez-Ferreiros and Molleda~\cite{pilar2003deciding-nilpotence}
+have given an algorithm for testing nilpotence by computing the centre
+of the Galois group of $f$. A key step in their algorithm, based on
+the Chebotarev density theorem, is to pick primes whose Frobenius give
+elements in the centre of $\Gal{f}$.  However, the worst case running
+time of this algorithm is polynomial in $\size{f}$ and the order $\#
+\Gal{f}$ of the Galois group which is exponential in the input size.
+
+We now give a brief overview of the main idea behind our algorithm.
+The main observations that lead to the polynomial-time algorithm are
+Theorems~\ref{thm-if-g-nilpotent} and \ref{thm-g-is-nilpotent}, which
+together give a characterisation of transitive nilpotent permutation
+groups in terms of its block structure. Explicitly testing for this
+characterisation will require us to compute the Galois group and hence
+is infeasible. As in the Landau-Miller solvability test, however, we
+test this implicitly.
+
+The normality of Sylow subgroups of nilpotent groups plays an
+important role in the proof of Theorems~\ref{thm-if-g-nilpotent} and
+\ref{thm-g-is-nilpotent}. As a byproduct of our main result we obtain
+the following additional polynomial-time algorithm: given a polynomial
+$f(X)\in \Q[X]$ with nilpotent Galois group, for each prime factor $p$
+of $\# \Gal{f}$ we can efficiently compute a polynomial $g_p(X)$ such
+that the Galois group $\Gal{g_p(X)}$ is the $p$-Sylow subgroup of
+$\Gal{f}$.
+
+\section{Galois theory overview}
+
+In this section we recall some basic Galois theory. A detailed
+presentation is available in a standard algebra textbook, like Lang's
+book~\cite{lang:algebra}. Let $L$ and $K$ be fields.  We say that $L$
+is an \emph{extension} of $K$ and denote it by $L/K$ if $L \supseteq
+K$. For an extension $L/K$, $L$ is a vector space over $K$ and by the
+\emph{degree} of $L/K$, denoted by $[L:K]$, we mean its dimension. An
+extension $L/K$ is \emph{finite} if its degree $[L:K]$ is finite. If
+$L/M$ and $M/K$ are finite extensions then $[L:K] = [L:M].[M:K]$. The
+ring of polynomials over $K$ with indeterminate $X$ will be denoted by
+$K[X]$. This ring is a \emph{unique factorisation domain}.
+
+
+An element $\alpha$ in an extension $L$ of $K$ is \emph{algebraic} if
+there is a polynomial $f(X)$ over $K$ such that $f(\alpha)=0$. For
+such an $\alpha$ the \emph{minimal polynomial} over $K$ is the unique
+monic polynomial $\mu_\alpha[K](X)$ over $K$ of least degree for which
+$\alpha$ is a root. We write $\mu_\alpha(X)$ for $\mu_\alpha[K](X)$
+when $K$ is understood. Elements $\alpha$ and $\beta$ in $L$ are
+\emph{conjugates} over $K$ if they have the same minimal polynomial
+over $K$. The smallest subfield of $L$ containing $K$ and $\alpha$ is
+denoted by $K(\alpha)$. If $\alpha$ is algebraic over $K$ then the
+field $K(\alpha)$ is isomorphic to the quotient $K[X]/\mu_\alpha[X]$.
+
+Let $f(X)$ be a polynomial over $K$. By the \emph{splitting field} of
+$f$ over $K$, denoted by $K_f$ we mean the smallest extension of $K$
+containing all the roots of $f$. A finite extension $L/K$ is
+\emph{normal} if for all irreducible polynomials $f(X)$ over $K$,
+either $f(X)$ splits or has no root in $L$. Any finite normal
+extension over $K$ is the splitting field of some polynomial in
+$K[X]$. An extension $L/K$ is \emph{separable} if for all irreducible
+polynomials $f(X) \in K[X]$ there are no multiple roots in $L$.  A
+normal and separable finite extension $L/K$ is a \emph{Galois
+  extension}.
+
+
+
+The \emph{Galois group} of $L/K$, denoted by $\Gal{L/K}$, is the
+subgroup of automorphisms $\sigma$ of $L$ that leaves $K$ fixed, i.e.\
+$\sigma(\alpha) = \alpha$ for all $\alpha \in K$. The Galois group of
+a polynomial $f(X)$ over $K$, denoted by $\Gal{f}$, is the Galois
+group $\Gal{K_f/K}$ of its splitting field. For a subgroup $G$ of
+automorphisms of $L$, the \emph{fixed field} $L^G$ is the largest
+subfield of $L$ fixed by $G$.  We now state the fundamental theorem of
+Galois theory~\cite[Theorem 1.1, Chapter VI]{lang:algebra}.
+
+\begin{theorem}[Fundamental theorem of Galois theory] \label{thm-funda-galois}
+  Let $L/K$ be a Galois extension with Galois group $G$. Let
+  $\mathcal{F}$ be the set of fields $E$ between $L$ and $K$, i.e. $L
+  \supseteq E \supseteq K$ and let $\mathcal{G}$ be the set of
+  subgroups of $G$. Then, the maps $E \mapsto \Gal{L/E}$ and $H
+  \mapsto L^H$ are inverses of each other and thus gives a one-to-one
+  correspondence.  Furthermore, for any field $E \in \mathcal{F}$, the
+  extension $E/K$ is Galois if and only if the corresponding Galois
+  group $\Gal{L/E}$ is a normal subgroup of $G$. For the Galois
+  extension $E/K$, $E\in \mathcal{F}$, the Galois group $\Gal{E/K}$ is
+  (isomorphic to) the quotient group $G/\Gal{L/E}$.
+\end{theorem}
+
+A \emph{number field} is a finite extension of $\Q$. By the
+\emph{degree of a number field} $K$ we mean $[K:\Q]$, i.e. the degree
+of $K$ as an extension of $\Q$. An \emph{algebraic number} is a root
+of a polynomial over $\Q$ and an \emph{algebraic integer} is an
+algebraic number whose minimal polynomial has integral coefficients.
+Let $K$ be a number field. A \emph{primitive element} $\eta$ of $K$ is
+an algebraic number such that $K = \Q(\eta)$. A polynomial $\mu(X)$
+over $\Q$ is a \emph{primitive polynomial} for $K$ if $K =
+\Q[X]/\mu(X)$. By the primitive element theorem~\cite[Theorem 4.6,
+  Chapter V]{lang:algebra} every number field has a primitive element.
+Furthermore, we can assume that this primitive element is an algebraic
+integer~\cite[Proposition 1.1, Chapter VII]{lang:algebra} (also refer
+to \cite{waerden:1991}). Thus any number field is isomorphic to the
+quotient $\Q[X]/\mu(X)$ where $\mu(X)$ is a monic irreducible
+polynomial with integral coefficients.
+
+\subsection{Input and Output Representations}
+
+The inputs and outputs of the algorithms we describe in this paper are
+objects like algebraic numbers, number fields, Galois groups etc. In
+this section we discuss suitable encodings of these objects into
+strings.  The complexity of our algorithms are measured in terms of
+the sizes of these encodings. We use notation $\size{.}$ to denote
+the number of bits required to represent an object.
+
+Integers are encoded in binary and hence for an integer $n$, its size
+is given by $\size{n} = \log{n}$. A rational number $r$ is encoded as
+a pair of relatively prime integers $a$ and $b$ such that $r =
+\frac{a}{b}$. The size of $r$ is therefore $O(\size{a} + \size{b})$.
+A polynomial $T(X) = a_0 + \ldots + a_n X^n \in\Q[X]$ is given by a
+list of its coefficients.  Thus, $\size{T}$ is defined as $O\left(n +
+\sum_i \size{a_i}\right)$.
+
+
+We now discuss how number fields are encoded. Recall that any number
+field can be expressed as a quotient $\Q[X]/\mu(X)$ where $\mu(X)$ is
+a primitive polynomial. We assume that a number field $K$ is
+represented by giving a primitive polynomial $\mu(X)$ for it. In
+addition we will assume that $\mu(X)$ is monic with integral
+coefficients. Thus the size of $K$ under this representation is the
+size of the polynomial $\mu(X)$. Notice that the size of $K$ depends
+on the primitive polynomial chosen to represent $K$.
+
+Let $K = \Q(\eta)$ be a number field of degree $n$ represented via a
+primitive polynomial $\mu_\eta(X)$. Any algebraic number $\alpha$ in
+$K$ can be expressed uniquely as $\alpha = A_\alpha(\eta)$ where
+$A_\alpha(X)$ is a polynomial over $\Q$ of degree less than $n$.  By
+$\size{\alpha}$ we mean $\size{A_\alpha(X)}$.  Again the size of
+$\alpha$ depends on the chosen primitive element $\eta$ of $K$. For a
+polynomial $f(X) = a_0 + \ldots + a_m X^m$ in $K[X]$ we define
+$\size{f}$ to be $\sum \size{a_i}$.
+
+Let $f(X)$ be a polynomial of degree $n$ over $\Q$. Landau's algorithm
+\cite{landau84galois} for computing its Galois group $\Gal{f}$,
+computes the entire multiplication table. Such an algorithm, in the
+worst case, will take time exponential in $\size{f}$ as the order of
+$\Gal{f}$ can be as large as $n!$. As mentioned in the introduction,
+we can consider $\Gal{f}$ as a permutation group on the roots of $f$
+and succinctly represent it by $n-1$ many generating permutations
+\cite{luks93permutation}. This gives $\Gal{f}$ a representation of
+size polynomial in $n$ and it makes sense to ask if $\Gal{f}$ in this
+representation is computable in polynomial time. This is an open
+problem.
+
+%A drawback with this representation is that $\Gal{f}$ is determined
+%only up to conjugacy as the roots of $f$ can be arbitrarily numbered.
+
+%For example polynomial-time algorithms exists for computing the order,
+%finding composition series, checking solvability
+%etc~\cite{luks93permutation}. Representing $\Gal{f}$ as a permutation
+%subgroup of $S_n$ is therefore reasonable from a computational point
+%of view.
+
+\subsection{An algorithm for computing primitive elements}
+
+The proof of the primitive element theorem is algorithmic. Many
+algorithms in computational number theory make use of this algorithmic
+version. In order to keep the present paper self-contained, we give an
+algorithmic proof for a version of the theorem suitable for our
+purpose. We first recall a key lemma whose proof can be found in van
+der Waerden's book \cite{waerden:1991}.
+
+\begin{lemma}\label{lem-combine-fields}
+  Let $\alpha$ and $\beta$ be algebraic numbers with conjugates
+  $\alpha^{(i)}$, $1\leq i \leq m$, and $\beta^{(j)}$, $1 \leq j \leq
+  n$ respectively. Let $c\in\Z$ such that $\alpha^{(i)} + c\beta^{(j)}
+  \neq \alpha^{(r)} + c \beta^{(r)}$ for all $ (i,j) \neq (r,s)$ then
+  $\Q(\alpha + c\beta) = \Q(\alpha,\beta)$. In particular, there is a
+  positive integer $c\in\{1,2,\ldots,m^2n^2+1\}$ such that $\Q(\alpha
+  + c\beta) = \Q(\alpha,\beta)$.
+\end{lemma}
+
+Next, we give an algorithm to compute minimal
+polynomial~\cite{Shoup1999minimalpolynomial}.
+
+\begin{lemma}\label{min-poly-find}
+  Let $\alpha$ be an algebraic number with minimal polynomial
+  $f(X)\in\Q[X]$. Given a polynomial $g(X)\in\Q[X]$ we can find the
+  minimal polynomial for the element $g(\alpha)\in\Q(\alpha)$ in time
+  polynomial in $\size{f}+\size{g}$.
+\end{lemma}
+
+\begin{proof}
+  Let the degree of $f$ be $n$ and let $\beta = g(\alpha)$. Our task
+  is to compute the minimal polynomial $\mu_\beta(X)$ of $\beta$. Let
+  $m$ be the degree of the polynomial $\mu_\beta(X)$. Since $\beta$ is
+  an element of $\Q(\alpha)$, the degree $m$ of its minimal polynomial
+  is less than $n$. Furthermore, $m$ is the least integer $i$ less
+  than $n$ such that the set of powers $\{ 1,\beta,\ldots,
+  \beta^{i-1}, \beta^i \}$ is \emph{linearly dependent} as vectors
+  over $\Q$. As $\beta = g(\alpha)$, the set $\{1, \ldots, \beta^i \}$
+  is linearly dependent if and only if there are $a_j \in \Q$ such
+  that
+  \begin{equation}\label{eqn-lindep-beta}
+    g^i(X)+\sum_{j=0}^{i-1} a_j g^j(X) = 0 \mod{f(X)}.
+  \end{equation}
+  Equating the coefficients of $X$ in equation~\ref{eqn-lindep-beta}
+  gives us a system of linear equations in $a_j$'s, which can be
+  checked for feasibility in time polynomial in $\size{f}+\size{g}$
+  using Gaussian elimination for example. Starting with $i = 0$ we
+  find the least $i$ for which equation~\ref{eqn-lindep-beta} is
+  feasible. Having found the least $i$, which is also the degree $m$
+  of $\mu_\beta(X)$, we solve for the unknowns $a_j$. Clearly
+  $\mu_\beta(X)$ is the polynomial $X^m + a_{m-1} X^{m-1} + \ldots +
+  a_1 X + a_0$.
+\end{proof}
+
+In the next lemma we prove an algorithmic version of the primitive
+element theorem.
+
+\begin{lemma}\label{lem-primitive-element}
+  Let $\alpha$ be an algebraic number with minimal polynomial
+  $f(X)\in\Q[X]$ of degree $n$. Let $\gamma_1,\ldots,\gamma_k$ be
+  algebraic numbers in $\Q(\alpha)$ given as polynomials
+  $\gamma_i=g_i(\alpha), 1\leq i\leq k$, and let
+  $K=\Q(\gamma_1,\ldots,\gamma_k)$ be the subfield of $\Q(\alpha)$
+  generated by $\gamma_1,\ldots,\gamma_k$. There is a deterministic
+  algorithm with running time bounded by a polynomial in
+  $\size{f}+\sum_{i=1}^k\size{g_i}$ that computes a polynomial
+  $g(X)\in\Q[X]$ such that $g(\alpha)$ is a primitive element for $K$.
+\end{lemma}
+
+\begin{proof}
+  Consider the tower of fields $\Q\subseteq
+  \Q(\gamma_1)\subseteq\ldots \subseteq \Q(\gamma_1,\ldots,\gamma_k) =
+  K$.  Our task is to compute a primitive element for $K$. For every
+  $1\leq i \leq k$, we will compute polynomials $h_i(X)\in\Q[X]$ such
+  that $\eta_i = h_i(\alpha)$ is a primitive element of the subfield
+  $\Q(\gamma_1,\ldots,\gamma_i)$.
+
+  For $i = 1$ choose $h_1(X) = g_1(X)$ and $\eta_1 = \gamma_1$.
+  Inductively assume that we have computed $h_i(X)$ such that $\eta_i
+  = h_i(\alpha)$ is a primitive element of the field
+  $\Q(\gamma_1,\ldots,\gamma_i)$. Consider the field
+  $\Q(\eta_i,\gamma_{i+1})$. As $\eta_i$ and $\gamma_{i+1}$ are
+  elements of $\Q(\alpha)$, their degrees are less than $n$. By
+  Lemma~\ref{lem-combine-fields} there is an integer
+  $c_{i+1}\in\{1,\ldots,n^4+1\}$ such that $\eta_i +
+  c_{i+1}\gamma_{i+1}$ is a primitive element for the field
+  $\Q(\eta_i,\gamma_{i+1}) = \Q(\gamma_1,\ldots,\gamma_{i+1})$.
+
+  We now explain how such a constant $c_{i+1}$ can be computed.  For a
+  given $c$, to check whether $\eta_i + c \gamma_{i+1}$ is a primitive
+  element of $\Q(\eta_i,\gamma_{i+1})$ it suffices to check whether
+  there are polynomials $A(X)$ and $B(X)$ of degree at most $n$ such
+  that $A(\eta_i + c\gamma_{i+1}) = \eta_i$ and $B(\eta_i + c
+  \gamma_{i+1}) = \gamma_{i+1}$. This can be done by checking whether
+  the following equations are feasible for unknowns $a_j$ and $b_j$.
+  \begin{eqnarray*}
+    \sum_{j=0}^{n-1} a_j (h_i(X)+ cg_{i+1}(X))^j & = & h_i(X) \mod{f(X)}\\
+    \sum_{j=0}^{n-1} b_j (h_i(X)+ cg_{i+1}(X))^j & = & g_{i+1}(X) \mod{f(X)}
+  \end{eqnarray*}
+
+  Equating the coefficients of $X$, this involves checking feasibility
+  of a system of linear equations over $\Q$ and thus can be done in
+  time polynomial in $\size{h_i}+\size{g_{i+1}}+\size{f}$.  We go over
+  all $1 \leq c \leq n^4 +1$ and let $c_{i+1}$ be the least $c$ for
+  which the above equations are feasible. The required polynomial
+  $h_{i+1}(X)$ is given by $h_{i+1}(X) = h_i(X) + c_{i+1}
+  g_{i+1}(X)$. Finally, $h_k(\alpha)$ is a primitive element for
+  $K$. The overall running time for the algorithm is bounded by a
+  polynomial in the size of $\size{f}+\sum_{j=1}^k \size{g_j}$.
+\end{proof}
+
+\begin{remark}\label{rem-prim-elt}
+  A similar algorithm can be designed that takes as input the minimal
+  polynomials $g_i(X) \in \Q[X]$ of the algebraic numbers $\gamma_i$
+  respectively, for $1 \leq i \leq k$ and computes a primitive element
+  for the field $K=\Q(\gamma_1,\ldots,\gamma_k)$. The running time for
+  this algorithm is polynomial in $[K:\Q]$ and the sizes of the
+  minimal polynomials $g_i(X)$.
+\end{remark}
+
+\section{Previous complexity results}
+
+We now state some of the known results in computational Galois theory
+formally. The following result for computing the Galois group of a
+polynomial $f(X)$ that runs in time polynomial in the size of the
+Galois group and $f(X)$ is due to Landau~\cite{landau84galois}.
+
+\begin{theorem}[Landau] \label{thm-landau-galois-algo} There is a
+  deterministic algorithm that takes as input a number field $K$, a
+  polynomial $f(X) \in K[X]$ and a positive integer $b$ in unary, and
+  in time bounded by $\size{f}$, $\size{K}$ and $b$, decides if
+  $\Gal{K_f/K}$ has at most $b$ elements, and if so computes
+  $\Gal{K_f/K}$ by finding the entire multiplication table of
+  $\Gal{K_f/K}$ (and hence also by giving the generating set of
+  $\Gal{K_f/K}$ as a permutation group on the roots of $f(X)$).
+\end{theorem}
+
+The algorithm first computes a primitive element $\theta$ of $K_f$.
+Determining $\Gal{f}$ amounts to finding the action of the
+automorphisms on $\theta$. Subsequently, Landau and Miller
+\cite{landau85solvability} gave their polynomial-time solvability
+test.
+
+\begin{theorem}[Landau-Miller]\label{thm-landau-solvability}
+  There is a deterministic polynomial-time algorithm that takes as
+  input a polynomial $f(X) \in \Q[X]$ and tests if the Galois group
+  $\Gal{f}$ of $f$ is solvable.
+\end{theorem}
+
+A byproduct of the Landau-Miller algorithm is an algorithm to compute
+the primes that divide the order of the Galois group. We summaries this
+result for use latter on.
+
+\begin{theorem}[Landau-Miller]\label{thm-landau-primes}
+  There is a deterministic polynomial-time algorithm that takes as
+  input a polynomial $f(X)$ over $\Q$ and, if $f(X)$ is solvable by
+  radicals, computes the prime factors of $\# \Gal{f}$.
+\end{theorem}
+
+Thus one can also check in deterministic polynomial time whether the
+Galois group is a $p$-group.
+
+\section{Group theoretical Preliminaries}
+
+We recall some group theory. Details can be found in Marshall Hall's
+text \cite[Chapter 10]{Hall}. Let $G$ be any group. The \emph{lower
+  central series} of $G$ is the sequence of groups $G = G_0 \geq G_1
+\ldots \geq G_n \geq \ldots$ where $G_{i+1} = [G_i, G]$. A group $G$
+is said to be \emph{nilpotent} if its lower central series is of
+finite length, i.e.\ $G_c=\{1\}$ for some nonnegative integer $c$,
+where $1$ denotes the identity element. The least $c$ such that
+$G_c=\{1\}$ is called the \emph{class of nilpotence} of a nilpotent
+group $G$. If the group $G$ is finite then it is nilpotent if and only
+if all its $p$-Sylow subgroups are normal. It follows from Sylow's
+theorem that a finite nilpotent group is a product of its $p$-Sylow
+subgroups. It is this characterisation of finite nilpotent groups that
+will be useful for us in our nilpotence test.
+
+%For a nilpotent group $G$ is a normal series of length $c$, a positive
+%integer.  The length $c$ of the lower central series is called the
+%\emph{class of nilpotence} of the group $G$.
+
+We recall some permutation group theory from Wielandt's
+book~\cite{wielandt64finite}. Let $\Omega$ be a finite set. The
+\emph{symmetric group} $\Sym{\Omega}$ is the group of all permutations
+on $\Omega$.  By a \emph{permutation group on $\Omega$} we mean a
+subgroup of $\Sym{\Omega}$. For $\alpha \in \Omega$ and $g \in
+\Sym{\Omega}$, let $\alpha^g$ denote the image of $\alpha$ under the
+permutation $g$. For $A \subseteq \Sym{\Omega}$, $\alpha^A$ denotes
+the set $\{ \alpha^g : g \in A\}$. In particular, for
+$G\leq\Sym{\Omega}$ the \emph{$G$-orbit} containing $\alpha$ is
+$\alpha^G$. The $G$-orbits form a partition of $\Omega$.  Given
+$G\leq\Sym{\Omega}$ by a generating set $A$ and $\alpha \in \Omega$,
+there is a polynomial-time algorithm to compute
+$\alpha^G$~\cite{luks93permutation}.
+
+Sometimes we need to consider a more general group action on a set
+$\Omega$. In the generalised setting, we say $G$ \emph{acts} on
+$\Omega$ if there is a group homomorphism $\varphi: G\longrightarrow
+\Sym{\Omega}$. The kernel $Ker(\varphi)$ of this action is the
+subgroup of $G$ whose image under $\varphi$ is the identity element
+(which pointwise fixes $\Omega$). If $Ker(\varphi)$ is trivial we say
+that the action is \emph{faithful}. In this paper, when we say $G$ is
+a permutation group on a set $\Omega$ we mean a faithful action unless
+explicitly stated. The only exceptions arise when we restrict the
+group $G$ to a subset of $\Omega$, typically an orbit or a block.
+%When we consider a group $G$ acting on $\Omega$ with kernel $H$, the
+%quotient group $G/H$ acts faithfully on $\Omega$ via the natural
+%action $\alpha^{gH} = \alpha^g$. We will concentrate only on this
+%faithful action, keeping in mind that what we say is applicable to the
+%quotient rather than the whole group.
+
+%This is not a problem for our needs in this article.
+
+For $\Delta \subseteq \Omega$ and $g \in \Sym{\Omega}$, $\Delta^g$
+denotes $\{ \alpha^g : \alpha \in \Delta \}$. The set-wise stabilizer
+of $\Delta$, i.e. $\{ g \in G : \Delta^g = \Delta\}$, is denoted by
+$G_\Delta$. If $\Delta$ is the singleton set $\{ \alpha \}$ we write
+$G_\alpha$ instead of $G_{\{\alpha\}}$.   An often used result is the
+orbit-stabilizer formula stated below~\cite[Theorem
+  3.2]{wielandt64finite}.
+
+\begin{theorem}[Orbit-stabilizer formula]\label{thm-orbit-stabilizer}
+  Let $G\leq\Sym{\Omega}$ be a permutation group and let $\alpha$ be
+  any element of $\Omega$ then the order of the group $G$ is given by
+  $\# G = \# G_\alpha \cdot \# \alpha^G$.
+\end{theorem}
+
+A permutation group $G\leq\Sym{\Omega}$ is \emph{transitive} if there
+is a single $G$-orbit. Suppose $G \leq \Sym{\Omega}$ is transitive.
+Then a non-empty subset $\Delta$ of $\Omega$ is a \emph{$G$-block} if
+for all $g \in G$ either $\Delta^g = \Delta$ or $\Delta^g \cap
+\Delta=\emptyset$.  For every $G$, $\Omega$ is a block and each
+singleton $\{\alpha\}$ is a block. These are the \emph{trivial blocks}
+of $G$. A transitive group $G$ is \emph{primitive} if it has only
+trivial blocks and it is \emph{imprimitive} if it has nontrivial
+blocks. We state a useful proposition that is easy to prove from these
+definitions.
+
+\begin{proposition}\label{prop-block-subblock}
+  Let $G\leq \Sym{\Omega}$ be a transitive permutation group.
+\begin{itemize}
+\item[(a)] If $\Delta\subset\Omega$ is a $G$-block then $G_\Delta$ is
+  transitive on $\Delta$. I.e.\ for $\alpha,\beta\in\Delta$ there is a
+  $g\in G_\Delta$ such that $\alpha^g=\beta$.
+\item[(b)] Let $\Sigma\subset\Omega$ be a $G$-block. Then
+  $\Delta\subset \Sigma$ is a $G$-block if and only if $\Delta$ is a
+  $G_\Sigma$-block.
+\end{itemize}
+\end{proposition}
+
+A $G$-block $\Delta$ is a \emph{maximal subblock} of a $G$-block
+$\Sigma$ if $\Delta \subset \Sigma$ and there is no $G$-block
+$\Upsilon$ such that $\Delta \subset \Upsilon \subset \Omega$. Let
+$\Delta$ and $\Sigma$ be two $G$-blocks. A chain $\Delta = \Delta_0
+\subset \ldots \subset \Delta_t = \Sigma$ is a \emph{maximal chain} of
+$G$-blocks between $\Delta$ and $\Sigma$ if for all $i$, $\Delta_i$ is
+a maximal subblock of $\Delta_{i+1}$.
+
+For a $G$-block $\Delta$ and $g \in G$, $\Delta^g$ is also a $G$-block
+and $\# \Delta = \# \Delta^g$. Let $\Delta$ and $\Sigma$ be two
+$G$-blocks such that $\Delta \subseteq \Sigma$.  The
+\emph{$\Delta$-block system of $\Sigma$}, is the collection
+\[
+\Blocks{\Sigma/\Delta} = \{ \Delta^g : g \in G \textrm{ and } \Delta^g
+\subseteq \Sigma \}.
+\]
+The set $\Blocks{\Sigma/\Delta}$ is a partition of $\Sigma$.  It
+follows that $\# \Delta$ divides $\# \Sigma$ and by \emph{index} of
+$\Delta$ in $\Sigma$, which we denote by $[\Sigma:\Delta]$, we mean
+$\# \Blocks{\Sigma/\Delta} = \frac{\# \Sigma}{\# \Delta}$. We will use
+$\Blocks{\Delta}$ to denote $\Blocks{\Omega/\Delta}$. We state the
+connection between blocks and subgroups \cite[Theorem
+7.5]{wielandt64finite}.
+
+\begin{theorem}[Galois correspondence of blocks]\label{thm-blocks-galois}
+  Let $G\leq\Sym{\Omega}$ be transitive and $\alpha\in\Omega$. For $G
+  \geq H \geq G_\alpha$ the orbit $\Delta = \alpha^H$ is a $G$-block
+  and $G_\Delta = H$. The correspondence $\alpha^H = \Delta
+  \rightleftharpoons G_\Delta = H$ is a one-to-one correspondence
+  between $G$-blocks $\Delta$ containing $\alpha$ and subgroups $H$ of
+  $G$ containing $G_\alpha$. Furthermore for $G$-blocks $\Delta
+  \subseteq \Sigma$ we have $[G_\Sigma : G_\Delta] = [\Sigma :
+  \Delta]$.
+\end{theorem}
+
+Let $G\leq\Sym{\Omega}$ be transitive and $\Delta$ and $\Sigma$ be two
+$G$-blocks such that $\Delta\subseteq \Sigma$. Let
+$\Gof{\Sigma/\Delta}$ denote the group $\{ g \in G : \Upsilon^g =
+\Upsilon \textrm{ for all } \Upsilon \in \Blocks{\Sigma/\Delta} \}$.
+We write $G^\Delta$ for the group $\Gof{\Omega/\Delta}$.  The next
+three lemmas are well known in the permutation group theory community,
+however we prove them here for completeness and to fix the notation.
+
+\begin{lemma}\label{lem-gofsigma}
+  Let $G\leq\Sym{\Omega}$ be a permutation group and let $\Delta$ and
+  $\Sigma$ be two $G$-blocks such that $\Sigma \supseteq \Delta$. Then
+  \begin{enumerate}
+  \item The group $\Gof{\Sigma/\Delta}$ is the largest normal subgroup
+    of $G_\Sigma$ contained in $G_\Delta$. In particular, $G^\Delta$
+    is a normal subgroup of $G$.
+
+  \item The quotient group ${G_\Sigma}/{\Gof{\Sigma/\Delta}}$ is a
+    faithful permutation group on $\Blocks{\Sigma/\Delta}$ and is
+    primitive when $\Delta$ is a maximal subblock.
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+  For any $g \in G_\Sigma$, since $g$ set-wise stabilises $\Sigma$,
+  $g$ permutes the elements of $\Blocks{\Sigma/\Delta}$. Hence for any
+  $\Upsilon \in \Blocks{\Sigma/\Delta}$ we have
+  $\Upsilon^{g^{-1}\Gof{\Sigma/\Delta}g} = \Upsilon$. Thus,
+  $\Gof{\Sigma/\Delta}$ is a normal subgroup of $G_\Sigma$.
+
+  Now consider any $N\subseteq G_\Delta$ which is a normal subgroup of
+  $G_\Sigma$. Since $\Delta^N = \Delta$, and since $G_\Sigma$ acts
+  transitively on $\Blocks{\Sigma/\Delta}$, for any $\Upsilon \in
+  \Blocks{\Sigma/\Delta}$ there is a $g \in G_\Sigma$ such that
+  $\Upsilon = \Delta^g$. Therefore, $\Upsilon^N = \Delta^{gN} =
+  \Delta^{Ng}= \Upsilon$ for each $\Upsilon \in
+  \Blocks{\Sigma/\Delta}$. Thus $N\subseteq \Gof{\Sigma/\Delta}$.
+  Since $\Gof{\Sigma/\Delta}\unlhd G_\Sigma$ we have proved part 1.
+
+  Consider the action of $G_\Sigma$ on
+  $\Blocks{\Sigma/\Delta}$. Clearly, $\Gof{\Sigma/\Delta}$ is the
+  kernel in this action. Therefore $G_\Sigma/\Gof{\Sigma/\Delta}$ acts
+  faithfully on $\Blocks{\Sigma/\Delta}$. Notice that $G_\Sigma$ is
+  transitive on $\Blocks{\Sigma/\Delta}$ as it is transitive on
+  $\Sigma$. Further it can be easily verified that nontrivial
+  $G_\Sigma/\Gof{\Sigma/\Delta}$-blocks of $\Blocks{\Sigma/\Delta}$
+  are in 1-1 correspondence with the $G$-blocks $\Gamma$ such that
+  $\Delta\subset \Gamma \subset\Sigma$. Thus,
+  $G_\Sigma/\Gof{\Sigma/\Delta}$ is primitive if and only if $\Delta$
+  is a maximal subblock of $\Sigma$.
+
+\end{proof}
+
+
+In our algorithms, we often need to check certain properties of the
+groups $G_\Delta$ and $G^\Delta$. The group $G$ in this context is the
+Galois group of the input polynomial $f$ and $\Delta$ is a $G$-block
+on its action on the roots of $f$. However, explicit computation of
+these groups are impossible in polynomial time. The next lemma helps
+us reduce this problem to the study of certain natural quotient
+groups.
+
+
+\begin{lemma}\label{lem-gsupdelta}
+  Let $G\leq\Sym{\Omega}$ be a permutation group. Let $\Delta$ and
+  $\Sigma$ be two $G$-block such that $\Delta \subseteq \Sigma$. Then
+  the quotient group $G^\Sigma/G^\Delta$ can be embedded \emph{into}
+  the product group $\left( G_\Sigma/\Gof{\Sigma/\Delta}\right)^l$ for
+  some positive integer $l$.
+\end{lemma}
+\begin{proof}
+
+  For the proof, let the $\Sigma$-block system $\Blocks{\Sigma}$ be
+  $\{\Sigma_1,\ldots,\Sigma_m\}$ where $\Sigma = \Sigma_1$. Notice
+  that $G^{\Sigma_i} = G^{\Sigma} = G^{\Sigma_j}$ for all $1 \leq i
+  \leq j \leq m$. Let $\Delta=\Delta_1,\ldots,\Delta_m$ be any $m$
+  elements of the $\Delta$-block system $\Blocks{\Delta}$ such that
+  $\Delta_i \subseteq \Sigma_i$.
+
+  Consider the action of $G^\Sigma$ on $\Blocks{\Delta}$.  Clearly the
+  kernel of this action is $G^\Delta$. Therefore, the quotient group
+  $H=G^\Sigma/G^\Delta$ acts faithfully on $\Blocks{\Delta}$. Notice
+  that the orbits under the action are precisely
+  $\Blocks{\Sigma_i/\Delta_i}$ for $1 \leq i \leq m$. It is thus easy
+  to see that $H$ can be embedded in the product $\prod H_i$ where
+  $H_i$ is the restriction of $H$ on to
+  $\Blocks{\Sigma_i/\Delta_i}$. Notice that $G^\Sigma \subseteq
+  G_{\Sigma_i}$ for all $i$ and the kernel of the action of
+  $G_{\Sigma_i}$ on $\Blocks{\Sigma_i/\Delta_i}$ is
+  $\Gof{\Sigma_i/\Delta_i}$ (Lemma~\ref{lem-gofsigma}). Therefore,
+  $G^\Sigma/G^\Delta$ can be embedded \emph{into} a subgroup of
+  the product group $\prod_i
+  G_{\Sigma_i}/\Gof{\Sigma_i/\Delta_i}$. The lemma then follows from
+  the fact that $G_{\Sigma_i}$ is isomorphic to $G_\Sigma$ (in fact
+  $G_{\Sigma_i}$ and $G_\Sigma$ are $G$-conjugates) and
+  $\Gof{\Sigma/\Delta}$ is isomorphic to $\Gof{\Sigma_i/\Delta_i}$.
+
+\end{proof}
+
+The next lemma connects orbits of normal subgroups and blocks.
+
+\begin{lemma}\label{lem-orbit-normal}
+  Let $G\leq\Sym{\Omega}$ be transitive and $N\unlhd G$. Let
+  $\alpha\in\Omega$. Then the $N$-orbit $\alpha^N$ is a $G$-block and
+  the collection of $N$-orbits is an $\alpha^N$-block system of
+  $\Omega$ under $G$ action. If $N\neq\{ 1 \}$ then $\# \alpha^N>1$.
+  Furthermore, if $G_\alpha\leq N\neq G$ then the $\alpha^N$-block
+  system is nontrivial implying that $G$ is not primitive.
+\end{lemma}
+\begin{proof}
+  Let $\alpha\in\Omega$ and $g \in G$. If $\beta = \alpha^g$ then the
+  set $(\alpha^N)^g = \alpha^{Ng} = \alpha^{gN} = \beta^N$. Thus
+  $(\alpha^N)^g$ and $\alpha^N$ are $N$-orbits, and hence are
+  identical or disjoint.  So, $\alpha^N$ is a $G$-block and the
+  $N$-orbits form the $\alpha^N$-block system of $G$.  If $\# \alpha^N
+  = 1$ then all the $N$ orbits are of cardinality $1$ and hence $N$
+  fixes all element of $\Omega$. This is possible if and only if $N =
+  1$.
+
+  Finally, suppose that $G_\alpha \leq N$. Then by the
+  Orbit-Stabilizer formula (Theorem~\ref{thm-orbit-stabilizer}) $\# G
+  =\#\Omega\cdot\# G_\alpha$ and $\# N=\#\alpha^N\cdot\# G_\alpha$.
+  Thus, if $\{1\}\neq N\neq G$ and $G_\alpha \leq N$ then $1 < \#
+  \alpha^N < \# \Omega$ and hence $\alpha^N$ is a nontrivial
+  $G$-block.
+\end{proof}
+
+\section{Nilpotent permutation groups}\label{sec-nilpotent-perm-group}
+
+In this section, we prove some properties of transitive nilpotent
+groups that will be required for our nilpotence test. Recall that a
+finite group $G$ is nilpotent if and only if for all prime factors $p$
+of $\# G$, there is a unique normal $p$-Sylow subgroup for $G$. Let
+$G_p$ denote this unique $p$-Sylow subgroup of $G$. Any orbit of the
+Sylow subgroup $G_p$ is a $G$-block as $G_p$ is normal in $G$
+(Lemma~\ref{lem-orbit-normal}). These blocks play a crucial role in
+our nilpotence test and hence we give them a name.
+
+\begin{definition}[Sylow blocks]\label{def-sylow-block}
+  Let $G$ be a transitive nilpotent permutation group on $\Omega$ and
+  let $p$ be a prime dividing the order of $G$.  A subset of $\Omega$
+  is called a \emph{$p$-Sylow block} of $G$ if it is an orbit of the
+  $p$-Sylow subgroup $G_p$.
+\end{definition}
+
+We prove the following lemma about Sylow blocks.
+
+\begin{lemma}\label{lem-sylow-block-ppower}
+  Let $G\leq\Sym{\Omega}$ be a transitive nilpotent permutation group.
+  For every prime $p$ that divides $\# G$ any $p$-Sylow block is of
+  cardinality $p^l$ for some $l >0$.
+\end{lemma}
+\begin{proof}
+  Let $\Sigma \subseteq \Omega$ be any $p$-Sylow block. Since $\Sigma$
+  is an orbit of a nontrivial normal subgroup $G_p$ of $G$, by
+  Lemma~\ref{lem-orbit-normal}, we have $\# \Sigma > 1$. Furthermore
+  if $\alpha$ is any element in $\Sigma$, since $\Sigma =
+  \alpha^{G_p}$ by the orbit-stabiliser formula
+  (Theorem~\ref{thm-orbit-stabilizer}) we have $\# \Sigma \cdot \#
+  (G_{p})_{\alpha} = \# G_p$. Hence $\# \Sigma$ is a power of $p$. So,
+  $\# \Sigma = p^l$ for some $l >0$.
+\end{proof}
+
+We now prove the following lemma about the cardinality of Sylow
+blocks.
+
+\begin{lemma}\label{lem-sylow-cardinality}
+  Let $G\leq\Sym{\Omega}$ be a transitive nilpotent permutation group.
+  For any prime $p$, $p$ divides $\# G$ if and only if it divides $\#
+  \Omega$, and for any $p$-Sylow block $\Sigma$ of $G$, $\# \Sigma$ is
+  the highest power of $p$ that divides $\# \Omega$.
+\end{lemma}
+\begin{proof}
+  Consider any $\alpha \in \Omega$. Since $G$ is transitive, we known
+  that $\alpha^G = \Omega$. By the orbit-stabiliser theorem
+  (Theorem~\ref{thm-orbit-stabilizer}) we have $\# \Omega \cdot \#
+  G_\alpha = \# G$. Therefore, every prime factor of $\# \Omega$
+  divides $\# G$. Conversely, if $p$ divides $\# G$ then for any
+  $p$-Sylow block $\Sigma$, $p$ divides $\# \Sigma$ by
+  Lemma~\ref{lem-sylow-block-ppower}. Hence $p$ divides $\# \Omega$ (a
+  consequence of Theorem~\ref{thm-blocks-galois} for blocks $\Omega$
+  and $\Sigma$).
+
+  We now prove that the cardinality of the $p$-Sylow block $\Sigma$ is
+  the highest power of $p$ that divides $\# \Omega$. Consider the
+  blocks $\Omega$ and $\Sigma$. By Theorem~\ref{thm-blocks-galois} we
+  have $[\Omega: \Sigma] = [G: G_\Sigma]$. Since $\Sigma$ is a $G_p$
+  orbit we have $G_p \leq G_\Sigma$ and hence $p$ does not divide
+  $[G:G_\Sigma]$. So, $p$ does not divide $[\Omega:\Sigma] =
+  \frac{\# \Omega}{\# \Sigma}$.
+\end{proof}
+
+As mentioned before, the Sylow blocks play an important role in our
+algorithm. The fact that any Sylow block $\Sigma$ has prime power
+cardinality helps us in studying the Sylow subgroups of $G_\Sigma$. We
+prove the following lemma about any block of prime power cardinality.
+
+\begin{lemma}\label{lem-same-sylow}
+  Let $G\leq\Sym{\Omega}$ be a transitive nilpotent permutation group.
+  Let $\Delta$ be any $G$-block such that $\# \Delta$ is a power of a
+  prime $p$ and let $q\neq p$ be another prime dividing $\# G$. Let
+  $G_{\Delta,q}$ denote the $q$-Sylow subgroup of $G_\Delta$. Then
+  $G_{\Delta,q}$ fixes all points of the block $\Delta$ (i.e. for all
+  $g$ in $G_{\Delta,q}$ and $\alpha$ in $\Delta$, $\alpha^g =
+  \alpha$). As a result the $q$-Sylow subgroups $G_{\Delta,q}$ and
+  $G_{\alpha,q}$ are equal.
+\end{lemma}
+\begin{proof}
+  Let $\alpha\in\Delta$. Consider the blocks $\Delta$ and $\{\alpha
+  \}$. By Theorem~\ref{thm-blocks-galois} we have $G_\alpha \leq
+  G_\Delta$, and the index $[G_\Delta: G_\alpha] = \# \Delta$ is a
+  power of $p$. Consequently, for a prime $q\neq p$ the highest power
+  of $q$ that divides $\# G_\alpha$ and $\# G_\Delta$ are same, say
+  $q^r$. Further, note that both $G_\Delta$ and $G_\alpha$ are
+  nilpotent as they are subgroups of a nilpotent group $G$. Therefore,
+  they have unique $q$-Sylow subgroups $G_{\Delta,q}$ and
+  $G_{\alpha,q}$, respectively which must be of size $q^r$. Hence
+  $G_{\Delta,q}=G_{\alpha,q}$, implying that $\alpha^g=\alpha$ for all
+  $g\in G_{\alpha,q}$.
+\end{proof}
+
+We derive an important consequence of Lemma~\ref{lem-same-sylow}.
+
+\begin{lemma}\label{lem-gsup-sylow}
+  Let $G\leq\Sym{\Omega}$ be a transitive nilpotent permutation group
+  and $\Sigma$ be any $p$-Sylow block of $G$. The group $G^{\Sigma}$
+  is the (unique) $p$-Sylow subgroup $G_p$ of $G$.
+\end{lemma}
+\begin{proof}
+  Recall that $\Sigma$ is an orbit of $G_p$ and the $\Sigma$-block
+  system $\Blocks{\Sigma}$ is the collection of all $G_p$-orbits and
+  hence all $p$-Sylow blocks of $G$. Therefore, for all $\Gamma \in
+  \Blocks{\Sigma}$, we have $\Gamma^{G_p} = \Gamma$ and hence $G_p
+  \leq G^{\Sigma}$. The group $G^\Sigma$ being a subgroup of a
+  nilpotent group $G$ is itself nilpotent and is therefore the product
+  of its Sylow subgroups. So, to prove that $G^\Sigma = G_p$ it is
+  sufficient to prove that for all primes $q\neq p$ the $q$-Sylow
+  subgroup $G^\Sigma_q$ of $G^{\Sigma}$ is trivial.
+
+  Note that $G^\Sigma=\bigcap_{\Gamma \in \Blocks{\Sigma}}
+  G_\Gamma$. Hence, $G^\Sigma_q \leq G_{\Gamma,q}$ for all $\Gamma \in
+  \Blocks{\Sigma}$ and by Lemma~\ref{lem-same-sylow} it follows that
+  for all $g$ in $G^\Sigma_q$ and $\alpha\in\Gamma$ we have
+  $\alpha^g=\alpha$. Since $\bigcup_{\Gamma\in \Blocks{\Sigma}} \Gamma
+  = \Omega$, for all $\alpha$ in $\Omega$ and $g$ in $G^\Sigma_q$,
+  $\alpha^g=\alpha$. This is only possible if $G^\Sigma_q$ is the
+  trivial group $\{1\}$.
+\end{proof}
+
+We now show that the subblock structure of $G$ under a $p$-Sylow block
+is similar to the subblock structure of a transitive $p$-group.
+
+
+\begin{lemma}\label{lem-sylow-subblocks}
+  Let $G\leq\Sym{\Omega}$ be a transitive nilpotent permutation group
+  and let $p$ be a prime factor of $\# G$. Let $\Sigma$ be any
+  $p$-Sylow block of $G$ then for any subset $\Delta \subseteq
+  \Sigma$, $\Delta$ is a $G$-block if and only if $\Delta$ is
+  $G_p$-block under the transitive action of $G_p$ on $\Sigma$.
+\end{lemma}
+\begin{proof}
+  Clearly if $\Delta \subseteq \Sigma$ is a $G$-block then it is also
+  a $G_p$-block as $G_p \leq G$.
+
+  Conversely, suppose $\Delta$ is a $G_p$-block. We first argue that
+  $\Delta$ is a $G_\Sigma$-block. Recall that $G_p$ is the $p$-Sylow
+  subgroup of $G_\Sigma$ as well, and by Lemma~\ref{lem-same-sylow}
+  for a prime $q\neq p$ the $q$-Sylow subgroups of $G_\Sigma$
+  pointwise fix each element of $\Sigma$ (and hence each element of
+  $\Delta$). Since $G_\Sigma$ is a product of its Sylow subgroups, it
+  follows that $\Delta$ is a $G_\Sigma$-block.  Hence, by
+  Proposition~\ref{prop-block-subblock} $\Delta$ is a $G$-block as
+  well.
+\end{proof}
+
+The previous lemma indicates that to study the subblock structure
+under a $p$-Sylow block it is sufficient to understand the subblock
+structure of a transitive $p$-group.  We now recall a result about
+blocks of transitive $p$-groups (see e.g.\ Luks~\cite[Lemma
+1.1]{luks82bounded}).
+
+\begin{lemma}\label{lem-luks-pgroups}
+  Let $G\leq\Sym{\Omega}$ be a transitive permutation $p$-group and
+  $\Delta$ be a maximal $G$-block.  Then $[\Omega : \Delta]=p$ and the
+  group $G_\Delta$ is a normal subgroup of $G$ with the quotient group
+  $G/G_\Delta$ being the cyclic group of order $p$.
+\end{lemma}
+
+The above lemma has the following corollary.
+
+\begin{corollary}\label{cor-luks-pgroups}
+  Let $G$ be a transitive permutation $p$-group on $\Omega$ and let
+  $\Delta$ be any $G$-block. Suppose that $\Gamma$ is a minimal
+  $G$-block containing $\Delta$ then $[\Gamma : \Delta] = p$ and
+  $G_\Delta$ is a normal subgroup of $G_\Gamma$ with quotient
+  $G_\Gamma/G_\Delta$ a cyclic group of order $p$.
+\end{corollary}
+\begin{proof}
+  Consider the transitive action of $G_\Gamma$ on $\Gamma$. If
+  $\Delta'$ is any $G_\Gamma$-block between $\Gamma$ and $\Delta$ then
+  $G_\Delta \leq G_{\Delta'} \leq G_\Gamma$. Hence by
+  Theorem~\ref{thm-blocks-galois}, $\Delta'$ is a $G$-block.  This
+  contradicts the minimality of $\Gamma$. So, $\Delta$ is a maximal
+  $G_\Gamma$ block of $\Gamma$. The corollary then follows from
+  Lemma~\ref{lem-luks-pgroups} for the group $G_\Gamma$.
+\end{proof}
+
+We now translate the above result on the block structure of a
+$p$-group into that of a nilpotent group.
+
+\begin{theorem}\label{thm-if-g-nilpotent}
+  Let $G$ be any transitive nilpotent group on $\Omega$ and let $p$ be
+  a prime dividing $\# G$ (and hence $\# \Omega$). Let $p^m$ be the
+  highest power of $p$ that divides $\# \Omega$ and let $\Delta$ be a
+  $G$-block of cardinality a power of $p$. Then there is a $p$-Sylow
+  block $\Sigma$ such that $\Delta \subseteq \Sigma$. Furthermore, if
+  $\# \Delta < p^m$ then for any minimal $G$-block $\Delta'$ such that
+  $\Delta \subset \Delta' \subseteq \Sigma$ we have:
+  \begin{enumerate}
+  \item The index of the blocks $[\Delta':\Delta]$ is $p$,
+  \item The group $G_{\Delta}$ is a normal subgroup of $G_{\Delta'}$ and
+  \item The quotient group $G_{\Delta'}/G_\Delta$ is the cyclic group
+  of order $p$.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+  First we show that $\Delta$ is a subset of a $p$-Sylow block.  Let
+  $\alpha$ be any element of $\Delta$ and let $\Sigma$ be the
+  $p$-Sylow block $\alpha^{G_p}$. We claim that $\Delta\subseteq
+  \Sigma$. By Proposition~\ref{prop-block-subblock},
+  $\Delta=\alpha^{G_\Delta}$. By Lemma~\ref{lem-same-sylow}, for any
+  prime $q\neq p$ the $q$-Sylow subgroup $G_{\Delta,q}$ of $G_\Delta$
+  fixes each point of $\Delta$. Since $G_\Delta$ is the product of its
+  Sylow subgroups, it follows that
+  $\Delta=\alpha^{G_\Delta}=\alpha^{G_{\Delta,p}}\subseteq
+  \alpha^{G_p}=\Sigma$.
+
+  Now consider any minimal $G$-block $\Delta'$ between $\Sigma$ and
+  $\Delta$. By Lemma~\ref{lem-sylow-subblocks}, $\Delta'$ is a minimal
+  $G_p$-block between $\Delta$ and $\Sigma$. Therefore, using
+  Corollary~\ref{cor-luks-pgroups}, we have $[\Delta':\Delta]=p$ and
+  $G_{\Delta,p}$ is a normal subgroup of $G_{\Delta',p}$ such that
+  their quotient group $G_{\Delta',p}/G_{\Delta,p}$ is a cyclic group
+  of order $p$. For all primes $q$ different from $p$ by
+  Lemma~\ref{lem-same-sylow} we have $G_{\Delta',q} =
+  G_{\Delta,q}$. Since $G_{\Delta'}$ and $G_\Delta$ are a product of
+  their Sylow subgroups we have $G_\Delta$ is a normal subgroup of
+  $G_{\Delta'}$ with the quotient $G_{\Delta'}/G_{\Delta} =
+  G_{\Delta',p}/G_{\Delta,p}$, a cyclic group of order $p$.
+\end{proof}
+
+\begin{theorem}\label{thm-g-is-nilpotent}
+  Let $G$ be a transitive permutation group on $\Omega$. Let $\alpha$
+  be any element of $\Omega$. Suppose that for all primes $p$ dividing
+  $\# G$ we have a chain $\{ \alpha \} = \Delta_0 \subset \ldots
+  \subset \Delta_m$ of $G$-blocks satisfying the follow properties
+  \begin{enumerate}
+  \item The index $[\Delta_{i+1}:\Delta_i] =
+    p$,\label{item-p-cardinality}
+  \item The group $G_{\Delta_i}$ is a normal subgroup of
+    $G_{\Delta_{i+1}}$ and\label{item-normality}
+  \item The prime $p$ does not divide the order of
+    $G/G^{\Delta_m}$.\label{item-p-not-dividing}
+  \end{enumerate}
+  Then $G$ is nilpotent.
+\end{theorem}
+
+\begin{proof}
+  For each prime factor $p$ of $\# G$ we will show that any $p$-Sylow
+  subgroup of $G$ is normal.  Since $G^{\Delta_m}$ is normal in $G$
+  (by Lemma[Part 1]~\ref{lem-gofsigma}) and by
+  part~\ref{item-p-not-dividing}, $p$ does not divide
+  $\#G/G^{\Delta_m}$, it is sufficient to prove that $G^{\Delta_m}$ is
+  a $p$-group. We prove inductively that for all $0 \leq i \leq m$ the
+  group $G^{\Delta_i}$ is of cardinality $p^{l_i}$ for some $l_i$. As
+  the base case, $G^{\Delta_0} = \{ 1 \}$ and hence $\# G^{\Delta_0} =
+  p^{l_0}$ where $l_0 = 0$.
+
+  Suppose that our hypothesis is true for all $i \leq r$. To prove
+  that $\# G^{\Delta_{r+1}}$ is $p^{l_{r+1}}$ for some $l_{r+1}$ it is
+  sufficient to prove that the quotient group
+  $G^{\Delta_{r+1}}/G^{\Delta_r}$ is a $p$-group since by the
+  inductive assumption $\# G^{\Delta_r}= p^{l_r}$. {From}
+  Lemma~\ref{lem-gsupdelta} the quotient group
+  $G^{\Delta_{r+1}}/G^{\Delta_r}$ is a subgroup of
+  $\left(G_{\Delta_{r+1}}/\Gof{\Delta_{r+1}/\Delta_r}\right)^l$ for
+  some integer $l$. We will prove that
+  $G_{\Delta_{r+1}}/\Gof{\Delta_{r+1}/\Delta_r}$ is a cyclic group of
+  order $p$ which clearly is sufficient.
+
+  The group $\Gof{\Delta_{r+1}/\Delta_r}$ is the largest subgroup of
+  $G_{\Delta_r}$ that is normal in $G_{\Delta_{r+1}}$
+  (Lemma~\ref{lem-gofsigma}). By part~\ref{item-normality},
+  $G_{\Delta_r}$ itself is normal in $G_{\Delta_{r+1}}$. Hence the
+  groups $\Gof{\Delta_{r+1}/\Delta_r}$ and $G_{\Delta_r}$ are
+  equal. Furthermore, $[G_{\Delta_{r+1}}:G_{\Delta_r}] =
+  [\Delta_{r+1}:\Delta_r] = p$ (part~\ref{item-p-cardinality}). So,
+  the quotient group $G_{\Delta_{r+1}}/\Gof{\Delta_{r+1}/\Delta_r}$,
+  which is $G_{\Delta_{r+1}}/G_{\Delta_r}$, is a cyclic group of order
+  $p$.
+\end{proof}
+
+
+
+\begin{remark}
+  Both Theorems \ref{thm-if-g-nilpotent} and \ref{thm-g-is-nilpotent}
+  play an important role in our algorithm described in the next
+  section.  Theorem~\ref{thm-if-g-nilpotent} guarantees for nilpotent
+  groups that each chain of $G$-blocks (whose sizes are a power of
+  $p$) can be extended to a maximal chain that terminates at a
+  $p$-Sylow block and any pair of adjacent blocks have index $p$. This
+  allows the algorithm to grow the chain of blocks in any manner.
+  Theorem~\ref{thm-g-is-nilpotent} ensures the correctness.
+\end{remark}
+
+\section{The Polynomial-Time Nilpotence Test}\label{sec-nilpotence-test}
+
+In this section, our goal is to give an algorithm that takes as input
+a polynomial $f(X)$ over $\Q$ and checks whether its Galois group
+$\Gal{f}$ is nilpotent. Now, $\Gal{f}$ is nilpotent if and only if for
+each irreducible factor $h(X)$ of $f(X)$, the Galois group $\Gal{h}$
+is nilpotent. This is true because nilpotent groups are closed under
+subgroups, products and quotients. Hence, in order to test the
+nilpotence of $Gal{f}$ it suffices to check for each irreducible
+factor $h$ of $f$ that its Galois group $\Gal{h}$ is
+nilpotent. Furthermore, using the LLL algorithm~\cite{lll}, all the
+irreducible factors of $f(X)$ can be computed in polynomial
+time. Therefore, for nilpotence testing, we assume without loss of
+generality that the input polynomial $f(X)$ is irreducible.
+
+Let $G$ be $\Gal{f}$. We consider $G$ as a subgroup of $\Sym{\Omega}$,
+where $\Omega$ is the set of roots of $f(X)$. Since $f$ is irreducible
+all its roots are distinct, and for any two roots $\alpha$ and $\beta$
+of $f$ there is an element $\sigma$ in the Galois group $G$ of $f$
+such $\alpha^\sigma = \beta$. Therefore, the Galois group $G$ is a
+transitive subgroup of $\Sym{\Omega}$.
+
+We first outline the main idea. For all primes $p$ dividing $\# G$ if
+we can test the existence of a tower of $G$-blocks $\{\alpha\} =
+\Delta_0 \subseteq \ldots \subset \Delta_m$ satisfying the conditions
+of Theorem~\ref{thm-g-is-nilpotent} then $G$ is nilpotent. It is not
+clear whether we can test these conditions by explicitly computing the
+$G$-blocks. That seems possible only if we can already compute the
+Galois group $G$. Instead, our approach will be to test the conditions
+of Theorem~\ref{thm-g-is-nilpotent} by considering the fixed field of
+each group $G_{\Delta_i}$. For a $G$-block $\Delta$, let $\Q_\Delta$
+denote the fixed field of the splitting field $\Q_f$ under the
+automorphisms in $G_\Delta$. More precisely,
+\[
+\Q_\Delta=\{\beta\in\Q_f\mid \beta^g=\beta \textrm{ for all } g \in
+G_\Delta\}.
+\]
+
+The following proposition is a consequence of the fundamental theorem
+of Galois theory (Theorem~\ref{thm-funda-galois}).
+
+\begin{proposition}\label{prop-Q-delta}
+  Let $\Q_\Delta$ denote the fixed field of $\Q_f$ under automorphisms
+  in $G_\Delta$. Then:
+  \begin{enumerate}
+  \item The Galois group $\Gal{\Q_f/\Q_{\Delta}}$ is the group $G_\Delta$.
+  \item Let $\alpha$ be any root of the polynomial $f(X)$ such that
+    $\alpha \in \Delta$ then $\Q_{\Delta}$ is a subfield of
+    $\Q(\alpha)$.
+  \item If $\mu_{\Delta}(X)$ is a primitive polynomial for
+    $\Q_{\Delta}$ then its Galois group $\Gal{\mu_\Delta}$ is
+    $G/G^{\Delta}$.
+  \end{enumerate}
+\end{proposition}
+\begin{proof}
+  Part~1 follows directly from the fundamental theorem of Galois
+  theory as $\Q_{\Delta}$ of is the fixed field of $\Q_f$ under
+  $G_\Delta$. To prove that $\Q_\Delta \subseteq \Q(\alpha)$ notice
+  that the Galois groups $\Gal{\Q_f/\Q_{\Delta}}$ and
+  $\Gal{\Q_f/\Q(\alpha)}$ are $G_\Delta$ and $G_\alpha$
+  respectively. As $\alpha \in \Delta$ the group $G_\alpha$ is a
+  subgroup of $G_\Delta$. Hence by the fundamental theorem of Galois
+  theory $\Q_\Delta \subseteq \Q(\alpha)$.
+
+For the third part, notice that if $\mu_{\Delta}(X)$ is the primitive
+polynomial of $\Q_{\Delta}$ then its splitting field $\Q_{\mu_\Delta}$
+is the normal closure of $\Q_\Delta$ in $\Q_f$. Hence, the Galois
+group $\Gal{\Q_f/\Q_{\mu_\Delta}}$ is the largest normal subgroup of
+$G$ that is contained in $G_{\Delta}$. By Lemma~\ref{lem-gofsigma}
+(putting $\Sigma = \Omega$ in the lemma) it follows that the Galois
+group $\Gal{\Q_f/\Q_{\mu_\Delta}}$ is precisely
+$G^{\Delta}$. Consequently, the Galois group $\Gal{\mu_\Delta} =
+\Gal{\Q_{\mu_\Delta}/\Q}$ is $G/G^\Delta$.
+\end{proof}
+
+A direct consequence of Proposition~\ref{prop-Q-delta} and
+Theorem~\ref{thm-funda-galois} is the following.
+
+\begin{proposition}\label{prop-Q-delta-nilpotent}
+  A tower of $G$-blocks $\{ \alpha \} = \Delta_0 \subset \ldots
+  \subset \Delta_m$ satisfies the conditions of
+  Theorem~\ref{thm-g-is-nilpotent} if and only if the tower of fixed
+  field $\Q(\alpha) = \Q_{\Delta_0} \supset \ldots \supset
+  \Q_{\Delta_m}$ satisfies the following conditions:
+    \begin{enumerate}
+    \item The degree of the extension
+      $\Q_{\Delta_i}/\Q_{\Delta_{i+1}}$ is $p$.
+    \item The extension $\Q_{\Delta_i}/\Q_{\Delta_{i+1}}$ is normal.
+    \item For any block $\Delta$ if $\mu_{\Delta}$ denote a primitive
+      polynomial of the field $\Q_\Delta$, then the prime $p$ does not
+      divide the order of the Galois group $\Gal{\mu_{\Delta_m}}$ of
+      the primitive polynomial $\mu_{\Delta_m}(X)$ of $\Q_{\Delta_m}$.
+    \end{enumerate}
+\end{proposition}
+
+We will first check whether $f(X)$ is solvable by radicals by using
+the Landau-Miller test. Clearly, if $f(X)$ is not solvable by radicals
+then $G$ is not nilpotent. If $f(X)$ is solvable by radicals then so
+is each polynomial $\mu_{\Delta_i}(X)$ for $1 \leq i \leq m$. Hence,
+applying the Landau-Miller algorithm \cite{landau85solvability} we can
+compute all the prime factors of $\#\Gal{f}$ and $\#
+\Gal{\mu_{\Delta_m}}$ (Theorem~\ref{thm-landau-primes}). Thus, if we
+can compute in polynomial time the primitive polynomials
+$\mu_{\Delta_i}(X)$ of the fields $\Q_{\Delta_i}$ for $1 \leq i \leq
+m$ then we will have a polynomial-time algorithm to verify the
+conditions of Proposition~\ref{prop-Q-delta-nilpotent}. The following
+theorem is due to Landau and Miller~\cite{landau85solvability}
+restated in a form suitable for our application. For completeness, we
+present a proof in our notation.
+
+\begin{theorem}[Landau-Miller]\label{thm-enlarge-block}
+  Let $f(X)\in\Q[X]$ be irreducible, $G=\Gal{f}$ be its Galois group
+  and $\Omega$ be the set of roots of $f$ over the algebraic closure
+  $\overline{\Q}$. Let $\Delta\subseteq\Omega$ be any $G$-block and
+  $\alpha\in \Delta$. There is an algorithm that takes as input a
+  polynomial $p_\Delta(X) \in \Q[X]$ such that
+  $\Q_\Delta=\Q(p_\Delta(\alpha))$, runs in time polynomial in
+  $\size{f}$ and $\size{p_\Delta}$, and for each $G$-block $\Sigma$
+  such that $\Delta$ is a maximal block of $\Sigma$, computes a
+  polynomial $p_\Sigma(X) \in \Q[X]$ such that
+  $\Q_\Sigma=\Q(p_\Sigma(\alpha))$. Furthermore, the size of the
+  computed polynomial $\size{p_\Sigma}$ is bounded by a polynomial in
+  $\size{f}$ and is independent of $\size{p_\Delta}$.
+\end{theorem}
+
+\begin{remark}
+  A couple of remarks are in order before we proceed to the
+  proof. Notice that the algorithm for computing $p_\Sigma$ takes as
+  input polynomials $f$ as well as $p_\Delta$. However, the theorem
+  stipulates that the \emph{size} of the output polynomial $p_\Sigma$
+  is polynomially bounded in just the $\size{f}$ and \emph{not} on the
+  other polynomial $\size{p_\Delta}$. This property of the algorithm
+  is crucial because we will recursively apply this algorithm to a
+  tower of blocks, where the tower length can be logarithmic in
+  $\deg(f)$. So, if $\size{p_\Sigma}$ had been a polynomial in
+  $\size{p_\Delta}$ the overall algorithm would have incurred a
+  polynomial size growth at every level of the tower making it
+  superpolynomial.
+
+  Another point about the algorithm is that the field $\Q(\alpha)$ is
+  identified with the quotient $\Q[X]/f(X)$.  Thus, elements of
+  $\Q(\alpha)$ are polynomials in $\alpha$ with rational
+  coefficients. The algorithm will work with such polynomials
+  representing elements of $\Q(\alpha)$.
+\end{remark}
+
+\begin{proof}
+  Consider the Galois group $G$ as a permutation group over the roots
+  $\Omega$. For $\Delta\subseteq\Omega$ let $T_\Delta(X)$ denote the
+  polynomial
+  \[
+  T_\Delta(X) = \prod_{\eta \in \Delta} (X - \eta).
+  \]
+
+\begin{claim}\label{claim-prim-poly}
+  For the $G$-block containing $\alpha$ if the polynomial
+  $T_\Delta(X)$ defined above is $\delta_0 + \ldots + \delta_r X^r$.
+  Then field $\Q_\Delta$ is the field $\Q(\delta_0,\ldots,\delta_r)$.
+  Here $\delta_i\in\Q(\alpha)$ are polynomials in $\alpha$ with
+  coefficients in $\Q$.
+\end{claim}
+\begin{proof}[of claim]
+  Let $K$ be the field $\Q(\delta_0,\ldots,\delta_r)$ and let $H$ be
+  the Galois group $\Gal{\Q_f/K}$. For the claim it is sufficient to
+  prove that $H = G_\Delta$. Consider any automorphism $\sigma \in
+  G_\Delta$. Since $\sigma$ permutes the roots of $\Delta$ among
+  themselves $\sigma (T_\Delta(X)) = T_\Delta$. So, $\sigma$ has to
+  fix each of the coefficients $\delta_i$ of $T_\Delta$ and hence
+  fixes $K$. Conversely, consider any automorphism $\tau$ of $H$ and
+  let $\Delta'$ be the block $\Delta^\tau$.  Since $\tau$ fixes $K$ we
+  have $\tau (T_\Delta(X)) = T_{\Delta'}$. As $\Delta$ and $\Delta'$
+  are $G$-blocks, this can only happen if $\Delta' = \Delta$ for
+  otherwise $T_\Delta(X)$ and $T_{\Delta'}(X)$ have no common
+  roots. Therefore, $\tau \in G_\Delta$.
+\end{proof}
+
+Given the coefficients of the polynomial $T_\Delta$, notice that we
+can compute $p_\Delta$ in polynomial time by applying the primitive
+element theorem (see Lemma~\ref{lem-primitive-element}). To see this,
+observe that $\Q_\Delta$ is a subfield of $\Q_\alpha$. Hence
+$[\Q_\Delta:\Q]\leq \deg(f)$. Therefore, the algorithm given by the
+primitive element theorem for computing the coefficients of $p_\Delta$
+is polynomial-time bounded. Further, since $T_\Delta(X)$ is a factor
+of the polynomial $f(X)$, by a well-known result of Mignotte
+\cite{Mi74}, each of the $\delta_i$'s have size bounded by a
+polynomial in $\size{f}$.
+
+\begin{claim}\label{claim-factor-blocks}
+  Let $\Delta$ be a $G$-block containing $\alpha$. The irreducible
+  factor of $f$ over $\Q_\Delta$ which has $\alpha$ as root is
+  $T_\Delta$. Let $\Sigma$ be any $G$-block such that $\Sigma
+  \supseteq \Delta$. If $g$ is an irreducible factor of $f$ over
+  $\Q_\Delta$ then $\Sigma$ contains a root of $g$ if and only if it
+  contains all the roots of $g$.
+\end{claim}
+\begin{proof}[of claim]
+  Let $g$ be an irreducible factor of $f(X)$ over $\Q_\Delta$.  The
+  roots of $g$ form a $G_\Delta$-orbit of $\Omega$. Conversely, for
+  any $G_\Delta$-orbit $\Omega'$ the polynomial $T_{\Omega'}(X)$ is an
+  irreducible factor of $f(X)$ over $\Q_\Delta$. Hence the irreducible
+  factor of $f$ over $\Q_\Delta$ that has $\alpha$ as root is
+  $T_\Delta$.
+
+  For a $G$-block $\Sigma$ containing $\Delta$ we have $G_\Sigma \geq
+  G_\Delta$. Hence, any orbit of $G_\Delta$ is completely contained
+  inside an orbit of $G_\Sigma$. As the roots of any irreducible
+  factor $g(X)$ of $f(X)$ over $\Q_\Delta$ form an orbit of
+  $G_\Delta$, it is completely contained inside a $G_\Sigma$
+  orbit. Hence, if one of the roots of $g$ is in $\Sigma$, the orbit
+  $\alpha^{G_\Sigma}$ of $G_\Sigma$, then all roots are in
+  $\Sigma$. This proves the claim.
+\end{proof}
+
+Let $\Delta$ be a $G$-block containing $\alpha$ and assume that we
+have already computed the polynomial $p_\Delta$. Further, assume that
+$f$ factors as $g_0\ldots g_r$ over $\Q_\Delta=\Q(p_\Delta(\alpha))$
+(which can be computed in polynomial time by Landau's factorisation
+algorithm \cite{landau85factoring}). One of these factors say $g_0$ is
+$T_\Delta$. Consider any $G$-block $\Sigma$ such that $\Delta$ is a
+maximal $G$-subblock of $\Sigma$.  There is a factor $g_i$ such that
+$\Sigma$ contains a root, and hence all the roots
+(Claim~\ref{claim-factor-blocks}) of $g_i$.  Let $\Sigma_i$ be the
+smallest $G$-block containing $\Delta$ and all the roots of $g_i$.  We
+give a polynomial-time algorithm to compute $T_{\Sigma_i}$.
+Theorem~\ref{thm-enlarge-block} then follows from this algorithm.
+
+\begin{claim}\label{claim-enlarge-block}
+  Let $\Delta$ be a $G$-block containing $\alpha$. Given a polynomial
+  $p_\Delta$ such that $\Q_\Delta=\Q(p_\Delta(\alpha))$ as a subfield
+  of $\Q(\alpha)$ and an irreducible factor $g$ of $f$ over
+  $\Q_\Delta$ we can compute in polynomial time $T_\Sigma$ as a
+  polynomial in $\Q(\alpha)[Y]$, where $\Sigma$ is the smallest
+  $G$-block containing $\Delta$ and the roots of $g$.
+\end{claim}
+\begin{proof}[of Claim]
+  We are given $\Q_\Delta$ as a subfield of $\Q(\alpha)$. The
+  coefficients of factors of $f$ over $\Q_\Delta$ are polynomials in
+  $\alpha$. Let the factorisation of $f$ over $\Q_\Delta$ be $f=g_0
+  \ldots g_r$, where $g_0 = T_\Delta$ and $g=g_1$.  Denote the set of
+  roots of $g_i$ by $\Phi_i$, for each $i$. Then $\Phi_i$'s are the
+  orbits of $G_\Delta$ and by Claim~\ref{claim-factor-blocks}, the
+  polynomial $T_\Sigma$ is precisely the product of $g_i$ such that
+  $\Phi_i\subseteq \Sigma$.
+
+  Let $\beta$ denote a root of $g(X)$, and $\sigma \in \Gal{\Q_f/\Q}$
+  be an automorphism such that $\sigma$ maps $\alpha$ to
+  $\beta$. Notice that $\sigma$ is an isomorphism between the fields
+  $\Q(\alpha)$ and $\Q(\beta)$.  Let $\Sigma$ be the smallest
+  $G$-block containing $\Delta$ and $\Phi_1$. {From}
+  Theorem~\ref{thm-blocks-galois} and the Galois correspondence of
+  blocks (Theorem~\ref{thm-blocks-galois}) we know that $G_\Sigma$ is
+  generated by $G_\Delta\cup\{\sigma\}$.
+
+  If generators for $G_\Delta$ and the automorphism $\sigma$ are
+  known, then the block $\Sigma$ can be computed by transitive closure
+  of procedure as in Algorithm~\ref{algo-compute-Sigma}. The
+  correctness of this algorithm follows directly from
+  Claim~\ref{claim-factor-blocks}.
+
+  \begin{algorithm}
+    \caption{Computing $\Sigma$}\label{algo-compute-Sigma}%
+    \label{alg-compute-sigma}
+    Let $S:= \{\Delta,\Phi_1\}$
+
+    \While{new orbits get added to $S$} {%
+      Compute $S':=\{\Phi^\sigma\mid \Phi\in S\}$
+
+      \lIf{$\Phi_j\cap \Phi^\sigma\neq\emptyset$ for some
+	$\Phi^\sigma\in S'$} %
+	  {include $\Phi_j$ in $S$}%
+    }
+
+    Output $\bigcup\{\Phi\mid \Phi\in S\}$%
+  \end{algorithm}
+
+  Our goal is to get a polynomial-time algorithm for computing
+  $T_\Sigma$ from the above procedure that defines $\Sigma$.  First,
+  we compute the extension field $\Q(\alpha,\beta)=\Q(\gamma)$: we do
+  this by first factoring $f$ over $\Q(\alpha)$. Let $h$ be an
+  irreducible factor of $g$ over $\Q(\alpha)$. Then
+  $\Q(\alpha,\beta)=\Q (\alpha)[X]/h(X)$. As
+  $[\Q(\alpha,\beta):\Q]\leq n^2$, we can compute a primitive element
+  $\gamma$ in polynomial time.\footnote{Note that we need to invoke
+    Remark~\ref{rem-prim-elt} for this computation.} Furthermore, in
+  polynomial time we can find polynomials $r_1$ and $r_2$ such that
+  $\alpha=r_1(\gamma)$ and $\beta=r_2(\gamma)$.
+
+  For all $1 \leq i \leq r$, let $\sigma$ map the polynomials $g_i$ in
+  $\Q(\alpha)[X]$ to the polynomials $g_i^\sigma$ in $\Q(\beta)[X]$,
+  obtained by symbolically replacing $\alpha$ by $\beta$ in each
+  coefficient of $g_i$.  In Algorithm~\ref{alg-compute-sigma}, testing
+  if $\Phi_j\cap\Phi_i^\sigma\neq\emptyset$ amounts to finding if
+  $gcd(g_j,g_i^\sigma)$ is nontrivial. To make this gcd computation
+  possible, we must express $g_j$ and $g_i$ over $\Q(\gamma)$, which
+  we do by replacing $\alpha$ by $r_1(\gamma)$ and $\beta$ by
+  $r_2(\gamma)$.  We can now give the algorithm for computing
+  $T_\Sigma$.
+
+  \begin{algorithm}
+    \caption{Computing $T_\Sigma$}%
+
+    \label{alg-enlarge-block}
+
+    Let $S:= \{T_\Delta,g\}$%
+
+    \While{new factors get included in $S$}%
+	  { %
+
+	    Compute $S' := \{ h^\sigma\mid h\in
+	    S\}$\
+
+	    \For{each factor $g_j$ and $h^\sigma \in S'$}
+		{%
+
+		  Express $g_j(X)$ and $h^\sigma(X)$ as polynomials
+		  over the field $\Q(\gamma)$.
+
+		  \lIf{$gcd(g_j,h^\sigma)$ is nontrivial}
+                      {include $g_j$ in $S$}%
+
+		}%
+
+
+	  }%
+
+		Output $T_\Sigma:=T_\Delta\cdot\prod_{g_i \in S}
+    g_i$
+  \end{algorithm}
+
+  It is clear that Algorithm~\ref{alg-enlarge-block} is
+  polynomial-time bounded. The preceding discussion and the procedure
+  for defining $\Sigma$ imply that the algorithm correctly computes
+  $T_\Sigma$. This proves Claim~\ref{claim-enlarge-block}.
+\end{proof}
+
+\end{proof}
+
+\subsection*{The Algorithm}
+
+The complete nilpotence test is given in
+Algorithm~\ref{algo-nilpotent}. We show that the algorithm is correct
+and that its running time is polynomially bounded in its input size in
+the rest of the section.
+
+\begin{algorithm}
+  \SetKw{Print}{print}
+  \caption{Nilpotence test}\label{algo-nilpotent}
+  \KwIn{A polynomial $f(X) \in \Q[X]$ of degree $n$}
+  \KwOut{\emph{Accept} if $\Gal{f}$ is nilpotent;\emph{Reject} otherwise}
+
+  Verify that $f(X)$ is solvable using the Landau-Miller test.\;
+
+  \lnl{step-compute-ps} Compute the set $P$ of all the prime factors
+  of $\# \Gal{f}$\;
+
+  Let $G\leq\Sym{\Omega}$ denote the Galois group of $f$, where
+  $\Omega$ is the set of roots of $f$.
+
+  \lnl{step-for-loop}
+  \For{\KwSty{every} $p \in P$} {
+
+   \lnl{step-p-div-n}
+   \lIf{$p$ does not divide $n$}{ \emph{Reject}}
+
+    Let $p^m$ be the highest power of $p$ dividing $n$.
+
+    $\Q_{\Delta_0} := \Q(X)/f(X)$
+
+    \lnl{step-build-tower}
+    \For{$i = 0$ \KwSty{to} $m -1$}
+    {
+
+      \lnl{step-all-min-blocks} By Theorem~\ref{thm-enlarge-block}
+      compute $\Q_\Gamma$ for all minimal $G$-blocks $\Gamma$
+      containing $\Delta_i$.
+
+      \lnl{step-prime-extension} Among the fields $\Q_\Gamma$
+        computed above check if there a field $K$ such that
+        $\Q_{\Delta_i}/K$ is a normal extension of degree
+        $[\Q_{\Delta_i} : K] = p$.
+
+      \lIf{no such field exists}{\emph{Reject}}
+
+      \lElse{ $\Q_{\Delta_{i+1}} := K$ }
+    }
+
+    Let $\mu_{\Delta_m}(X)$ be the primitive polynomial for
+    $\Q_{\Delta_m}$
+
+    \lnl{step-check-psylow}
+    \lIf{$p$ divides $\#\Gal{\mu_{\Delta_m}}$}{\emph{Reject}}
+}\emph{Accept}
+\end{algorithm}
+
+\begin{proposition}\label{prop-runs-ptime}
+  Algorithm~\ref{algo-nilpotent} runs in time polynomial in
+  $\size{f}$.
+\end{proposition}
+
+\begin{proof}
+The Landau-Miller solvability test for $\Gal{\Q_f/\Q}$ and the
+algorithm of Theorem~\ref{thm-landau-primes} are polynomial time
+bounded \cite{landau85solvability}. The nilpotence test first verifies
+that $\Gal{\Q_f/\Q}$ is solvable by applying the Landau-Miller test.
+Now, since the field $\Q_{\Delta_m}$ is contained in $\Q_f$, its
+primitive polynomial $\mu_{\Delta_m}(X)$ will also split in $\Q_f$
+implying that $\Q_{\mu_{\Delta_m}} \subset \Q_f$. Hence
+$\Gal{\Q_{\mu_{\Delta_m}}/\Q}=\Gal{\mu_{\Delta_m}}$ is also a solvable
+group. Hence, in steps~\ref{step-compute-ps} and
+\ref{step-check-psylow} we can apply the algorithm of
+Theorem~\ref{thm-landau-primes} to compute all the prime factors of
+$\# \Gal{f}$ and $\# \Gal{\mu_{\Delta_m}}$ in polynomial time.
+
+Step~\ref{step-all-min-blocks} can be carried out in polynomial time
+by Theorem~\ref{thm-enlarge-block}, and
+Step~\ref{step-prime-extension} can be carried out in polynomial time
+(applying the algorithmic version of the primitive element theorem as
+explained in Remark~\ref{rem-prim-elt}).
+
+Clearly all other steps within the loop starting at
+line~\ref{step-build-tower} can be carried out in polynomial
+time. Hence the overall algorithm is polynomial-time bounded.
+\end{proof}
+
+We now prove the correctness of the algorithm in the next two
+propositions.
+
+\begin{proposition}\label{prop-nilpotent-accepts}
+  If $f(X)$ is an input irreducible polynomial of degree $n$ such that
+  $\Gal{f}$ is nilpotent then Algorithm~\ref{algo-nilpotent} accepts
+  $f$.
+\end{proposition}
+
+\begin{proof}
+  Let $G$ be the Galois group $\Gal{f}$ and let $\Omega$ be the set of
+  roots of $f$.  Since $f$ is of degree $n$, $\# \Omega = n$ and by
+  Lemma~\ref{lem-sylow-cardinality} every prime factor of $\# G$
+  divides $n$.  Therefore, algorithm never rejects $f$ at
+  step~\ref{step-p-div-n}. Now, for the loop starting in
+  line~\ref{step-build-tower} we show that if $G$ is nilpotent the
+  algorithm always succeeds in finding a field $K$, from among the
+  candidate fields $\Q_\Gamma$, in
+  step~\ref{step-prime-extension}. Notice that at the $i^{th}$
+  iteration the block $\Delta_i$ is of cardinality $p^i$ and $i<
+  m$. Hence, by Theorem~\ref{thm-if-g-nilpotent}, $\Delta_i$ is
+  contained in some $p$-Sylow block say $\Sigma$ and there is a
+  minimal $G$-block $\Delta$ containing $\Delta_i$ that has the
+  following three properties:
+  \begin{enumerate}
+  \item The index $[\Delta:\Delta_i]$ is  $p$.
+  \item The group $G_{\Delta_i}$ is a normal subgroup of $G_\Delta$.
+  \item The quotient $G_{\Delta}/G_{\Delta_i}$ is cyclic of order $p$.
+  \end{enumerate}
+
+  Consider the field $\Q_\Delta$. Since $\Delta$ is a minimal block
+  that properly contains $\Delta_i$, the field $\Q_\Delta$ is among
+  the fields computed in Step~\ref{step-all-min-blocks}. We claim that
+  $\Q_\Delta$ is a suitable choice for $K$ in
+  step~\ref{step-prime-extension}. The groups $G_{\Delta_i}$ and
+  $G_\Delta$ are the Galois groups $\Gal{\Q_f/\Q_{\Delta_i}}$ and
+  $\Gal{\Q_f/\Q_\Delta}$, respectively. Hence, by
+  Theorem~\ref{thm-funda-galois}, we have $\Q_{\Delta_i}/\Q_\Delta$ is
+  a normal extension of degree $[\Q_{\Delta_i}:\Q_\Delta] =
+  [G_\Delta:G_{\Delta_i}] = p$. As the algorithm goes over all minimal
+  $G$-blocks $\Gamma$ containing $\Delta_{i}$, it will always succeed
+  in finding a field $K$ in step~\ref{step-prime-extension}.
+
+  Finally, at the end of the loop, the index $i$ becomes $m$ and
+  $\Delta_m$ is of order $p^m$. Since $p^m$ is the highest power of
+  $p$ dividing $\# \Omega$, by Theorem~\ref{thm-if-g-nilpotent} the
+  block $\Delta_m$ is a $p$-Sylow block. By
+  Proposition~\ref{prop-Q-delta}
+  $G/G^{\Delta_m}=\Gal{\mu_{\Delta_m}}$.  Further, by
+  Lemma~\ref{lem-gsup-sylow} the group $G^{\Delta_m}$ is the unique
+  $p$-Sylow subgroup of the nilpotent group $G$, which implies that
+  $p$ does not divide $\# G/G^{\Delta_m}$. Hence the input passes the
+  test in step~\ref{step-check-psylow}.
+\end{proof}
+
+\begin{proposition}\label{prop-accepts-nilpotent}
+  If Algorithm~\ref{algo-nilpotent} accepts the input polynomial
+  $f(X)$ then $\Gal{f}$ is nilpotent.
+\end{proposition}
+\begin{proof}
+  Let $G$ be the Galois group of $f$. We claim that if the algorithm
+  accepts the input then for every prime $p$ dividing $\# G$ we have a
+  maximal chain of $\{\alpha\} = \Delta_0 \subset \ldots \subset
+  \Delta_m$ with the following properties
+  \begin{enumerate}
+  \item The index of the block $[\Delta_{i+1}: \Delta_i] = p$,
+  \item The group $G_{\Delta_i}$ is a normal subgroup of
+    $G_{\Delta_{i+1}}$ and
+  \item The prime $p$ does not divide $G/G^{\Delta_m}$.
+  \end{enumerate}
+
+  This is because in step~\ref{step-prime-extension} we have verified
+  that $\Q_{\Delta_i}$ is a normal extension of $\Q_{\Delta_{i+1}}$ of
+  degree $p$. Hence by the fundamental theorem of Galois theory their
+  Galois groups $G_{\Delta_i}$ and $G_{\Delta_{i+1}}$ are such that
+  $G_{\Delta_i}$ is a normal subgroup of $G_{\Delta_{i+1}}$ and
+  $[G_{\Delta_{i+1}}:G_{\Delta_i}] = [\Delta_{i+1}: \Delta_i] =
+  p$. Furthermore, in step~\ref{step-check-psylow} we have verified
+  that $p$ does not divide the order of $\Gal{\mu_{\Delta_m}} =
+  G/G^{\Delta_m}$. Therefore, $G$ satisfies all the properties of
+  Theorem~\ref{thm-g-is-nilpotent} and hence is nilpotent.
+\end{proof}
+
+Propositions~\ref{prop-runs-ptime}, \ref{prop-nilpotent-accepts} and
+\ref{prop-accepts-nilpotent} together show the following.
+
+\begin{theorem}\label{thm-main}
+  There is a deterministic polynomial-time algorithm that takes as
+  input $f(X)$ over $\Q$ and decides whether the Galois group of $f$
+  is nilpotent.
+% in time bounded by a polynomial in $\size{f}$.
+\end{theorem}
+
+\section{Computing Sylow polynomials}
+
+In the last two sections we saw that Sylow subgroups play a crucial
+role in the nilpotence testing algorithm. In this section we explore
+whether any further information regarding Sylow subgroups of nilpotent
+Galois groups can be computed. In this context we make the following
+definition.
+
+\begin{definition}[Sylow polynomials]
+  Let $f(X)$ be any polynomial over $\Q$ with nilpotent Galois group
+  $G$. Let $p$ be a prime that divides the order of $G$. By a
+  $p$-Sylow polynomial we mean a polynomial $g(X)$ over $\Q$ such that
+  $g(X)$ splits in the splitting field $\Q_f$ of $f$ and the $\Gal{g}$
+  is (isomorphic to) the $p$-Sylow subgroup $G_p$ of $G$.
+\end{definition}
+
+In this section we describe a polynomial-time algorithm that, given as
+input a polynomial $f(X)\in\Q[X]$ with nilpotent Galois group $G$,
+computes a $p$-Sylow polynomial for each prime factor $p$ of $\# G$.
+An immediate consequence is that for polynomials $f(X)$ with nilpotent
+Galois group there are Sylow polynomials of polynomially bounded
+degree.
+
+In the following lemma we show that for this problem it suffices to
+consider irreducible polynomials $f(X)$.
+
+\begin{lemma}\label{lem-sylow-product}
+  Let $f(X)\in\Q[X]$ be a polynomial with nilpotent Galois group and
+  let $f_1,f_2,\ldots,f_k$ be all distinct irreducible factors of
+  $f(X)$. For each $i$, let $g_i$ be a $p$-Sylow polynomial for $f_i$.
+  Then the product polynomial $g_1g_2\cdots g_k$ is a $p$-Sylow
+  polynomial for $f(X)$.
+\end{lemma}
+
+\begin{proof}
+  Let $g(X)=g_1(X)g_2(X)\cdots g_k(X)$. Since $g_i$ is a $p$-Sylow
+  polynomial of $f_i$, by definition we $g_i$ splits in the field
+  $\Q_{f_i}$, and its Galois group $\Gal{g_i}$ is isomorphic to the
+  unique $p$-Sylow subgroup $G^{(i)}_p$ of $G^{(i)}=\Gal{f_i}$. Hence
+  the Galois group $\Gal{\Q_{f_i}/\Q_{g_i}}$ is isomorphic to the
+  quotient group $G^{(i)}/G^{(i)}_p$. Therefore, $p$ does not divide
+  the order of the Galois group $\Gal{\Q_{f_i}/\Q_{g_i}}$.
+
+  For each $i$ we have $\Q_{g_i}\subseteq \Q_{f_i}\subseteq \Q_f$. Let
+  $\overline{\Q}$ denote the algebraic closure of $\Q$. Observe that
+  $\Q_f$ is the smallest subfield of $\overline{\Q}$ containing
+  $\Q_{f_i}$ for each $f_i$. Likewise, $\Q_g$ is the smallest subfield
+  of $\overline{Q}$ containing each $\Q_{g_i}$. It follows that $\Q_g$
+  is a subfield of $\Q_f$.
+
+  Furthermore, we can observe that every $\sigma\in\Gal{\Q_g/\Q}$ must
+  map $g_i$ to $g_i$ for each $i$. Hence, for each $i$, $\sigma$
+  restricted to $\Q_{g_i}$ is in $\Gal{\Q_{g_i}/\Q}$. Clearly,
+  $\sigma$ is nontrivial if and only if it is nontrivial on some
+  $\Q_{g_i}$.  Therefore, since each $\Gal{\Q_{g_i}/\Q}$ is a
+  $p$-group it follows that $\Gal{\Q_g/\Q}$ is also a
+  $p$-group.
+
+  Similarly, consider an element $\pi\in\Gal{\Q_f/\Q_g}$. We can see
+  that for each $i$, $\pi$ restricted to $\Q_{f_i}$ is in
+  $\Gal{\Q_{f_i}/\Q_{g_i}}$ and $\pi$ is nontrivial only if it is
+  nontrivial on some $\Q_{f_i}$.
+
+  As a result the Galois group $\Gal{\Q_f/\Q_g}$ is isomorphic to a
+  subgroup of the product group $\prod_i
+  \Gal{\Q_{f_i}/\Q_{g_i}}$. Hence, $p$ is not a factor of $\#
+  \Gal{\Q_f/\Q_g}$ as it is not a factor of $\#
+  \Gal{\Q_{f_i}/\Q_{g_i}}$ for $1 \leq i \leq k$. It follows that
+  $\Gal{\Q_g/\Q}$ is isomorphic to the $p$-Sylow subgroup of
+  $\Gal{\Q_f/\Q}$. Hence $g$ is a $p$-Sylow polynomial for $f$.
+\end{proof}
+
+We now consider the problem of computing a $p$-Sylow polynomial for an
+irreducible polynomial $f(X)$ with nilpotent Galois group. To this end
+we generalise the notion of Sylow blocks
+(Definition~\ref{def-sylow-block}).
+
+\begin{definition}[Generalised Sylow block]
+  Let $G$ be a transitive nilpotent permutation group on $\Omega$ and
+  let $\{p_1,p_2,\ldots,p_k\}$ be the set of all prime factors of $\#
+  G$.  For $\emptyset\subset P\subseteq \{p_1,p_2,\ldots,p_k\}$, a
+  subset $\Sigma\subseteq \Omega$ is called a \emph{$P$-Sylow block}
+  if it is an orbit of $G_P = \prod_{p \in P}G_p$.
+\end{definition}
+
+Since $G_P$ is a normal subgroup of $G$, each orbit of $G_P$ is a
+block of $G$.
+
+The next three results state some properties of $P$-Sylow blocks of
+transitive nilpotent groups that we require for the algorithm. These
+are generalisations of Lemma~\ref{lem-sylow-cardinality},
+Lemma~\ref{lem-gsup-sylow} and Theorem~\ref{thm-if-g-nilpotent}
+respectively. We give brief proofs for these since they are on the
+same lines as their counterparts in
+Section~\ref{sec-nilpotence-perm-group}. As a matter of fact, all
+results in Section~\ref{sec-nilpotent-perm-group} for Sylow blocks
+have straightforward generalisations to $P$-Sylow blocks.
+
+% Lemma~\ref{lem-gen-sylow-subblocks},
+%Lemma~\ref{lem-gen-gsup-sylow} and
+% Theorem~\ref{thm-gen-if-g-nilpotent} which
+
+\begin{lemma}\label{lem-gen-sylow-subblocks}
+  Let $G\leq\Sym{\Omega}$ be a transitive nilpotent permutation group
+  and let $P$ be any set of primes that divide the order of $G$. Let
+  $m_p$ denote the highest power of $p$ that divides $\# \Omega$. Then
+  any $P$-Sylow block $\Sigma$ has cardinality $\prod_{p\in P}
+  p^{m_p}$.
+\end{lemma}
+
+\begin{proof}
+  By Theorem~\ref{thm-blocks-galois}
+  $[\Omega~:~\Sigma]=[G~:~G_\Sigma]$. Recall that $G_\Sigma=\{g\in
+  G\mid \Sigma^g=\Sigma\}$. Since $\Sigma$ is a $G_P$ orbit it follows
+  that $G_P$ is a subgroup of $G_\Sigma$. Hence for every prime $p\in
+  P$, $p$ does not divide $\# G/\# G_\Sigma$, and hence $p$ does not
+  divide $\# \Omega/\# \Sigma$ for each $p\in P$.  By the nilpotence
+  of $G$, each $p\in P$ divides $\# \Omega$. Therefore, $p^{m_p}$
+  divides $\# \Omega$ for each $p\in P$.
+
+  On the other hand, since $\Sigma$ is a $G_P$-orbit, $G_P$ is
+  transitive on $\Sigma$. Hence, by the Orbit-Stabilizer formula
+  (Theorem~\ref{thm-orbit-stabilizer}) $\# \Sigma$ divides $\# G_P$
+  which means $\# \Sigma$ has no prime factors other than from $P$.
+  Putting it together, it follows that $\Sigma$ has cardinality
+  $\prod_{p\in P} p^{m_p}$.
+\end{proof}
+
+\begin{lemma}\label{lem-gen-gsup-sylow}
+  Let $G\leq\Sym{\Omega}$ be a transitive permutation group and let
+  $P$ be any set of primes that divide the order of $G$. Let $\Sigma$
+  be any $P$-Sylow block of $G$ then $G^\Sigma$ is the product
+  $\prod_{p \in P} G_p$.
+\end{lemma}
+
+\begin{proof}
+  As observed in the previous lemma, $G_P$ is a subgroup of
+  $G_\Sigma$.  Since $\Sigma$ is a block for $G$, consider the block
+  system generated by $G$-action on $\Sigma$ and let $\Sigma'$ be any
+  other block in this system. For some $g\in G$ we have
+\[
+G_{\Sigma'} ~=~gG_\Sigma g^{-1}.
+\]
+Since $G_P$ is a normal subgroup of $G$, $gG_Pg^{-1}=G_p$, and hence
+$G_P$ is a subgroup of $G_{\Sigma'}$ for each $\Sigma'$ in the block
+system which implies $G_P$ is a subgroup of $G^\Sigma$.
+
+Suppose that $G_P\neq G^\Sigma$. Then some prime $p\not\in P$ divides
+$\# G^\Sigma$. Let $G^\Sigma_p$ be the $p$-Sylow subgroup of
+$G^\Sigma$ (which is unique and hence a normal subgroup since
+$G^\Sigma$ is also nilpotent). Suppose $G^\Sigma_p$ has nontrivial
+action on some block $\Sigma'$ in the block system. If $O\subset
+\Sigma'$ is a nontrivial $G^\Sigma_p$-orbit then it is a
+$G^\Sigma$-block contained in $\Sigma'$. Further, $G^\Sigma$ is
+transitive on $\Sigma'$ since $G_P\leq G^\Sigma$. Hence $|O|$ divides
+$|\Sigma'|$ which is impossible since $|O|$ is a power of $p$ and
+$|\Sigma'|$ does not have $p$ as factor. This is a
+contradiction. Hence $G_P= G^\Sigma$.
+\end{proof}
+
+\begin{theorem}\label{thm-gen-if-g-nilpotent}
+  Let $G$ be any transitive permutation group on $\Omega$ and let $P$
+  be a set of primes that divide the order of $G$. Let $\Gamma$ be any
+  $G$-block such that each prime that divides $\# \Gamma$ is in
+  $P$. Then there is a $P$-Sylow block $\Sigma$ of $G$ such that
+  $\Gamma \subset \Sigma$. Furthermore, for a prime $p \in P$ if $p$
+  divides $\frac{\# \Omega}{\# \Gamma}$ then we have a $G$-block
+  $\Gamma'$ such that $\Gamma\subset \Gamma'\subseteq \Sigma$ such that
+  \begin{enumerate}
+  \item The index $[\Gamma': \Gamma]$ is $p$.
+  \item The group $G_\Gamma$ is a normal subgroup of $G_{\Gamma'}$.
+  \item The quotient group $G_{\Gamma'}/G_{\Gamma}$ is a cyclic group
+    of order $p$.
+  \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+  Let $\Gamma$ be any $G$-block and $\alpha\in\Gamma$. Let
+  $\Sigma=\alpha^{G_P}$ which, by definition, is a $P$-Sylow block.
+  We claim that $\Gamma\subseteq \Sigma$. Let $\{p_1,p_2,\ldots,p_k\}$
+  be the set of all distinct prime factors of $\# G$ and let
+  $\overline{P}$ denote the complement of $P$ in this set.
+
+  Now consider the group $G_\Gamma$, which is transitive on $\Gamma$
+  by Proposition~\ref{prop-block-subblock}. Since $G_\Gamma$, being
+  nilpotent, is the direct product of its Sylow subgroups, we can
+  write
+\[
+G_\Gamma~=~G_{\Gamma,P}\times G_{\Gamma,\overline{P}},
+\]
+where $G_{\Gamma,P}$ is the product of the $p$-Sylow subgroups of
+$G_\Gamma$ for $p\in P$ and $G_{\Gamma,\overline{P}}$ is similarly
+defined for $\overline{P}$. Now, every element of
+$G_{\Gamma,\overline{P}}$ must pointwise fix $\Gamma$ because
+$G_{\Gamma,\overline{P}}$ is a normal subgroup of $G_\Gamma$ and a
+nontrivial orbit of $G_{\Gamma,\overline{P}}$ will have size whose
+prime factors are all from $\overline{P}$ on the one hand, and on the
+other hand the orbit size must divide $\# \Gamma$. It follows that
+$G_{\Gamma,P}$ is transitive on $\Gamma$ and hence
+$\alpha^{G_{\Gamma,P}}=\Gamma$. Since $G_{\Gamma,P}$ is contained in
+$G_P$ it follows that $\Gamma\subseteq \Sigma$.
+
+Suppose $p\in P$ divides $\# \Omega/\# \Gamma$. To prove the three
+parts of the theorem, we will consider the action of the group $G$ on
+the block system $\Blocks{\Omega/\Gamma}$. Since $G$ is nilpotent and
+transitive on $\Blocks{\Omega/\Gamma}$ and $p$ divides $\# \Omega/\#
+\Gamma$ we can apply Theorem~\ref{thm-if-g-nilpotent}. The block
+$\Delta$ in Theorem~\ref{thm-if-g-nilpotent} is set to be the
+singleton set $\{\Gamma\}$. By Theorem~\ref{thm-if-g-nilpotent} there
+is a $p$-Sylow block
+$\Sigma'=\{\Gamma_1=\Gamma,\Gamma_2,\ldots,\Gamma_t\}$ containing
+$\Gamma$ and a minimal $G$-block $\Delta'\subset \Sigma'$ of size $p$.
+Without loss of generality, let
+\[
+\Delta'=\{\Gamma_1=\Gamma,\Gamma_2,\ldots,\Gamma_p\}.
+\]
+Let $\Gamma'=\bigcup_{i=1}^p\Gamma_i$. It is easy to verify that all
+the three conditions in the statement follow from the corresponding
+conditions for $\Delta'$ and $\Delta$ in
+Theorem~\ref{thm-if-g-nilpotent}.
+\end{proof}
+
+Let $\{p_1,p_2,\ldots,p_k\}$ be the set of all distinct prime factors
+of $\# \Gal{f}$. In order to compute the $p_i$-Sylow polynomial we set
+$P_i=\{p_1,p_2,\ldots,p_k\}\setminus\{p_i\}$ and compute a tower of
+blocks $\{\alpha\}=\Delta_0\subset \Delta_1\subset\ldots\subset
+\Delta_m$ where $\Delta_m$ is the $P_i$-Sylow block containing the
+point $\alpha$. By computing the blocks $\Delta_i$ we mean, as in
+Section~\ref{sec-nilpotence-test}, that we compute a primitive
+polynomial $\mu_{\Delta_i}(X)$ for the field $\Q_{\Delta_i}$, $1\leq
+i\leq m$. Since the Galois group of $\mu_{\Delta_i}$ is
+$G/G^{\Delta_i}$ (by Proposition~\ref{prop-Q-delta}), and
+$G^{\Delta_m}=G_{P_i}$ it follows that the Galois group of
+$\mu_{\Delta_m}$ is $G/G^{\Delta_m}=G/G_{P_i}$ which is isomorphic to
+$G_{p_i}$, the $p_i$-Sylow subgroup of $G$. Hence $\mu_{\Delta_m}$ is
+a $p_i$-Sylow polynomial for $f$.
+
+We now give the complete algorithm for computing the $p$-Sylow
+polynomial for an irreducible polynomial $f(X)$ with nilpotent Galois
+group.
+
+\begin{algorithm}
+  \caption{Computing a $p_i$-Sylow polynomial}\label{algo-sylow-poly}
+
+  \KwIn{An irreducible polynomial $f(X) \in \Q[X]$ of degree $n$ with
+    nilpotent Galois group and a prime factor $p_i$ of $n$.}
+
+  \KwOut{A $p_i$-Sylow polynomial of $f$}
+
+  Let $\{p_1,p_2,\ldots,p_k\}$ be the set of all prime factors of $\#
+  \Gal{f}$ (these are exactly the prime factors of $n$ by
+  Lemma~\ref{lem-sylow-cardinality}).
+
+  Let $\Q_{\Delta_0} = \Q(X)/f(X)$ and $\mu_{\Delta_0}(X) = f(X)$.
+
+  Let $G$ denote the Galois group of $f$.
+
+  $r:=0$
+
+  $\Q_{\Delta_0} := \Q(X)/f(X)$
+
+  \lnl{step-one}
+
+  \For{$j \in \{1,\ldots, i -1, i+1, \ldots,k\}$} {
+
+    Let $p_j^{m_j}$ be the highest power of $p_j$ dividing $n$.
+
+    \lnl{step-two}
+    \For{$\ell = 1$ \KwSty{to} $m_j$}
+    {
+
+      \lnl{step-three} Using Theorem~\ref{thm-enlarge-block}
+      compute $\Q_\Gamma$ for all minimal $G$-blocks $\Gamma$
+      containing $\Delta_r$.
+
+      \lnl{step-four} Among the fields $\Q_\Gamma$ computed
+      above find a field $\Q_{\Delta_{r+1}}$ such that
+      $\Q_{\Delta_r}/\Q_{\Delta_{r+1}}$ is a normal extension of
+      degree $p_j$.
+
+      $r:=r+1$
+    }
+ }
+    Let $\mu_{\Delta_m}(X)$ be the primitive polynomial for
+    $\Q_{\Delta_m}$, where $m=\sum_{j\neq i} m_j$
+
+  \KwRet{$\mu_{\Delta_m}(X)$}
+\end{algorithm}
+
+Clearly Algorithm~\ref{algo-sylow-poly} runs in time polynomial in
+$\size{f}$. By Theorem~\ref{thm-gen-if-g-nilpotent} it follows that
+step~\ref{step-four} is always possible. Therefore, it follows from
+Lemma~\ref{lem-gen-sylow-subblocks} that at the end of the two loops
+we have a primitive polynomial $\mu_{\Delta_m}(X)$ for $\Q_{\Delta_m}$
+where $\Delta_m$ is a $P_i$-Sylow block of $G$.  The Galois group
+$\Gal{\mu_{\Delta_m}}$ is $G/G^{\Delta_m}$ by
+Proposition~\ref{prop-Q-delta}. Hence the Galois group of
+$\mu_{\Delta_m}(X)$ is the $p_i$-Sylow subgroup of $G$ as claimed.
+Algorithm~\ref{algo-sylow-poly} thus computes the $p_i$-Sylow
+polynomial for the irreducible polynomial $f(X)$. Together with
+Lemma~\ref{lem-sylow-product} we have the following theorem.
+
+\begin{theorem}\label{thm-sylow-poly}
+  There is a deterministic polynomial-time algorithm that given a
+  polynomial $f(X)$ with nilpotent Galois group and any prime $p$
+  dividing the order of the Galois group $\Gal{f}$, computes a
+  polynomial $g(X)$ such that $g(X)$ splits in $\Q_f$ and the Galois
+  group of $g(X)$ is isomorphic to the $p$-Sylow subgroup of
+  $\Gal{f}$.
+\end{theorem}
+
+In fact the same ideas yield a more general observation by
+modifying the Algorithm~\ref{algo-sylow-poly} to work with
+any arbitrary set $P$ of prime factors of $\# \Gal{f}$.
+
+\begin{theorem}
+  There is a deterministic polynomial-time algorithm that given a
+  polynomial $f(X)$ with nilpotent Galois group and any subset $P$ of
+  primes dividing the order of the Galois group $\Gal{f}$, computes a
+  polynomial $g(X)$ such that $g(X)$ splits in $\Q_f$ and the Galois
+  group of $g(X)$ is (isomorphic to) the subgroup $G_P = \prod_{p \in
+    P} G_p$ where $G_p$ denotes the unique $p$-Sylow subgroup of
+  $\Gal{f}$.
+\end{theorem}
+
+\section{Concluding Remarks}
+
+Computing the Galois group of a polynomial $f(X)\in\Q[X]$ efficiently
+remains a challenging open problem. However, it is possible to test
+certain properties like commutativity and solvability efficiently. We
+have added nilpotence testing to this list. In this context, an
+intriguing problem is whether we can efficiently test if the Galois
+group of $f(X)$ is supersolvable (refer Hall's text~\cite[Chapter
+10]{Hall} for a definition).  Supersolvable groups are a proper
+subclass of solvable groups and contain nilpotent groups.  It is not
+clear if we can adapt either the Landau-Miller solvability
+test~\cite{landau85solvability} or our nilpotence test to an efficient
+supersovablility test. It would be interesting to even give a
+conditionally efficient algorithm, e.g.\ assuming the generalised
+Riemann hypothesis.
+
+Finally, we note that our nilpotent test can be generalised to obtain
+a polynomial-time algorithm to test if the Galois group of a
+polynomial $f(X) \in K[X]$ is nilpotent, where $K$ is a number field
+presented by giving a primitive polynomial $\mu(X)$ of $K$ over $\Q$,
+and the running time is polynomially bounded in $\size{f}$ and
+$\size{\mu}$. This generalised nilpotence test requires some standard
+polynomial-time algorithms like factoring of univariate polynomials
+and gcd computations over $K$ which are already
+known~\cite{landau85factoring}.\\
+
+\noindent{\bf Acknowledgments.~}
+We are indebted to the referees for their meticulous refereeing with
+many important suggestions and corrections.
+
+\bibliographystyle{acmsmall}
+\bibliography{reference}
+\end{document}

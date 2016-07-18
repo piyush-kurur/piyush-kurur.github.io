@@ -1,0 +1,49 @@
+\documentstyle{letter}
+
+\begin{document}
+
+Dear reviewer!\bigskip
+
+
+Thank you for your comments. We list them below (except for the typos and minor remarks) and give an answer to each.
+
+\begin{enumerate}
+
+\item I am confused by the definition of $M(x)$, which was previously referred to as a 'zero random variable'. On page 22, in Definition 5.9, it is now instead stated that $M(x)$ is 'the random variable that is 0 with probability 1'. On page 23 (line 3) it is stated that '$M(x)$ takes only values in $\{0,1\}$'. While this is true, in fact, $M(x)$ only takes the value $0$ and thus, its expectation $m(x)$ is also $0$. Therefore I doubt that it is the probability that $x$ occurs in the trajectory (as stated on page 23, 1st paragraph). Later on page 23, another different definition for $M(x)$ (i.e. as the sum of the $M_k(x))$ can be found. This needs to be clarified.
+
+{\bf ANSWER:}\\
+The definition of $M(x)$ had been split into two parts inside of Definition 5.9: First it was defined for non-optimal search points, then (in the line you mentioned) for optimal search points. Obviously this distinction was not very clear and caused confusion, so we rephrased it.
+ 
+The statement in the following paragraph that ``for the conservative selection rule (...) $m(x)$ is just the probability that $x$ occurs in the trajectory'' is only true for non-optimal $x$, so we added this restriction.
+
+In the proof of Lemma 5.10 (second paragraph) we have split up the definition of $M_k$ and added the subcase ``$M_k(x) := 0$ if $x$ is optimal''. In this way the statement ``$M(x)$ is the sum of the $M_k(x)$'' becomes true for all search points $x$ (non-optimal and optimal).
+
+\item I am quite annoyed by the false statement that 'except of x itself' was removed (as a response to my comment on page 32, line 33ff). In fact, the authors rephrased the statement to 'except x itself in the quantum case' and put it in brackets. However, my comment still remains valid and is not properly answered: The statement 'The progressive selection strategy will accept any search point of equal fitness, except of x itself.' is somehow misleading since RLS is considered and RLS does not create copies. Thus 'except x itself' is not a result of the selection strategy. Similarly, for the (1+1) EA the fact that 'it differs from x' does not influence acceptance. The (1+1) would also accept copies in the progressive variant.
+
+{\bf ANSWER:}\\
+We apologize that we indicated wrongly how we handled your comment!
+
+We agree that the RLS can never create x itself as the next search point. We left the phrase ``except of $x$ itself in the quantum case'' because the membership oracle $M_{f,x}$ (the quantum analogue of the progressive selection strategy) explicitly forbids the search point $x$ (page 15, line 1). This is a crucial point: For example, the (1+1)EA has a constant probability of choosing $x$ itself again, and therefore we would get no speed-up at all if the quantum algorithm accepted search points to follow itself.
+
+For this reason we would rather avoid the impression that the same search point is accepted in all cases (since it is not accepted in the quantum case).
+
+If you think that the confusion we may possibly raise by the phrase ``(except x itself in the quantum case)'' is larger than by omitting it, then please tell us and we will remove the phrase.
+
+\item In several places the term 'fitness level' is used without explaining what this actually is. Since this is a well-defined term, I suggest to add a proper definition when first using it.
+
+{\bf ANSWER:}\\
+In the second paragraph after proposition 6.3, we added the sentence: ``The search space may be subdivided into regions of equal fitness, which we call~\emph{fitness levels}.''
+
+\item I do not understand the argumentation on the lower bound for OneMax and the classical variant. Why are the values $k=1,...,n/24$ the worst case? The worst case for the lower bound should in fact be the best case for the run of the algorithm. Thus, we need to find values for $k$ that minimize $\sum_{k} n/k$. This is not the case for $k=1,...,n/24$. Note, that in the quantum case you correctly use $k=(23/24)n...n$. However, this would only yield a linear lower bound in the classical case.
+
+{\bf ANSWER:}\\
+You are right, the argument was wrong. We replaced the two paragraphs by an outline of the proof of Theorem 6.2. 
+
+\end{enumerate}
+
+Thank you again for all your efforts!\bigskip
+
+Yours sincerely,\\
+Daniel Johannsen, Piyush Kurur, Johannes Lengler
+
+\end{document}

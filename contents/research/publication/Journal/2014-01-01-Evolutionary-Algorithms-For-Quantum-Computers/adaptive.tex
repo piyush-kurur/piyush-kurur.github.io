@@ -1,0 +1,117 @@
+%% Hauptdatei
+
+\documentclass{article}
+
+\input{defines}
+
+%%% Anpassungen an die deutsche Sprache
+\usepackage{german}
+
+%%% Umlaute
+\usepackage[latin1]{inputenc}
+
+%%% AMS Mathe-Erweiterungen
+\usepackage{amsmath,amsthm,amstext,amsfonts,amssymb,amsxtra,eucal}
+
+%%% einige Sonderzeichen
+\usepackage{latexsym}
+
+%%% Erweiterungen fuer Listen
+\usepackage{enumerate}
+
+%% Absaetze nicht einruecken
+\setlength{\parindent}{0pt}
+
+
+\usepackage{algorithmic}
+\usepackage{algorithm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{empty}
+
+\begin{document}
+
+\section{Adaptive Algorithm}\label{sect:adaptive}~\\
+The adaptive quantum search algorithm over the finite search
+space~$\mathcal{S}$ with mutation operator \textsc{mut} is an algorithm that maximizes the
+objective function $f:\mathcal{S}\to\mathbb{R}$.
+
+We use two subroutines: 
+\begin{itemize}
+\item $G_>(\mathbf{x})$  uses Grover search with respect to \textsc{mut} to return an
+element $\mathbf{y}\in\mathcal{S}$ such that $f(\mathbf{y})>f(\mathbf{x})$. (cf. section \ref{sect:progressive})
+\item $G_{\geq}(\mathbf{x})$  uses Grover search with respect to \textsc{mut} to return an
+element $\mathbf{y}\in\mathcal{S}$ such that $f(\mathbf{y})\geq f(\mathbf{x})$. (cf. section \ref{sect:conservative})
+\end{itemize}
+
+\begin{algorithm}
+{\bf FIND\_BETTER\_SOLUTION}\\
+Input: a search point $\mathbf{x}$.\\
+Output: a search point $\mathbf{y}$ such that $f(\mathbf{y})>f(\mathbf{x})$.
+\begin{algorithmic}
+\STATE $\Tmax := 1$; 
+\COMMENT{the maximal running time of a Grover search}
+\STATE float $R$; 
+\COMMENT{the running time of the last Grover search}
+\STATE Flip a coin with prob(head)$=1/2$.
+\IF{head}
+\STATE GOTO STRATEGY1;
+\ELSE 
+\STATE GOTO STRATEGY2;
+\ENDIF
+\STATE
+\STATE STRATEGY1 
+\STATE Try to find $\mathbf{y} := G_{\geq}(\mathbf{x})$ in time $\Tmax$.
+\IF {successful \&\& $f(\mathbf{y}) > f(\mathbf{x})$}
+\RETURN $\mathbf{y}$
+\ELSIF{successful \&\& $f(\mathbf{y}) = f(\mathbf{x})$} 
+\STATE $\mathbf{x} := \mathbf{y}$;
+\STATE $R :=$ runtime of $G_{\geq}$;
+\ELSE
+\STATE $R := \Tmax$;
+\ENDIF
+\STATE Flip a coin with prob(head) $= \frac{R}{\Tmax}$.
+\IF {head}
+\STATE $\Tmax := 2\Tmax$;
+\STATE GOTO STRATEGY2;
+\ELSE
+\STATE GOTO STRATEGY1;
+\ENDIF
+\STATE
+\STATE STRATEGY2 
+\STATE Try to find $\mathbf{y} := G_{>}(\mathbf{x})$ in time $\Tmax$.
+\IF{successful}
+\RETURN $\mathbf{y}$
+\ELSE
+\STATE $R := \Tmax$;
+\ENDIF
+\STATE Flip a coin with prob(head) $= \frac{R}{\Tmax}$.
+\IF{head}
+\STATE $\Tmax := 2\Tmax$;
+\STATE GOTO STRATEGY1;
+\ELSE
+\STATE GOTO STRATEGY2;
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+{\bf ADAPTIVE QEA}\\
+Input: A search space $\mathcal{S}$, a mutation operator \textsc{mut}, an objective function $f:\mathcal{S}\to\mathbb{R}$..
+Output: A point $\mathbf{x} \in \mathcal{S}$ of maxmimal fitness $f(\mathbf{x})$
+\begin{algorithmic}
+\STATE Choose $\mathbf{x}_0 \in \mathcal{S}$ uniformly at random.
+\STATE $t:=0$;
+\WHILE{$\mathbf{x}_t$ is not global maximum}
+\STATE $\mathbf{x}_{t+1} :=$ FIND\_BETTER\_SOLUTION($\mathbf{x}_{t}$)
+\STATE t:=t+1;
+\ENDWHILE
+\RETURN $\mathbf{x}_t$
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\end{document} 
+

@@ -1,0 +1,74 @@
+One of the most prominent computational problems which a quantum algorithm solves more efficiently than classical algorithms is searching in an unordered database. In his seminal work~\cite{Grover96}, Grover gave an algorithm which can search in an unordered data base of $N$ elements in time proportional to $\sqrt{N}$, whereas any classical algorithm requires time proportional to~$N$.
+
+Following this result, algorithms based on Grover's search have drawn much attention in the last decade. Moreover, there are many problems for which specialized algorithms have been designed, such as searching \cite{Grover96,BoyerBHT98}, Element Distinctness \cite{Santha08}, Minimum-Finding \cite{DurrH96} and many others (e.g., \cite{DurrHHM04,BerzinaDFLS04,Zhangthesis06}).
+
+Grover's search is known to be optimal~\cite{BennetBBGV1997,Zalka99} when the underlying search space has no structure. Grover's search can be thought of as evaluating the boolean function OR on $N$ bits. For evaluating certain boolean functions like XOR, quantum algorithms give no advantage over classical ones --- both have a query complexity\footnote{In the standard literature on the theory of evolutionary algorithms the term \emph{optimization time} is used instead of the term \emph{query complexity}. Here we use the latter term since in the context of our investigations it seems more intuitive to us.} of $\Theta(N)$~\cite{Ambainis2002,BealsBCM2001}.
+
+Optimization problems, which is the topic of interest of this paper, have also received much attention in the quantum setting.  Using Grover's algorithm, D{\"u}rr, Heiligman, H{\o}yer, and Mhalla~\cite{DurrHHM06} have shown that it is possible to find the global optimum of a black-box optimization problem on the search space~$\{0,1\}^n$ in an expected number of~$\Oh(2^{\nicefrac{n}{2}})$ queries. Moreover, a matching lower bound of~$\Omega(2^{\nicefrac{n}{2}})$ for all possible quantum algorithms exists~\cite{Zalka99}.
+
+In addition, if there is enough structure in the search space, better bounds can be shown. For example on general graph-based search spaces, Magniez, Nayak, Roland, and Santha~\cite[Theorem 3]{MagniezNRS09} have shown that if the Markov chain associated with the random walk on the space is ergodic, significant improvement in the expected query complexity is possible provided that the spectral gap is large. Furthermore, if the underlying \emph{quantum random walk} is symmetric, superior problem-specific quantum algorithms are available~\cite{Szegedy04,MagniezNRS07}.
+
+In this article, we consider quantum versions of elitist (1+1) \emph{randomized search heuristics} (\rsh{}s), that is, heuristics that successively generate candidate solutions according to some distribution depending only on the current candidate solution and select the candidate solution if and only if there is an improvement. Since the Markov processes underlying these algorithms are not ergodic and far from symmetric, the setting of quantum random walks as in~\cite{Szegedy04,MagniezNRS07,MagniezNRS09} does not apply.
+
+An elitist evolutionary algorithm for an optimization problem can never move from a solution of higher objective value to a solution of smaller objective value. However all quantum operations, other than measurements, are required to be reversible. Thus, in order to simulate the behavior of an elitist (1+1)~\rsh{}, it is necessary to perform a measurement after every elitist selection step, basing the further decisions of the algorithm on the outcome of this measurement.
+
+Given a finite search space~\SCal, typically encoded as $n$-bit strings, and an objective function $f$ from~\SCal to~\RSet, we want to compute an optimum (i.e., either a maximum or a minimum) of $f$. Such optimization problems are called pseudo-Boolean optimization problem. The elitist (1+1) RSHs we consider work in the following way. They start with a candidate solution $\mathbf{x}_0$ and repeatedly improve the solution by performing the following two steps:
+\begin{itemize}
+\item[(1)] generate a new solution $\mathbf{y}$ according to a   distribution $p_\mathbf{x}(\mathbf{y})$ depending on the current   solution $\mathbf{x}$;
+\item[(2)] if the new solution $\mathbf{y}$ is better then retain it,   otherwise discard it.
+\end{itemize}
+
+Thus, elitist (1+1) RSHs only differ in the nature of the distribution $p_\mathbf{x}$. For example, Randomized Local Search (\rls) selects an index $i$ at random and flips the bit $x_i$ to get the new candidate solution whereas the (1+1)~Evolutionary Algorithm (\ea) flips each bit $x_i$ with probability $1/n$. We will indicate algorithms that retain solutions of equal fitness by~$^*$ (e.g. \rls{}$^*$). In the conclusion we discuss the differences. 
+
+The main idea of the paper is to use \emph{quantum probability   amplification}, which is a reformulation of Grover's search~\cite{brassard98quantum}, to speed up the generation phase, i.e., step (1). Instead of picking a new candidate solution directly from the distribution, which is what is done classically, we amplify the probability of getting a better solution to say a constant $1/2$ using quantum probability amplification (see Section~\ref{sec:quantum}).  If $p_\mathbf{x} = \sum_{f(\mathbf{y})>   f(\mathbf{x})} p_\mathbf{x}(\mathbf{y})$ is the probability to obtain a better solution (assuming a maximization problem) from a candidate solution $\mathbf{x}$ in the classical setting, then in order to do so the quantum probability amplification requires only $\Theta\big(1/\sqrt{p_{\mathbf{x}}}\big)$ queries to $f$ in expectation as opposed to $1/p_{\mathbf{x}}$ in the classical setting.  We call this quantum variant of \rsh{} a \emph{Quantum Search Heuristic} (\qrsh). In particular, we call the quantum variants of \rls and \ea{}s \emph{Quantum Local Search} (\qrls), and \emph{Quantum Evolutionary   Algorithms} (\qea{}s). These \rsh{}s can only run on a quantum computer.
+
+The quantum local search which we define here is a restricted version of the quantum algorithm by Aaronson~\cite{Aaronson06} which first chooses $\Theta(n^{\nicefrac{1}{3}}2^{\nicefrac{2n}{3}})$ search points uniformly at random and then uses Grover search to determine the optimal initial search point among them. The algorithm of Aaronson then proceeds exactly like ours. However, our algorithm does not attempt to optimize on the starting point, because (i) the runtime of such an optimization would dominate the runtimes of our algorithms by orders of magnitude and (ii) the classical \rsh{}s we compare with do not attempt to do so either.
+
+There are two other streams of work which sound similar to our work but are in fact not at all related. Our results on \qrsh{}s and \qea{}s are significantly different from that of Quantum-Inspired Evolutionary Algorithms (QIEAs) as introduced in \cite{HanK02}. QIEAs are classical algorithms where the mutation and selection steps, though classical, are inspired from quantum operations. However our mutation process is genuinely quantum and cannot be implemented on a classical computer.  On the other hand, our algorithms are not attempts to apply genetic programming techniques to better design quantum algorithms unlike for example the work of Spector \emph{et. al.}~\cite{SpectorBBS99} where the ``code'' of an ordinary quantum algorithm is optimized by an evolutionary algorithm. To the best of our knowledge, the \qooea investigated here is the first attempt to generalize evolutionary algorithms to the quantum setting.
+
+The general bound of~$\Theta(2^{\nicefrac{n}{2}})$ for expected query complexity in optimizing an arbitrary pseudo-boolean function in the black-box model also applies to \qrsh{}s. However, we may ask whether \qrsh{}s also experience a quadratic speedup over ordinary \rsh{}s. In order to answer this question, we follow the approaches of \cite{BeyerSW02} and~\cite{DJWoneone} and study the behavior of \qrls and the \qooea on specific pseudo-Boolean optimization problems.
+
+In particular, we study the query complexity of these \qrsh{}s to maximize the objective function \leadingones and to minimize the objective functions \onemax and \discrepancy. In all three cases, the speedup over the their classical counterparts are not quadratic. Moreover, it differs for each of the problems. As can be seen in Table~\ref{tabA}, the speedup is by a factor of~$\Theta(\log n)$ for \onemax and by~$\Theta(\sqrt{n})$ for \leadingones, while there is no asymptotic speedup for the function \discrepancy.
+
+We now give a broad reason for the lack of speed up in certain cases. The quantum acceleration does not differ form its classical counter part in the statistical nature of the candidate solutions picked on its way to the optimal solution. It speeds up by reducing the expected time required for a successful mutation. For \leadingones, it is rather hard to find the next search point, so there is a substantial speedup. On the other hand, for \discrepancy it is very easy to find a better search point: the expected time for improving the fitness function is constant, and so there is no any asymptotic speedup. On \onemax the performance improvement, though present, is less that that of \leadingones.
+
+Summing up, we see that quantum search may speed up evolutionary algorithms in some cases. It may give a quadratic speedup at most, and there are problems which are substantially accelerated by quantum search. However, it depends on the specific problem how much is really gained, and for some problems there is no improvement in the expected running time at all. In Lemma \ref{lem:tq}, we give a precise statement that enables us to analyze the benefits of quantum search purely in non-quantum terms.
+
+
+
+
+
+%In general, Santha and Szegedy \cite{SanthaS09} have shown that the
+%quantum and classical query complexity for the problem of finding a
+%local optimum are polynomially related. Moreover, Aaronson
+%\cite{Aaronson06} has conjectured that the quantum query complexity is at least the root of the randomized query complexity. So it is not surprising that the approach presented in this paper can never give more than a quadratic speed-up. (Recall that every \rsh is also a local search -- for example, \ooea is a local search performed on the complete graph.)
+%Aaronson has shown his conjecture for hypercubes, and
+%Zhang \cite{Zhang06} has generalized the result to product graphs.
+%
+%In general, Santha and Szegedy \cite{SanthaS09} have shown that the
+%quantum and classical query complexity for the problem of finding a
+%local optimum are polynomially related. Conjectures of Aaronson
+%\cite{Aaronson06} imply that the improvements given in this paper are
+%essentially optimal. More precisely, he conjectured that for any
+%quantum algorithm $A$ solving an optimization problem there is a RSH
+%such that the associated \qrsh has asymptotically the same expected
+%running time as $A$. (Actually, his formulation of the conjecture is a
+%bit weaker since it only refers to the query complexity of the
+%problems itself and not of specific algorithms -- however, in a remark
+%he clarifies that the motivation for his conjecture is the stronger
+%version given here.) He has shown his conjecture for hypercubes, and
+%Zhang \cite{Zhang06} has generalized the result to product graphs.
+%
+%
+%
+%\cite{MagniezNRS09}, \cite{Aaronson06}, \cite{DurrHHM04},
+%\cite{DurrH96}, \cite{DurrHHM06}, \cite{HoyerNS02}, \cite{SanthaS04},
+%\cite{MagniezNRS07}, \cite{Santha08}, \cite{SanthaS09},
+%\cite{SpectorBBS99}, \cite{Zhang06}, \cite{LiR07}, \cite{ZhouZHW05},
+%\cite{NarayananM96}, \cite{HanK02}, \cite{LiLR07}, \cite{XiaoYLYZ08},
+%\cite{ZhangZPW08}, \cite{AraujoNM08}, \cite{MahdabiJA08},
+%\cite{ZhangGW08}, \cite{LiSGS09}, \cite{WangWF09}, \cite{XingJBLQW09},
+%\cite{ZhangS06}, \cite{Ambainis06}, \cite{Ambainis08},
+%\cite{AmbainisSW09}, \cite{AmbainisCGT09}, \cite{HoyerNS01}
+
+

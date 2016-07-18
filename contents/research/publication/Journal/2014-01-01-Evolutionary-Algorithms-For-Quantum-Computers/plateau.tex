@@ -1,0 +1,102 @@
+The pseudo-Boolean function~\plateau has a unique minimum that is surrounded by a plateau of constant fitness. More precisely, for $\mathbf{x}\in\{0,1\}^n$,
+
+\begin{equation}
+\plateau(\mathbf{x}):=\begin{cases}
+0, & \text{if } \mathbf{x} = (0,\ldots,0)\\
+\max(\onemax(\mathbf{x}),\left\lfloor   \frac{n}{3} \right\rfloor), & \text{else.}\end{cases}
+\end{equation}
+
+It is well-known that classical \rsh perform poorly on this problem:
+
+\begin{theorem}\label{thm:plateauclassic}
+The expected query time of the (1+1)~EA or RLS for minimizing \plateau is in~$\tilde{\Theta}(c^n)$, where $c = \sqrt[3]{27/4} \approx 1.889\ldots$, and $\tilde{\Theta}$ describes the asymptotic behavior up to polynomial factors.
+
+With probability tending to $1$ as $n \to \infty$, the algorithms RLS$^*$ will never find the minimum of \plateau.
+
+The expected query time of the (1+1)~EA$^*$ for minimizing \plateau is in~$\tilde{\Theta}(n^{n/3})$.
+\end{theorem}
+\begin{proof}
+\todo{does this exist? I have looked for it, but could not find anything.... do we know someone who knows quite definitely whether this exists?}
+
+\johannes{sketch only. What to do with it?} Let us look at RLS first. By a similar argument as for \onemax, we see that the the algorithm needs at most polynomial (in fact, linear) time to enter the plateau of fitness $\left\lfloor   n/3 \right\rfloor$. Once there, it will perform a random walk on the plateau with respect to the mutation operator until it hits the optimum. At any point on the plateau, it takes only a constant time to find the next valid search point. So we need to estimate the hitting time of this random walk.
+
+Let us first compute the number of points on the plateau. Comparing the number of points with exactly $k+1$ many $1$-bits to the number of points with exactly $k$ many $1$-bits, $k<\left\lfloor   n/3 \right\rfloor$, we get the quotient 
+\[
+\frac{\binom{n}{k+1}}{\binom{n}{k}} = \frac{n-k}{k} \leq \frac{n-n/3}{n/3} = 2.
+\]
+So increasing the number of one-bits at least doubles the number of points on the plateau. Therefore, at least half of the points have exactly $\left\lfloor   n/3 \right\rfloor$ many $1$-bits.
+
+Thus the number of points is in $\Theta(\binom{n}{n/3}) = \tilde{\Theta}((3^{1/3}{3/2}^{2/3})^n) = \tilde{\Theta}((\sqrt[3]{27/4})^n) = \tilde{\Theta}(c^n)$ by the Stirling formula.
+
+Next we explicitly write down a stationary distribution of the random walk. Let 
+\[
+C(\mathbf{x}) = 
+\begin{cases}
+n & \text{ if } \onemax(\mathbf{x}) < \left\lfloor   \frac{n}{3} \right\rfloor \\
+\left\lfloor   \frac{n}{3} \right\rfloor & \text{ if }\onemax(\mathbf{x}) = \left\lfloor   \frac{n}{3} \right\rfloor.
+\end{cases}
+\]
+Then it is straightforward to check that $C$ is a concentration that is invariant under the mutation operator of RLS.
+
+In particular, this proves that all points in a stationary distribution are equally likely, up to a constant factor (of roughly $3$).
+
+\todo{finish the proof as follows: the Markov chain has polylog mixing time in the number of search points, so polynomially P(n) in $n$ (I do not know yet how to prove it). There is a constant (or only polynomially small) probability that after P(n) many steps the optimum is not yet hit. So the expected hitting time is constant$\cdot$(weight in stationary distribution)$^{-1} = c^n$.}
+
+\end{proof}
+
+
+We show that the quantum versions perform equally bad on the \plateau function. Only the $(1+1)~QEA$ is slightly better than the $(1+1)~EA$.
+\begin{theorem}
+The expected query time of the (1+1)~QEA or QLS for minimizing \plateau is in~$\tilde{\Theta}(c^n)$, where $c$ is the same constant as in Theorem~\ref{thm:plateauclassic}.
+
+With probability tending to $1$ as $n \to \infty$, the algorithms QLS$^*$ will never find the minimum of \plateau.
+
+The expected query time of the (1+1)~QEA$^*$ for minimizing \plateau is in~$\tilde{\Theta}(n^{n/6})$.
+\end{theorem}
+
+\begin{proof}
+We first consider the progressive algorithms, QLS and (1+1)~QEA. We divide the game in two phases: First, a start phase which lasts until the algorithm hits a search point $\mathbf{x}_k$ with $\plateau(\mathbf{x}_k) \leq \lfloor n/3\rfloor$. Second, the phase thereafter until the algorithm hits the optimum. In the second phase, the algorithm performs basically a random walk on the plateau. 
+
+For the classic algorithms, RLS and the (1+1)~EA, the expected time in the start phase is bounded by the expected optimization time of the algorithm in order to minimize the function $\onemax$. Since this time is $\Theta(n\log n)$ by Theorem~\ref{thm:onemaxclassic}, the expected runtime of the second phase must be $\tilde{\Theta}(c^n)$, where $c$ is as in Theorem~\ref{thm:plateauclassic}.
+
+By the same argument as above, the quantum version of the algorithm also needs only polynomial (in fact, linear) time for the start phase. For the random walk, let $x_{k_0}$ denote the first search point on the plateau. Then the estimated runtime for the second phase is
+\[
+\TQSH^{(2)}=\sum_{k_0 \le k\le K}p_k^{-\nicefrac{1}{2}}\,.
+\]
+On the other hand, the expected runtime of the second phase for the classical algorithms is
+\[
+\TRSH^{(2)}=\sum_{k_0 \le k\le K}p_k^{-1}\,.
+\]
+Any point of the plateau has at least $\lfloor n/3\rfloor$ neighbors of Hamming distance $1$ that are still on the plateau. Therefore, for all $k\geq k_0$ the union bound implies
+\[
+p_k \ge \lfloor n/3\rfloor\, \frac{1}{n}\left(1-\frac{1}{n}\right)^{n-1} \geq \lfloor n/3\rfloor \frac{1}{en} \ge 1/9.
+\]
+In particular, $\frac{1}{3}p_k^{-1} \leq p_k^{-\nicefrac{1}{2}} \leq p_k^{-1}$. Summing up, this implies
+\[
+\frac{1}{3}\TRSH^{(2)} \le \TQSH^{(2)} \le \TRSH^{(2)}.
+\]
+So $\TQSH^{(2)} \in \Theta(\TRSH^{(2)}) = \tilde{\Theta}(c^n)$. Since the starting phase has asymptotically a smaller runtime, the total runtime of both QLS and the (1+1)~QEA is in $\tilde{\Theta}(c^n)$.\smallskip
+
+
+Now let us turn to the conservative algorithms.
+
+The statement for QLS$^*$ follows immediately from the statement for RLS$^*$ in Theorem~\ref{thm:plateauclassic} since both algorithms have exactly the same probability to terminate by Theorem~\ref{thm:probamp}.
+
+So let us look at the (1+1)~QEA$^*$. By the Chernoff bound, the probability that the start point $\mathbf{x}_0$ is not on the plateau, i.e. that $\onemax(\mathbf{x}_0) > \lfloor \frac{n}{3} \rfloor$, is bounded away from zero by a positive constant.
+
+On the other hand, if $\mathbf{x}_0$ is not on the plateau, then we claim that asymptotically almost surely there is a search point $\mathbf{x}_k$ such that $\onemax(\mathbf{x}_k) \in [\lfloor n/3 \rfloor - \log(n), \lfloor n/3 \rfloor]$.
+
+In fact, in expectation the algorithm enters the plateau after at most linear time by the same argument as for the (1+1)~QEA. In order to hit a search point $\mathbf{x}$ with $\onemax(\mathbf{x}) < n/3 - \log(n)$, the algorithm must jump there from a search point of strictly lower fitness, i.e., from a search point outside the plateau. Therefore, at least $\log(n)+1$ many $1$-bits must have been flipped all at once. By the Hoeffding-Chernoff bound, the probability that this happens at step $k$ is at most $e^{-\log(n)^2} = n^{-\log(n)} \leq n^{-2}$ for $n \ge 8$. By the union bound, the probability that this happens in any of the linearly many steps of the first phase is in $O(1/n)$, as required.
+
+%In order to prove the claim, consider the last search point $\mathbf{x}_{k-1}$ with $\onemax(\mathbf{x}_{k-1}) > \lfloor n/3 \rfloor$. Let $d := \onemax(\mathbf{x}_{k-1}) - \lfloor n/3 \rfloor > 0$. Then the probability that $\onemax(\mathbf{x}_{k}) = \lfloor \frac{n}{3} \rfloor$ may be computed as the conditioned probability
+%\[
+%\Prob(\onemax(\MutOp(x_{k-1})) = \lfloor \frac{n}{3} \rfloor \mid \onemax(\MutOp(x_{k-1})) \geq \lfloor \frac{n}{3} \rfloor).
+%\]
+
+So asymptotically almost surely we have a search point $\mathbf{x}_k$ such that $\onemax(\mathbf{x}_k) \in [n/3 - \log(n), n/3]$. The only way to improve $\mathbf{x}_k$ is to jump directly to the global optimum. In order to do so, we need to flip at least $n/3 - \log(n)$ bits all at once. The probability that this happens is $n^{n/3 - log(n)} \in \tilde{\Theta}(n^{-n/3})$. Thus the (1+1)~QEA$^*$ will need $\tilde{\Theta}(n^{-n/6})$ queries to perform this jump. So we obtain a lower bound for the running time of $\tilde{\Omega}(n^{-n/6})$.
+
+On the other hand, by the analysis of $\onemax$ in Section~\ref{sec:onemax}, we know that the (1+1)~QEA$^*$ will achieve a fitness of $\lfloor n/3 \rfloor$ in polynomial time. In order to jump from this point to the maximum, it suffices to flip the remaining one-bits all at once, and leave the other bits unchanged. The probability that the mutation operator does this jump is at least $p:=n^{-\lfloor n/3\rfloor}(1-1/n)^{n-\lfloor n/3\rfloor} \geq 1/e * n^{-\lfloor n/3\rfloor} $. Consequently, the (1+1)~QEA$^*$
+will need at most $\Theta(p^{-1/2}) =  \tilde{\Theta}(n^{n/6})$ many queries for the jump. Altogether we see that the optimization time of the (1+1)~QEA$^*$ is bounded from above by $\tilde{O}(n^{n/6})$, which matches the lower bound.
+
+
+\end{proof}

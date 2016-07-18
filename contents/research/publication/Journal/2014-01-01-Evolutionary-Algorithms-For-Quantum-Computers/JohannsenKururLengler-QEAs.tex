@@ -1,0 +1,1225 @@
+\documentclass[a4paper,11pt]{article}
+
+\input{defines}
+
+\title{Evolutionary Algorithms for Quantum Computers}
+\author{Daniel Johannsen\thanks{Daniel Johannsen is supported by a Postdoc Scholarship of the German Academic Exchange Service (DAAD).}\\
+School of Mathematical Sciences\\
+Tel Aviv University\\
+Tel Aviv, Israel\\
+ {\tt johannse@tau.ac.il}
+ \and Piyush P Kurur\thanks{Work done on a visit to the Max Planck Institute for Informatics (MPII) funded by MPII and Research~I project (NRNM/CS/20030163)}
+ \\
+ Dept of Comp. Sci. and Engg\\
+ Indian Institute of Technology Kanpur\\
+ Kanpur UP, India 208016\\
+ {\tt ppk@cse.iitk.ac.in}
+ \and Johannes Lengler\\
+ Department of Theoretical Computer Science\\
+ Eidgen{\"o}ssische Technische Hochschule ETH\\
+ Z{\"u}rich, Switzerland\\
+ {\tt johannes.lengler@inf.ethz.ch}}
+
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\begin{abstract}
+ In this article, we formulate and study quantum analogues of randomized search heuristics, which make use of Grover search~\cite{Grover96} to accelerate the search for improved offsprings. We then specialize the above formulation to two specific search heuristics: Random Local Search and the (1+1)~Evolutionary Algorithm. We call the resulting quantum versions of these search heuristics \emph{Quantum Local Search} and the (1+1)~\emph{Quantum Evolutionary Algorithm}.
+
+We conduct a rigorous runtime analysis of these quantum search heuristics in the computation model of quantum algorithms, which, besides classical computation steps, also permits those unique to quantum computing devices. To this end, we study the six elementary pseudo-Boolean optimization problems \textsc{OneMax}, \textsc{LeadingOnes}, \textsc{Discrepancy}, \textsc{Needle}, \textsc{Jump}, and \textsc{TinyTrap}.
+
+It turns out that the advantage of the respective quantum search heuristic over its classical counterpart varies with the problem structure and ranges from no speedup at all for the problem \textsc{Discrepancy} to exponential speedup for the problem \textsc{TinyTrap}. We show that these runtime behaviors are closely linked to the probabilities of performing successful mutations in the classical algorithms.
+\end{abstract}
+
+\newpage
+
+\section{Introduction}
+\label{sec:introduction}
+Quantum algorithms are algorithms that can be executed on a quantum computing device. One of the prominent computational problems which a quantum algorithm solves more efficiently than classical algorithms is searching in an unordered database. In his seminal work~\cite{Grover96, nielsenchuang:book}, Grover gave an algorithm which can search in an unordered data base of $N$ elements in time proportional to $\sqrt{N}$, whereas any classical algorithm requires time proportional to $N$. When the underlying search space has no structure, Grover search is known to be optimal~\cite{BennetBBGV1997,Zalka99}. In the last decade, algorithms based on Grover search have been studied extensively. Many specialized algorithms have also been studied for problems such as searching \cite{Grover96,BoyerBHT98}, Element Distinctness \cite{Santha08}, Minimum-Finding \cite{DurrH96} and many others (e.g., \cite{DurrHHM06,BerzinaDFLS04,Zhangthesis06}).
+
+Although Grover's algorithm gives a quadratic speedup\footnote{By \emph{quadratic speedup} we mean that the order of the runtime of the classical version of an algorithm is quadratic in the runtime of the quantum version.} for search, this is not a universal phenomenon for all computational problems. For example, Grover search can be thought of as evaluating the Boolean function OR on $N$ bits. If instead of the OR function we consider the XOR on $N$ bits, a lower bound of $\Theta(N)$ queries is known in quantum setting~\cite{Ambainis2002,BealsBCM2001}. Thus, the actual speedup that can be achieved depends on the problem at hand.
+
+Optimization problems, which are the topic of interest of this paper, have received much attention in the quantum setting. Using Grover's algorithm, D{\"u}rr, Heiligman, H{\o}yer, and Mhalla~\cite{DurrHHM06} have shown that it is possible to find the global optimum of a black-box optimization problem on the search space~$\{0,1\}^n$ in an expected number of~$\Oh(2^{\nicefrac{n}{2}})$ queries, while the classical complexity is $\Theta(2^n)$. Moreover, a matching lower bound of~$\Omega(2^{\nicefrac{n}{2}})$ for all possible quantum algorithms exists~\cite{Zalka99}. In addition, if there is enough structure in the search space, better bounds can be shown. For example on general graph-based search spaces, Magniez, Nayak, Roland, and Santha~\cite[Theorem 3]{MagniezNRS12} have shown that if the Markov chain associated with the random walk on the space is ergodic, significant improvement in the expected query complexity is possible provided that the spectral gap is large. Furthermore, if the underlying \emph{quantum random walk} is symmetric, better problem-specific quantum algorithms are available~\cite{Szegedy04,MagniezNRS11}.
+
+From the view-point of complexity theory, the model of computation which allows the formulation of quantum algorithms is a generalization of the model of computation which allows the formulation of classical randomized algorithms (just as this model is a generalization of that which allows the formulation of deterministic algorithms). If we consider the complexity of a computational problem, then (i) upper bounds on the classical complexity are also upper bounds on the quantum complexity, (ii) lower bounds on the quantum complexity are also lower bounds on the classical complexity, and, most importantly, (iii) in certain settings lower bounds on the \emph{quantum complexity} can imply even stricter lower bounds on the \emph{classical complexity}. 
+
+For example, in~\cite{Aaronson06} Aaronson has derived a lower bound of $\Omega(2^{\nicefrac{n}{2}}/n^2)$ on the randomized complexity of the problem of finding a local optimum on the $n$-dimensional hypercube from an $\Omega(2^{\nicefrac{n}{4}}/n)$ bound on its quantum complexity using the \emph{quantum adversary method} (cf.~\cite{Ambainis08}). Only later has this result been improved to $\Theta(2^{\nicefrac{n}{2}}n^{\nicefrac{1}{2}})$ using classical methods of analysis~\cite{Zhang06}.
+
+Another example is given in~\cite{KerenidisW04}, where the authors show lower bounds on the length of locally decodable codes with quantum arguments. They show that the classical algorithm which is allowed to look at two bits (in order to recover the desired bit of information) is at most as powerful as the quantum algorithm which is allowed to look only at one bit.
+
+In this light, theoretical work on quantum complexity and runtime analyses of quantum algorithms serve not only the aim of preparing for a bright (but admittedly as of now only hypothetical) future sporting actual quantum computers, but also furthers the understanding of the classical complexity of a problem.
+
+In this work, we consider quantum versions of \emph{elitist (1+1)~randomized search heuristics}, which, for convenience, we simply abbreviate as \emph{RSH}s. RSHs are heuristics that successively generate candidate solutions according to some distribution depending only on the best solution found so far\footnote{Actually, the distribution of the candidate solutions might as well depend on the number of steps already performed by the algorithm. However, in this work we only regard algorithms with time-homogeneous distributions.}. In the language of evolutionary algorithms, this sampling procedure is called \emph{mutation}. In a subsequent \emph{selection} step, the algorithm decides whether to replace the current candidate solution by the sampled one. 
+
+The optimization problems that we are interested in are pseudo-Boolean optimization problems: Given a finite search space~$\mathcal{S}$, in our case always the set of all $n$-bit strings (where~$n$ is a positive integer), and an objective function $f$ from~$\mathcal{S}$ to~$\mathbb{R}$, we want to compute a global optimum (that is, either a maximum or a minimum) of $f$. A RSH starts with a candidate solution $\xvec[0]$ and repeatedly improves the objective value (or \emph{fitness}) of the solution by performing the following two steps:
+
+\paragraph{(1) Mutation} Generate a new solution $\yvec$ according to a distribution $\mut(\xvec)$ depending on the current solution $\xvec$;
+
+\paragraph{(2) Selection} If the new solution $\yvec$ has better (or possibly equal) fitness than~$\xvec$ then set~$\xvec:= \yvec$, otherwise discard~$\yvec$.
+
+Thus, different RSHs differ in the \emph{mutation operator}, that is, the nature of the distribution $\mut(\xvec)$, and the \emph{selection strategy}, that is, a partial order relation on~$\mathcal{S}$.
+
+For example, the mutation operator of Randomized Local Search (RLS) selects an index $i$ at random and flips the bit $x_i$ to get the new candidate solution whereas the mutation operator of the (1+1)~Evolutionary Algorithm~(EA) flips each bit $x_i$ with probability $1/n$. Orthogonally, we can choose one of the following two selection strategies for each of these algorithms, which we name \emph{progressive} or \emph{conservative} selection. Progressive selection accepts new search points of equal or better objective value, whereas conservative selection only accepts new search points of strictly better objective value (where \emph{better} means larger or smaller, depending on whether we consider a maximization or, respectively, a minimization problem). Whenever two algorithms are the same except for the selection strategy, we denote the conservative algorithms by a superscript~``\,*\,'', e.g., RLS and RLS$^*$ for the progressive and conservative versions of Randomized Local Search, respectively.
+
+When transferring the concept of RSHs to the setting of quantum
+computing, we encounter one main difficulty. Clearly, an RSH for a
+maximization problem can never move from a solution of higher
+objective value to a solution of smaller objective value. Hence the
+Markov processes underlying these algorithms are not ergodic and far
+from symmetric. Therefore, the setting of quantum random walks as
+in~\cite{Szegedy04,MagniezNRS11,MagniezNRS12} does not apply. More
+seriously, all quantum operations apart from \emph{measurements} are
+required to be reversible. This rules out a direct adaptation of the
+RSH to the quantum world because it would force us to make a
+measurement after every mutation step and perform the selection step
+based on the outcome of this measurement. Performing a measurement after
+each mutation amounts to sampling from the classical distribution
+associated with the mutation. Hence, such a version is the restatement
+of the same classical randomized search heuristic in terms of quantum
+operators and measurements and therefore uninteresting. We need to
+defer the measurements long enough so as to allow quantum mechanical
+interference to have an effect on the sampling.
+
+The main idea of our paper is to use \emph{quantum probability
+  amplification}~\cite{brassard98quantum} to speed up the process of
+generating a new candidate solution in Step~(1) that is accepted by
+the selection strategy in Step~(2). Instead of picking a new candidate
+solution directly from the distribution given by the mutation
+operator, which is what is done classically, we amplify the
+probability of getting a better solution to at least a constant (say
+$1/2$) using quantum probability amplification (see
+Section~\ref{sec:quantum}). We call this quantum variant of a RSH a
+\emph{Quantum Search Heuristic} (QSH). In particular, we call the
+quantum variants of RLS and EAs \emph{Quantum Local Search} (QLS) and
+\emph{Quantum Evolutionary Algorithms} (QEAs). These QSHs can only run
+on a quantum computer.
+
+We measure the runtime of a RSH on a given problem by the expected number of function calls (\emph{queries}) to $f$ until a global optimum is found. In the quantum setting, we cannot evaluate the function $f$ for mixed (non-classical) quantum states. Instead, for each search point $\xvec$ we construct a membership oracle associated with $f$ that distinguishes between search points of higher and of lower fitness than $\xvec$. We define the runtime of a quantum algorithm to be the expected number of calls to such membership oracles for $f$ until a global optimum is found (see Section \ref{sec:qsh} for details).
+
+For comparing the runtime of a RSH and its quantum counterpart, the \emph{progress probability}~$p_\RSH(\xvec)$ plays a central role. This is the probability of obtaining an acceptable new solution from a candidate solution $\xvec$ by mutation in the classical setting. That is, assuming the RSH maximizes the function~$f$, if~$\yvec$ is the random variable generated by~$\mut(\xvec)$ then
+\[
+p_\RSH(\xvec) = \Pr(f(\yvec)\ge f(\xvec)\,\wedge\,\yvec\neq \xvec)
+\]
+for the progressive selection strategy and
+\[
+p_\RSH(\xvec) = \Pr(f(\yvec)> f(\xvec))
+\]
+for the conservative selection strategy. In the classical setting, a RSH requires in expectation $1/p_\RSH(\xvec)$ queries to $f$ in order to make progress in~$\xvec$, that is, to move from the current solution~$\xvec$ to a new solution~$\yvec$. Using quantum probability amplification, the expected number of queries reduces to $\Theta\big(1/\sqrt{p_\RSH(\xvec)}\big)$. 
+
+The search heuristic Quantum Local Search which we define here is a restricted version of the quantum algorithm by Aaronson~\cite{Aaronson06} which first chooses $\Theta(n^{\nicefrac{1}{3}}2^{\nicefrac{2n}{3}})$ search points uniformly at random and then uses Grover search to determine the optimal initial search point among them. The algorithm of Aaronson then proceeds exactly like ours. However, our algorithm does not attempt to optimize on the starting point, because (i) the runtime of such an optimization would dominate the runtimes of our algorithms by orders of magnitude for problems with polynomial runtime and (ii) the classical RSHs we compare to do not attempt to do so either.
+
+To avoid confusion, we want to point out two other streams of work which might be mistakenly associated with our work but are in fact not related. 
+
+First, our results on QSHs and QEAs are significantly different from that of Quantum Inspired Evolutionary Algorithms (QIEAs) as introduced in \cite{HanK02}. QIEAs are classical algorithms where the mutation and selection steps, though classical, are inspired from quantum operations. In contrast, our mutation process is genuinely quantum and cannot be implemented on a classical computer. 
+
+Second, our algorithms are no attempts to apply genetic programming techniques to better design quantum algorithms unlike for example the work of Spector \emph{et.~al.}~\cite{SpectorBBS99} where the ``code'' of an ordinary quantum algorithm is optimized by an evolutionary algorithm. To the best of our knowledge, the (1+1)~QEA investigated here is the first attempt to generalize evolutionary algorithms to the quantum setting.
+
+The theorem ``No free lunch'' states that no RSH can be good on all pseudo-Boolean problems. Similarly, the general bound of time $\Theta(2^{\nicefrac{n}{2}})$ for optimizing an arbitrary pseudo-Boolean function in the black-box model also applies to QSHs. However, we may ask whether QSHs still experience a speedup over ordinary RSHs on particular problems. In order to answer this question, we follow the approaches of \cite{BeyerSW02} and~\cite{djwea02} and study the behavior of QLS and the (1+1)~QEA on specific pseudo-Boolean optimization problems.
+
+\subsection{Our Results}
+\begin{table}[t]
+\begin{center}
+\begin{scriptsize}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{l||c|c||c|c}
+& (1+1)~EA / & (1+1)~QEA / & (1+1)~EA* / & (1+1)~QEA* / \\
+& RLS & QLS & RLS* & QLS* \\
+  \hline
+\onemax & $\Theta(n\log n)$ & $\Theta(n)$ & $\Theta(n\log n)$ & $\Theta(n)$ \\
+\hline
+\leadingones & $\Theta(n^2)$ & $\Theta(n^2)$ & $\Theta(n^2)$ & $\Theta(n^{\nicefrac{3}{2}})$ \\
+\hline
+\discrepancy & $\Theta(\sqrt{n})$  & $\Theta(\sqrt{n})$  & $\Theta(\sqrt{n})$ & $\Theta(\sqrt{n})$ \\
+\hline
+\needle & $\Theta(2^n)$ & $\Theta(2^n)$ & $\Theta\big(\frac{1}{2^{n}}n^n\big)$  / $\infty$ & $\Theta\big(\frac{\euler^{\sqrt{n}}}{2^n}n^{\nicefrac{n}{2}}\big)$ /  $\infty$ \\
+\hline
+\jumpm & $\Theta(n^m)$ / $\infty$ & $\Theta(n^{m-\nicefrac{1}{2}})$ / $\infty$ & $\Theta(n^m)$ / $\infty$ & $\Theta(n^{\nicefrac{m}{2}})$/ $\infty$   \\
+\hline
+\tinytrap & $\Omega(2^{\nicefrac{n}{4}})$ / $\infty$ & $\Theta(1)$ / $\infty$ & $\Omega(2^{\nicefrac{n}{4}})$ / $\infty$ & $\Theta(1)$/ $\infty$   \\
+\end{tabular}
+\end{scriptsize}
+\caption{\label{tabA}A runtime comparison between progressive and conservative (*) RSHs and QSHs on different objective functions.}
+\end{center}
+\end{table}
+
+We give asymptotically tight bounds on the runtimes of QLS and the \linebreak[4](1+1)~QEA. For both QSHs, we investigate the progressive and the conservative selection strategy. We consider the objective functions \onemax, \leadingones, \discrepancy, \needle, \jumpm, and \tinytrap, which are defined in Section~\ref{sec:functions}.
+
+Our results are summarized in Table~\ref{tabA}. We see that in some cases the speedup is quadratic or almost quadratic (e.g., conservative (1+1)~QEA$^*$ on \needle and on \jumpm), for other functions there is only a smaller speedup (polynomial for the conservative algorithms on \leadingones, logarithmic for all algorithms on \onemax), or no asymptotic speedup at all (\discrepancy; progressive algorithms on \needle and \jumpm). We also see that the selection strategy may be crucial for the speedup (\jumpm and \leadingones) even if one of the strategies does not change the runtime of the classical algorithms (\leadingones). We even find an example (\tinytrap) where the runtime decreases from~$\Omega(2^{n/4})$ to $\Theta(1)$.
+
+We now give a broad reason for the differences in speedup. The quantum acceleration does not differ from its classical counterpart in the statistical nature of the candidate solutions picked on its way to the optimal solution. In other words, for a fixed trajectory of different search points the probabilities to take this trajectory coincide for the classical and the quantum algorithm. However, the quantum version is faster because it reduces the expected time required for a successful mutation.
+
+For example, for RLS$^*$ on \leadingones, it is comparatively hard to find the next search point (that is, the right bit to flip), so there is a substantial speedup. On the other hand, for \discrepancy it is very easy to find a better search point: the expected time for improving the objective value is bounded from above by a constant, and so there is no asymptotic speedup. In general, the speedup is higher when it is difficult to find a search point that is accepted by the selection strategy. 
+
+Therefore, the gap between the RSHs and the QSHs tends to be larger for the conservative selection strategy. Again for \leadingones, the progress probability of RLS$^*$ is~$1/n$, namely to flip the first zero-bit. Consequently, the runtime decreases by a factor of  $\Theta(\sqrt{n})$. On the other hand, in early steps of a run of RLS (that is, the progressive version) on \leadingones, the progress probability is $\Theta(1)$, since flipping any bit after the first zero-bit results in an accepted candidate solution in this setting. Consequently, there is no asymptotic speedup at all. 
+
+However, this does not necessarily imply that conservative algorithms are superior. For some problems like \needle and \jumpm, the conservative selection strategy leads to high or even infinite (the global optimum is never found) runtimes for both RSHs and QSHs. In this case, the speedup due to quantum computing is negligible compared to the speedup due to progressive selection.
+
+Finally, let us briefly discuss the example of \tinytrap where both, the conservative and the progressive (1+1)~QEA, have runtimes bounded from above by a constant instead of the exponential runtime of their classical counterparts. This result may seem most impressive. However, it is quite artificial since the results hold only in expectation but with an exponentially small probability. In a nutshell, it is based on the following observation about quantum probability amplification. Consider the search space consisting only of two elements~$a$ and~$b$, where~$b$ is defined to be the ``optimum''. With probability~$p$, the initial search point is chosen as~$a$ and with probability~$1-p$ as~$b$. The probability that a mutation in~$a$ samples~$b$ is set to~$p^2$. Then the corresponding RSH has runtime~$1/p$ (starting in~$a$ with probability~$p$ and moving to~$b$ after~$1/p^2$ steps in expectation), while the corresponding QSH has runtime~$\Theta(1)$ (starting in~$a$ with probability~$p$ and moving to~$b$ after only~$1/p$ steps in expectation). Thus, the speedup~$1/p$ can be arbitrary large if we choose~$p$ small enough. The function \tinytrap models this situation on the search space~$\{0,1\}^n$.
+
+Summing up, we see that quantum search may speed up evolutionary algorithms in some cases and that there are problems which are substantially accelerated by quantum search. However, it depends on the specific problem how much is really gained, and for some problems there is no improvement in the runtime at all. 
+
+This paper is the sequel of a conference paper by the same authors~\cite{JKL10}. The prequel paper only considered the problems \onemax, \discrepancy and \leadingones. By including \needle, \jumpm, and \tinytrap we are able to demonstrate the impact of different selection strategies, while the conference version only considered the progressive variant. Also, it did not include rigorous proofs and formulations, but merely stated informally that the optimization time of a quantum algorithm should equal $\sum_{t\leq T} p_t^{-\nicefrac{1}{2}}$, where $p_t$ is the progress probability in time step $t$ and $T$ is the number of steps the algorithm needs. Although this formula captures the intuition, it is difficult to turn it into a rigid definition. In particular, $p_t$ is not a random variable because it is not always defined. Also, the formula is not well-suited for computations, and the analyses used in fact slightly different formulas. Theorem~\ref{thm:runtime} of this paper removes this defect.
+
+\subsection{Outline}
+The paper is structured as follows. In Section~\ref{sec:quantum}, we review very briefly the quantum algorithms we need. For the reader not familiar with quantum computations, it suffices to use Theorem~\ref{thm:probamp} as a black box. In Section~\ref{sec:rsh} and Section~\ref{sec:qsh}, RSHs and QSHs, respectively, are introduced formally.
+
+In Section~\ref{sec:runtime}, we provide tools for analyzing the runtimes of QSHs. In the standard framework for evolutionary algorithms one query is performed for each candidate search point $\xvec[t]$, so the runtime is simply the expectation of the minimal $t$ for which $\xvec[t]$ is a global optimum. Unfortunately, this framework collapses in the quantum setting, since the number of queries (calls to the oracle function) needed to produce the next search point is not constant. Instead, we introduce in Definition~\ref{def:cost} the notion of \emph{progress times}, which is compatible with both the classical and the quantum setting.
+
+In Theorem~\ref{thm:runtime}, we describe the runtimes of QSHs purely in non-quantum terms, and in the remainder of Section~\ref{sec:runtime}, we prove some lemmas that are useful for comparing the complexity of a RSH and its corresponding QSH. Finally, in Section~\ref{sec:functions} we apply these tools to determine the runtimes of the introduced QSHs for the problems \onemax, \leadingones, \discrepancy, \needle, \jumpm, and \tinytrap.
+
+
+\section{Quantum Probability Amplification} \label{sec:quantum}
+
+In this section, we describe the basics of quantum computation, the Grover search algorithm, and its reformulation as quantum probability amplification in a form that is suitable for our purpose. For a detailed presentation, we refer the reader to any standard text book on quantum computation, e.g.~\cite{nielsenchuang:book}.
+
+The most basic unit of information in the quantum setting is a qubit, which is a unit vector in a 2 dimensional vector space $\mathcal{H} =\mathbb{C}^2$. To see the analogy with classical bits, we fix an orthonormal basis $\{\ket{0},\ket{1}\}$. The first basis vector $\ket{0}$ stands for the classical bit $0$ and the second basis vector $\ket{1}$ stands for the classical bit $1$. However, a qubit can also be in the superposed state $\ket{\varphi} = \alpha \ket{0} + \beta \ket{1}$ where $\alpha$ and $\beta$ are complex numbers satisfying the relation $\abs{\alpha}^2 + \abs{\beta}^2 = 1$. An $n$-qubit system is captured by a unit vector in the $n$-fold tensor product $\mathcal{H}^{\otimes^n}=\mathbb{C}^2 \otimes\dots\otimes \mathbb{C}^2$.
+
+The vector space $\mathcal{H}^{\otimes^n}$ is a $2^n$-dimensional vector space with orthonormal basis $\left\{ \ket{\xvec}\mid\xvec \in \{0,1\}^n \right\}$. More generally, if we have a sample space $\Omega$ of cardinality $N$ in the classical setting, the corresponding object in the quantum setting is an $N$-dimensional complex Hilbert space $\mathcal{H}_\Omega$. A set of orthonormal vectors of $\mathcal{H}_\Omega$ is fixed and is denoted by $\{\ket{\omega}\mid\omega \in \Omega \}$. A \emph{state} of the system is then a unit vector in $\mathcal{H}_\Omega$.
+
+Any quantum operation is either an application of a \emph{unitary
+  operator} or a \emph{measurement}. Unitary operations preserve inner
+products between vectors and are reversible. The measurement is an
+irreversible process. We mention the von Neumann measurement postulate
+for qubits. If a set of $n$-qubits $\sum \alpha_{\xvec} \ket{\xvec}$
+is measured, we obtain the outcome~$\ket{\xvec_0}$ with
+probability~$\abs{\alpha_{\xvec_0}}^2$. Furthermore, the state of the
+original system then collapses to~$\ket{\xvec_0}$, so the original
+state is irretrievably lost. So, as far as measurement is considered,
+a state is like a distribution in the classical setting. What makes
+quantum probability different and thus more powerful than classical
+computation is that by combining certain unitary operations with
+measurement of a latter state, we can perform a ``constructive
+interference'' of good probabilistic paths. It is the correct use of
+unitary maps together with the correct timing of measurement that
+gives quantum computation its power. Due to lack of space we leave the
+details to any standard text book on quantum computation
+(c.f. \cite{nielsenchuang:book}).
+
+We now describe the Grover search algorithm. Let $\mathcal{S}_0$ be a subset of $\mathcal{S}$ for which we are given a membership oracle, that is, we are given an oracle $M$ from $\mathcal{S}$ to $\{ 0 , 1 \}$ such that $\mathcal{S}_0 = \{ \xvec \mid M(\xvec) = 1 \}$. Our task is to \emph{search} for a string in $\mathcal{S}_0$ using queries to $M$. In this setting, we are interested in minimizing the number of queries made to $M$. In an important breakthrough, Grover~\cite{Grover96} gave a quantum algorithm to search for such an element $\xvec_0 \in \mathcal{S}_0$ that makes only $\sqrt{|\mathcal{S}|/|\mathcal{S}_0|}$ queries to the oracle $M$. One needs to, however, make the oracle $M$ work for quantum states. The standard approach, which we describe briefly for completeness, is to consider the membership oracle as unitary operator~$U_M$ on the $n$-qubit Hilbert space $\mathcal{H}= \mathbb{C}^{2^{\otimes^n}}$ defined as
+\[
+U_M \ket{\xvec} = (-1)^{M(\xvec)} \ket{\xvec}.
+\]
+One application of this unitary operator $U_M$ is considered as a single query to the membership oracle.
+
+Let $N$ denote the cardinality of the search space $\mathcal{S}$, and let~the cardinality of the set $\mathcal{S}_0$ be $N_0$. During initialization, Grover's quantum search algorithm prepares the uniform superposition $\ket{\psi_0}= {1}/{\sqrt{N}}\sum_{\xvec \in \mathcal{S}}\ket{\xvec}$. The algorithm iteratively applies the Grover step, a unitary operator which we denote by~$G$, to~$\ket{\psi_0}$. Let~$\ket{\psi_t}$ denote the state after $t$ applications of $G$, that is, $\ket{\psi_t} = G^t \ket{\psi_0}$. If we choose some appropriate $t$ in $ \Oh(\sqrt{N/N_0})$ then on measuring the state~$\ket{\psi_t}$ we obtain an element~$\xvec \in \mathcal{S}_0$ with probability bounded from below by a positive constant. More precisely, if we write the state as $\ket{\psi_t} = \sum_{\xvec\in \mathcal{S}} \alpha_{\xvec}(t)\ket{\xvec}$, then for $t= \Oh(\sqrt{N/N_0})$ we have $\sum_{\xvec\in\mathcal{S}_0} |\alpha_{\xvec(t)}|^2$ is a constant (say $1/2$). The exact form of the Grover step $G$ is not relevant (for details see the text book of Nielsen and Chuang~\cite[Chapter 6]{nielsenchuang:book}) but the crucial point is that $G$ can be constructed using one application of the unitary operator~$U_M$. Hence the Grover search makes $\sqrt{N/N_0}$ queries to the oracle.
+
+Grover search starts with the uniform superposition as a priori there is no specific reason to prefer one bit string over the other. Instead, if we start the search algorithm with the state $\ket{\psi_0} = \sum \alpha_{\xvec} \ket{\xvec}$, then the runtime will be $\sqrt{1/p}$ where $p = \sum_{\xvec\in \mathcal{S}_0} |\alpha_{\xvec}|^2$ is the probability of picking $\xvec\in \mathcal{S}_0$ if we would measure the initial state $\ket{\psi_0}$ directly. This reformulation due to Brassard \emph{et al}~\cite{brassard98quantum} is often called the \emph{quantum probability amplification} or \emph{quantum amplitude amplification} as a quantum algorithm is able to amplify the probability by performing just $\sqrt{1/p}$ queries in expectation as opposed to $1/p$ required by a classical algorithm.
+
+There is a caveat to the Grover search algorithm. One needs to stop the Grover iteration after $\Theta(\sqrt{N/N_0})$ steps, for otherwise the probability of getting a favorable $\xvec_0 \in \mathcal{S}_0$ actually deteriorates. Thus it appears as if without knowing the count $|\mathcal{S}_0|$, or in the case of probability amplification, the probability $p$ of sampling an $x\in \mathcal{S}_0$ under the given distribution, one cannot use Grover search. However, using phase estimation, Brassard \emph{et al}~\cite{brassard98quantum} gave a way to overcome this difficulty with essentially no change in the overall runtime. {From} now on, by quantum probability amplification we mean this generalized version where we do not need to know the probabilities.
+
+We now explain an important invariant of the Grover search algorithm. This property is crucial for our results. Even though each Grover iteration amplifies the probability of finding a solution in $\mathcal{S}_0$, for any $\xvec_0 \in \mathcal{S}_0$, the conditional probability of obtaining $\xvec_0$ given the event that an element of $\mathcal{S}_0$ has been obtained remains unchanged by the algorithm. We sketch the reason for this. Let $\mathcal{H}$ be the Hilbert space of $n$-qubits, which has as basis $\{\ket{\xvec}\mid\xvec \in \mathcal{S}\}$. Let $\mathcal{H}_A$ denote the space spanned by $\{ \ket{\xvec}\mid\xvec\in \mathcal{S}_0 \}$, and let $\mathcal{H}_B = \mathcal{H}_A^\perp$ be its orthogonal complement. Consider any vector $\ket{\psi} = \sum_{\xvec} a_{\xvec} \ket{\xvec}$ in $\mathcal{H}$.  Then $\ket{\psi} = \alpha \ket{\psi}_A + \beta \ket{\psi}_B$ where $\ket{\psi}_A$ and $\ket{\psi}_B$ are the projections of $\ket{\psi}$ to $\mathcal{H}_A$ and $\mathcal{H}_B$ with their norms normalized to 1, respectively. It is easy to verify that the normalized projection $\ket{\psi}_A$ is given by $\ket{\psi}_A = \frac{1}{\sqrt{\abs{\alpha}^2}} \sum_{\xvec \in \mathcal{S}_0} a_{\xvec} \ket{\xvec}$ and the amplitudes $\alpha$ and $\beta$ are given by $\abs{\alpha}^2 = \sum_{\xvec \in \mathcal{S}_0} \abs{a_{\xvec}}^2$ and $\abs{\beta}^2 = 1 - \abs{\alpha}^2$. The following proposition then follows from the measurement postulate.
+
+\begin{proposition}\label{prop-conditional-prob}
+  Consider the probability distribution $D_\psi$ on $\mathcal{S}$ obtained by measuring the state $\ket{\psi}$. Then
+  \begin{enumerate}
+  \item the probability to obtain an element from $\mathcal{S}_0$,
+    that is, $\Pr[\mathcal{S}_0]$, is~$\vert\alpha\vert^2$,
+  \item for $\ket{\psi}_A = \sum_{\xvec \in \mathcal{S}_0}
+    \gamma_{\xvec} \ket{\xvec}$, the conditional probability
+    $\Pr[\xvec| \mathcal{S}_0]$ is~$\abs{\gamma_{\xvec}}^{2}$,
+\end{enumerate} where all probabilities and conditional probabilities are with respect
+  to the distribution $D_\psi$.
+\end{proposition}
+
+\begin{proof}
+By the measurement postulate, the probability to obtain~$\xvec\in \mathcal{S}$ is~$\abs{a_{\xvec}}^2$. Therefore,  
+\[
+  \Pr[\mathcal{S}_0] = \sum_{\xvec \in \mathcal{S}_0} \Pr[\xvec] = \sum_{\xvec \in \mathcal{S}_0} \abs{a_{\xvec}}^2 = \abs{\alpha}^2.
+\]
+Similarly, the second statement follows from 
+  \[
+  \Pr[\xvec| \mathcal{S}_0] = \frac{\Pr[\xvec]}{\Pr[\mathcal{S}_0]} = \frac{\abs{a_{\xvec}}^2}{\abs{\alpha}^{2} } = \abs{\gamma_{\xvec}}^{2}.
+  \]
+\end{proof}
+
+
+Let $G$ be the Grover iteration associated with the solution space $\mathcal{S}_0$. For any vector $\ket{\psi} = \alpha \ket{\psi}_A + \beta\ket{\psi}_B$ the vector $G\ket{\psi}$ is a linear combination $\alpha' \ket{\psi}_A + \beta' \ket{\psi}_B$ for some other constants $\alpha'$ and $\beta'$ such that $\abs{\alpha'}^2 + \abs{\beta'}^2 = 1$ (see the analysis of Grover search in Section 6.1.3 of Nielsen's and Chuang's book~\cite{nielsenchuang:book}). It follows from Proposition~\ref{prop-conditional-prob} that the conditional probability $\Pr[\xvec|\mathcal{S}_0]$ does not change after the application of $G$.
+
+When quantum probability amplification is applied to an initial state that has success probability $p$, then it achieves at least a constant success probability~$c>0$ with a runtime in $\Theta(\sqrt{1/p})$ that is known \emph{a priori}. Now we take this algorithm as a black box $B$. If we consider the algorithm that repeats $B$ until it finds a solution, then its success probability is $1$ by definition. The runtime is no longer known \emph{a priori} since we do not know how often we need to call the black box $B$. However, the \emph{expected} runtime is $1/c$ times the runtime of $B$, which is still in $\Theta(\sqrt{1/p})$. Summarizing, we get the following theorem.
+
+\begin{theorem}[Probability Amplification]\label{thm:probamp}
+There exists two positive absolute constants~\lb and~\ub such that the following statement is true. 
+
+Let~$\mathcal{S}$ be a finite search space, $\mathcal{S}_0$ be any
+non-empty subset of $\mathcal{S}$ for which there is a membership
+oracle $M$, and a sampling procedure $A$ that produces a distribution
+$D_A$ on $\mathcal{S}$. Let $p$ be the probability $\Pr_{D_A}[\xvec
+  \in\mathcal{S}_0]$ of obtaining an element in $\mathcal{S}_0$ on
+running $A$. Then there exists a quantum algorithm that makes in
+  expectation at least $\lb p^{-\nicefrac{1}{2}}$ and at most $\ub
+p^{-\nicefrac{1}{2}}$ queries to the membership oracle $M$ and samples
+an element $\xvec_0$ in $\mathcal{S}_0$ with a distribution $D_\psi$
+on~$\mathcal{S}_0$ given by
+ \[ 
+ {\Pr}_{D_\psi}[\xvec=\xvec_0] = {\Pr}_{D_A}[\xvec=\xvec_0\mid \xvec\in\mathcal{S}_0]. 
+ \]
+\end{theorem}
+
+The statement regarding the conditional probability comes from the fact that the final state of the algorithm is $G^t\ket{\psi_0}$ and that the Grover operator $G$ preserves the relevant conditional probability as discussed before.
+
+\section{Randomized Search Heuristics}
+\label{sec:rsh}
+In this section, we look at elitist (1+1)~Randomized Search Heuristics, RSHs for short. The RSHs we study in this article are Random Local Search (RLS) and the (1+1)~Evolutionary Algorithm (EA). Let~$\mathcal{S}$ be the search space and let $f$ be a function from $\mathcal{S}$ to $\mathbb{R}$ that we want to maximize. A RSH like Random Local Search or the (1+1)~EA can be formalized by defining what is known as its \emph{mutation operator}.
+
+\begin{definition}[Mutation Operator $\mut$]
+Let~$\mathcal{S}$ be a finite search space. A \emph{mutation operator} $\mut$ over $\mathcal{S}$ is a function from $\mathcal{S}$ to the space of probability distributions on $\mathcal{S}$.
+\end{definition}
+
+The mutation operator $\mut$ is essentially the search strategy of the corresponding RSH. With a slight abuse of notation we write $\mut(\xvec)$ to denote a sample from $\mathcal{S}$ according to the distribution $\mut(\xvec)$.
+
+To any mutation operator $\mut$, we associate a RSH, which starts from an initial solution $\xvec[0]$, and successively improves by mutating the current solution according to the probability distribution given by $\mut$. If the new solution is better than the current one, we discard the current solution and keep the new solution for further improvement. On the other hand, if the new solution is worse we discard it and retain the current solution. If the new solution is of the same fitness as the current solution, we can either choose to retain the current solution or move to the newly generated solution. We call the former strategy \emph{conservative} and the latter \emph{progressive}. Which of these two variant is better depends very much on the problem at hand. We now formalize these two algorithms.
+
+\begin{samepage}
+\begin{algorithm}[RSH]\label{algo:rsh}
+The \emph{elitist (1+1)~randomized search heuristic} (RSH) over the finite search space~$\mathcal{S}$ with mutation operator $\mut$ that maximizes the objective function $f:\mathcal{S}\to\mathbb{R}$ is the following iterative algorithm. 
+
+\begin{enumerate}
+ \item Start with $\xvec[0] \in \mathcal{S}$ uniformly at random.
+ \item For each $t\in\mathbb{N}$, iteratively assume that $\xvec[t]$ has been chosen.
+ \begin{enumerate}[(a)]
+ \item \label{step:mutate} Pick $\yvec[t] \in \mathcal{S}$ according to the distribution $\mut(\xvec[t])$.
+ \item \label{step:pick} Set $\xvec[t+1] = \yvec[t]$ if
+ \begin{itemize}
+ \item $f(\yvec[t]) > f(\xvec[t])$ for the \emph{conservative} selection rule,
+ \item $f(\yvec[t]) \geq f(\xvec[t])$ for the \emph{progressive} selection rule.
+ \end{itemize}
+ Otherwise, set $\xvec[t+1] = \xvec[t]$.
+ \end{enumerate}
+ \end{enumerate}
+\end{algorithm}
+\end{samepage}
+
+One can define a RSH for \emph{minimizing} $f$ by changing Step~\ref{step:pick} of Algorithm~\ref{algo:rsh}. For the conservative selection strategy, we set $\xvec[t+1] = \yvec[t]$ if $f(\yvec[t])<f(\xvec[t])$. For the progressive selection strategy, we set $\xvec[t+1] = \yvec[t]$ if $f(\yvec[t])\leq f(\xvec[t])$.
+
+Based on this general scheme of a RSH, we define Randomized Local Search and the (1+1)~Evolutionary Algorithm by their corresponding mutation operators.
+
+\begin{algorithm}[RLS and RLS$^*$]\label{alg:rls}
+\emph{Randomized Local Search} is the RSH on the search space $\{0,1\}^n$ for which the mutation operator $\mut_{\mathrm{RLS}}$ assigns to the search point $\xvec$ the probability distribution on $\{0,1\}^n$ obtained by picking an index $1 \leq i \leq n$ uniformly at random and flipping the $i$-th bit of $\xvec$. We denote the progressive variant of Randomized Local Search by RLS and the conservative variant by RLS$^*$.
+\end{algorithm}
+
+\begin{algorithm}[(1+1)~EA and (1+1)~EA$^*$]\label{alg:ooea}
+The \emph{(1+1)~Evolutionary Algorithm} is the RSH on the search space $\{0,1\}^n$ for which the mutation operator $\mut_{\mathrm{EA}}$ assigns to the search point $\xvec$ the probability distribution on $\{0,1\}^n$ obtained by flipping each bit of $\xvec$ independently with probability $\frac{1}{n}$.
+ We denote the progressive variant of the (1+1)~Evolutionary Algorithm by (1+1)~EA and the conservative variant by (1+1)~EA$^*$.
+ \end{algorithm}
+
+\section{Quantum Search Heuristics}
+\label{sec:qsh}
+We now study quantum versions of RSHs. As in the previous section, we have a search space $\mathcal{S}$ and an objective function $f\colon \mathcal{S} \to \mathbb{R}$ that we want to maximize. Consider a mutation operator \mut. Recall that, in the classical randomized search heuristic, we successively improve the current solution by sampling a new solution according to the mutation operator \mut and retaining the new solution if it is better than the previous one. In the quantum version, all the mutation and selection operations needed to find an improved solution are considered as a single search, and we use quantum probability amplification to speed up this search: In step $k$, if $\xvec[k]$ denotes the current solution, we generate the distribution $\mut(\xvec[k])$, amplify the probability of getting a better solution using quantum probability amplification and measure the amplified distribution to obtain a new solution.
+
+The quantum probability amplification requires a membership oracle. Given the objective function~$f$, we define, for each $\xvec \in \mathcal{S}$, membership oracles~$M_{f,\xvec}$ (progressive version) and $M_{f,\xvec}^*$ (conservative version) as follows.
+
+\[
+M_{f,\xvec}(\yvec) = \begin{cases}
+ 1 & \textrm{ if } f(\yvec) \geq f(\xvec)\textrm{ and } \yvec \neq \xvec\textrm{,}\\
+ 0 & \textrm{ otherwise, }\\
+ \end{cases}
+\]
+and 
+\[
+M_{f,\xvec}^*(\yvec) = \begin{cases}
+ 1 & \textrm{ if } f(\yvec) > f(\xvec)\phantom{\textrm{ and } \yvec \neq \xvec}\textrm{}\\
+ 0 & \textrm{ otherwise. }\\
+\end{cases}
+\] 
+
+We now define (progressive and conservative) elitist (1+1)~Quantum Search Heuristics (QSHs) associated with a mutation operator \mut.
+
+\begin{samepage}
+\begin{algorithm}[QSH]\label{algo:qsh}
+The \emph{elitist (1+1)~quantum search heuristic} (QSH) over the finite search space~$\mathcal{S}$ with mutation operator \mut that maximizes the objective function $f:\mathcal{S}\to\mathbb{R}$ is the following iterative algorithm.
+\begin{enumerate}
+\item Start with $\xvec[0] \in \mathcal{S}$ uniformly at random.
+\item For each $k\in\mathbb{N}$, iteratively assume that $\xvec[k]$ has been picked. Sample $\xvec[k+1]$ according to sampling procedure for Theorem~\ref{thm:probamp} with search space~$\mathcal{S}$, membership oracle $M_{f,\xvec[k]}$ for progressive and $M_{f,\xvec[k]}^*$ for conservative selection, and sampling procedure~$\mut(\xvec[k])$. In the case that the set of possible samples for $\xvec[k+1]$ is empty (that is, the mutation operator cannot reach a better search point) then set $\xvec[k+1]=\xvec[k]$.
+\end{enumerate}
+\end{algorithm}
+\end{samepage}
+
+It seems that the condition $\yvec \neq \xvec$ in the oracle function $M_{f,\xvec}$ does not have any influence on the algorithm. This is true in so far as the algorithm would not visit different search points if this condition was dropped. However, from the runtime analysis in Section~\ref{sec:runtime} it will become clear that there would be a huge difference in the runtime. In particular, the (1+1)~EA has at least a constant positive probability to sample the current search point $\xvec$ again. Therefore, the algorithm (1+1)~QEA defined below would have asymptotically exactly the same runtime as the classical (1+1)~EA for every objective function~$f$ by Corollary~\ref{cor:regions}, so there would be no gain in speed at all. For the classical version, on the other hand, this changes the runtime of the algorithm by at most a constant factor which does not influence our runtime analysis.
+
+We conclude this section by defining the quantum versions of Randomized Local Search and the (1+1)~Evolutionary Algorithm. Note that these definitions arise directly from the corresponding mutation operators.
+
+\begin{algorithm}[QLS and QLS$^*$]\label{alg:qls}
+\emph{Quantum Local Search} is the QSH on the search space $\{0,1\}^n$ defined by the mutation operator $\mut_{\mathrm{RLS}}$ of Randomized Local Search (Algorithm~\ref{alg:rls}). We denote the progressive variant of Quantum Local Search by QLS and the conservative variant by QLS$^*$.
+\end{algorithm}
+
+\begin{algorithm}[(1+1)~QEA and (1+1)~QEA$^*$]\label{alg:ooqea}
+The \emph{(1+1)~Quantum Evolutionary Algorithm} is the QSH on the search space $\{0,1\}^n$  defined by the mutation operator $\mut_{\mathrm{EA}}$ of the (1+1)~Evolutionary Algorithm (Algorithm~\ref{alg:ooea}). We denote the progressive variant of the (1+1)~Quantum Evolutionary Algorithm by (1+1)~QEA and the conservative variant by (1+1)~QEA$^*$.
+ \end{algorithm}
+
+\section{Runtime Analysis of Quantum Search Heuristics}
+\label{sec:runtime}
+
+In this section, we introduce a selection of methods which allow us to link the runtime of a QSH to the optimization behavior of the corresponding RSH. In the first two sub-sections, we develop the basic terminology and formulas. Afterwards, we present the main theorem (Theorem~\ref{thm:runtime}), which expresses the runtime of a QSH by a purely non-quantum parameter of the corresponding RSH. Moreover, we give tools to relate the runtimes of the RSH and the QSH if the probability of moving to a new search point in the next step is bounded (Corollary~\ref{cor:regions}), or if it is bounded in certain regions of the search space, where the time spent in these regions is known for the classical algorithm (Lemma~\ref{lem:regions}). Finally, we derive an alternative characterization of the runtime of a QSH by scaling the transition probabilities of the Markov chain associated to the corresponding RSH.
+
+
+For the results of this section we fix a positive integer $n$ and
+consider the optimisation of an objective function $f$ on the domain
+$\mathcal{S} = \{0,1\}^n$ of $n$-bit strings. In this section, we fix
+a mutation operator $\mut$ on $\mathcal{S}$ and a selection strategy
+(either progressive or conservative). By fixing these, recall that the
+RSH (Algorithm~\ref{algo:rsh}) and its associated QSH
+(Algorithm~\ref{algo:qsh}) that optimises $f$ is completely
+determined.
+
+In the following, whenever a definition or statement applies to both
+heuristics, we simply refer to both as the \emph{considered search
+  heuristic}. In particular, we use a common mathematical notation for
+both heuristics and signify the distinction by the subscripts~``RSH''
+and~``QSH'' only if needed. For example, in
+Definition~\ref{def:runtime} we define the ``optimization time~$T$ of
+the considered search heuristic''. By this, we implicitly
+define~$T_\RSH$ for the RSH and~$T_{\QSH}$ for the QSH.
+
+Our aim is to compare the performance of different search heuristics. To this end, we assume the query complexity model: The considered search heuristics are only charged for the number of queries it makes to the objective function, all other operations are free of cost. Recall that in the case of the RSH, a \emph{query} is an evaluation of the objective function~$f$. For the QSH, a \emph{query} is an evaluation of the associated membership oracle. To ease the following calculations (and since we are only interested in asymptotic results anyhow), we do not charge the RSH or QSH for querying the first search point~$\xvec[0]$.
+
+Since we use the query complexity model, we define the \emph{runtime} of the search heuristic as its expected optimization time.
+
+\begin{definition}[Optimization Time]
+\label{def:runtime}
+The \emph{optimization time} of the considered search heuristic is the random variable~$T$ that denotes the number of queries performed by the search heuristic until it has found the first (globally) optimal search point. The \emph{runtime} of the considered search heuristic is its expected optimization time. 
+\end{definition}
+
+In general, the runtime of the considered search heuristic is unbounded. For example, if the objective function has a local optimum (\jump, \needle, \tinytrap), then the runtime of RLS is unbounded (with positive probability the local optimum is the initial search point of RLS). We treat the special case of unbounded runtimes separately in our analysis of specific objective functions in Section~\ref{sec:functions}. In this section, we provide tools to bound the runtime of a QSH on problems for which the corresponding RSH has finite runtime. Therefore, for the rest of this section, we always assume that the runtime of the considered RSH (on the considered objective function) is finite.
+
+For the RSH, we need exactly one query to move from the search point~$\xvec[t]$ to the search point~$\xvec[t+1]$. Therefore, the optimization time $T_\RSH$ is the first point in time $t\in\mathbb{N}$ such that $\xvec[t]$ is optimal. Unfortunately, there is no analogous description for QSHs, as the number of queries needed to move from a search point $\xvec[t]$ to its successor $\xvec[t+1]$ is a random variable. In order to overcome this difficulty, we develop the framework of progress times and trajectories, which turns out to be equally suited for RSHs and QSHs.
+
+\subsection{Transition Probabilities and Progress Times}
+\label{subsec:progress}
+We now introduce the notions of transition probabilities, progress probabilities, and progress times for the considered search heuristics.  Let~$\sigma:=(\xvec[t])_{t\in\mathbb{N}}$ be the random sequence of search points in~$\mathcal{S}$ generated by the considered search heuristic. We call~$\sigma$ a \emph{run} of the search heuristic. It follows from the definitions of Algorithm~\ref{algo:rsh} and Algorithm~\ref{algo:qsh} that the sequence~$\sigma$ forms a Markov chain. Moreover, since $\xvec[0]$ is chosen uniformly at random from the finite space~$\mathcal{S}$, the event ``$\xvec[0]=\xvec$'' has a positive probability for every~$\xvec\in\mathcal{S}$. We may therefore define the transition probabilities for the search heuristic as follows.
+\begin{definition}[Transition Probability $p(\xvec,\yvec)$]
+\label{def:transition}
+For two search points~$\xvec$ and~$\yvec$ in~$\mathcal{S}$, the \emph{transition probability} from $\xvec$ to $\yvec$ of the considered search heuristic is
+\[
+p(\xvec,\yvec):=\Pr\big[\xvec[1]=\yvec\bmid\xvec[0]=\xvec\big].
+\]
+\end{definition}
+Note that, since~$\sigma$ forms a Markov chain, we actually have
+\[
+p(\xvec,\yvec)=\Pr\big[\xvec[t+1]=\yvec\bmid\xvec[t]=\xvec\big]
+\]
+for all~$t\in\mathbb{N}$ for which the event ``$\xvec[t]=\xvec$'' has positive probability. 
+
+In our analysis, the probability~$p(\xvec,\xvec)$ that the considered search heuristic stays at the current search point and does not move to a better solution plays a major role. For example, if~$p(\xvec,\xvec)=1$, then the search heuristic will never leave the search point~$\xvec$. Following the terminology of Markov chains, we call such a search point~\emph{absorbing} and all other search points \emph{non-absorbing}. 
+
+As stated above, we only consider RSHs with finite runtimes in this section. Since each search point appears with positive probability as the initial search point of the RSH, this implies that in our case all absorbing search points must be optimal. However, the inverse is not necessarily true since the considered RSH might move between different optima.
+
+We will be particularly interested in the probability that the RSH does \emph{not} remain in the same search point. We call this probability the progress probability.
+\begin{definition}[Progress Probability $p_\RSH(\xvec)$]
+For a search point $\xvec\in\mathcal{S}$, the \emph{progress probability} $p_\RSH(\xvec)$ at $\xvec$ of the considered RSH is given by
+\[
+p_\RSH(\xvec):=1-p_\RSH(\xvec,\xvec).
+\]
+\end{definition}
+If $\xvec$ is the current search point of the RSH and $\xvec$ is non-absorbing, then the expected time the RSH remains in~$\xvec$ is the reciprocal of the progress probability $p_\RSH(\xvec)$. In other words, the progress probability determines the expected number of queries the RSH needs to leave~$\xvec$. (In case $\xvec$ is absorbing, the future behavior of the RSH is fixed since it will never leave~$\xvec$.) 
+
+We might as well define the quantity $1-p_\QSH(\xvec,\xvec)$ as the progress probability of the QSH. However, we deliberately refrain from doing so for the following reasons. First, $p_\QSH(\xvec,\xvec)$ takes only the two values zero and one, since the QSH always progresses if possible. Second, even if $p_\QSH(\xvec,\xvec)$ equals zero, unlike to the RSH the expected numbers of queries needed for the QSH to progress is usually not one, since the QSH applies in each step the sampling procedure from Theorem~\ref{thm:probamp} which takes several steps. Third, we will soon see that it is much more comfortable to link the expected number of queries the QSH needs to leave the search point~$\xvec$ to the progress probability $p_\RSH(\xvec)$ of the RSH. 
+
+In the light of these facts, we focus on the number of queries needed for both search heuristics, the RSH and the QSH, to progress from the current search point, rather than on a definition of progress probabilities for the QSH. Since we only count in the optimization time queries of the considered search heuristic which happen until an optimum is found, we do not charge the search heuristics for queries if the current search point is already optimal.
+\begin{definition}[Progress Time~$R(\xvec)$ with Expectation~$r(\xvec)$]
+\label{def:cost}
+For all $\xvec\in\mathcal{S}$, the \emph{progress time} $R(\xvec)$ \emph{at} $\xvec$ is the random variable defined as follows. If~$\xvec$ is optimal, then $R(\xvec)$ takes the value zero. Otherwise, $R(\xvec)$ denotes the number of queries needed by the considered search heuristic starting at~$\xvec$ to find a search point different from~$\xvec$. We denote the expected progress time by~$r(\xvec)$.
+\end{definition}
+
+Let~$\xvec\in\mathcal{S}$ be a non-optimal search point. Then it is well-known that the expected progress time~$r_\RSH(\xvec)$ and the progress probability~$p_\RSH(\xvec)$ of the considered RSH satisfy
+\begin{equation}
+\label{eq:rshrate}
+r_\RSH(\xvec) = \frac{1}{p_\RSH(\xvec)}.
+\end{equation}
+Recall, that we only consider RSHs with finite runtime, that is, non-optimal implies non-absorbing.
+
+As discussed above, there is no such direct relation between the expected progress time of the considered QSH and the probability for it to leave the current search point. However, Theorem~\ref{thm:probamp} allows us to express the expected progress time of the QSH in terms of the expected progress time of the RSH.
+
+\begin{lemma}
+\label{lem:qshrate}
+Let~\lb and~\ub be the two positive absolute constants from Theorem~\ref{thm:probamp}. For every~$\xvec\in\mathcal{S}$, the expected progress time~$r_\RSH(\xvec)$ of the considered RSH and the expected progress time~$r_\QSH(\xvec)$ of the associated QSH satisfy
+\begin{equation}
+\label{eq:qshrate}
+\lb\cdot r_\RSH(\xvec)^{\nicefrac{1}{2}}\le r_\QSH(\xvec) \le \ub\cdot r_\RSH(\xvec)^{\nicefrac{1}{2}}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The relations~(\ref{eq:qshrate}) follow directly from the definition of Algorithm~\ref{algo:qsh} and the first part of Theorem~\ref{thm:probamp} if we set $p:=p_\RSH(\xvec)=r_\RSH(\xvec)^{-1}$.
+\end{proof}
+
+Apart from relating the expected progress times of the RSH and the QSH, Theorem~\ref{thm:probamp} also allows us to relate the transition probabilities of the two search heuristics.
+
+\begin{lemma}
+\label{lem:transfer}
+Let~$\xvec\in\mathcal{S}$ be non-optimal and let~$\yvec\in\mathcal{S}$ with~$\xvec\neq\yvec$. Then the transition probability~$p_\RSH(\xvec,\yvec)$ of the considered RSH, the progress probability~$p_\RSH(\xvec)$ of the considered RSH and the transition probability~$p_\QSH(\xvec,\yvec)$ of the associated QSH satisfy
+\begin{equation}
+\label{eq:transfer}
+p_\QSH(\xvec,\yvec) = \frac{p_\RSH(\xvec,\yvec)}{p_\RSH(\xvec)}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Recall, that we only consider RSHs with finite runtime. That is, since~$\xvec$ is non-optimal, it is also non-absorbing. Thus, we have~$p_\RSH(\xvec)>0$ and the above fraction is well defined. 
+
+Equation~(\ref{eq:transfer}) follows directly from Algorithm~\ref{algo:qsh} and from Theorem~\ref{thm:probamp} if we set~$\mathcal{S}_0:=\{\yvec\in\mathcal{S}\colon\yvec\neq\xvec\}$, and let the distribution~$D_A$ be given by the probabilities~$p_\RSH(\xvec,\yvec)$ for all~$\yvec\in\mathcal{S}$. Then, we have by the second part of Theorem~\ref{thm:probamp} that
+\[
+{\Pr}_\QSH\big[\xvec[1]=\yvec\bmid\xvec[0]=\xvec\big]={\Pr}_{D_A}\big[\xvec[1]=\yvec\bmid\xvec[0]=\xvec\,\wedge\,\xvec[1]\neq\xvec\big].
+\]
+Thus, by the law of conditional probability, we have
+\[
+p_\QSH(\xvec,\yvec)=\frac{\Pr_{D_A}\big[\xvec[1]=\yvec\bmid\xvec[0]=\xvec\big]}{\Pr_{D_A}\big[\xvec[1]\neq\xvec\bmid\xvec[0]=\xvec\big]}=\frac{p_\RSH(\xvec,\yvec)}{p_\RSH(\xvec)}
+\]
+which shows equation~(\ref{eq:transfer}).
+\end{proof}
+
+
+The previous two lemmas, Lemma~\ref{lem:qshrate} and Lemma~\ref{lem:transfer}, capture the consequence of Theorem~\ref{thm:probamp} to the setting of QSHs and serve as the (only) link between the runtime analysis of QSHs and the results and observations in Section~\ref{sec:quantum}. Together, these two lemmas formulate the central observations that allow us to analyze the runtime behavior of the QSH. Lemma~\ref{lem:qshrate} tells us that using the considered QSH gives us a quadratic speedup over the associated RSH in the expected number of queries necessary to move from a non-optimal search point to the next one. Lemma~\ref{lem:transfer} tells us that, conditioned on the event that both search heuristics indeed move to a new search point (which happens with certainty for the QSH), the distributions of these new (random) search points are the same for both search heuristics.
+
+In the next section, we see how these observations extend from a single step of the considered search heuristics to the whole run.
+
+\subsection{The Trajectory of a Run}\label{subsect:trajectories}
+
+The run of a QSH never reproduces the same search point in consecutive steps except for the last search point. For RSHs, this does not need to be the case. At the $t$-th sampling step a search heuristic might sample a point which is worse than the current solution in which case it discards it. In this case, both $\xvec[t]$ and $\xvec[t+1]$ are the same point in the search space. Thus, in a run~$\sigma_\RSH$ of the RSH, many of the consecutive sample points may be repetitions. To overcome this difference and to compare the optimization behavior of the considered QSH with that of the associated RSH, we introduce the notion of the trajectory of a run of the RSH. It is obtained from the sequence of search points generated by the RSH if we keep only one element in each consecutive repetition of the same search point, with the potential exception of the last point which then repeats itself forever. 
+\begin{definition}[Trajectory~$\tau$ of a Run~$\sigma$]
+\label{def:runtrajectory}
+Let~$\sigma_\RSH:=(\xvec[t])_{t\in\mathbb{N}}$ be a run of the considered RSH. Then the \emph{trajectory of} $\sigma_\RSH$, denoted by~$\tau_\RSH$, is the sub-sequence $(\xvec[t_k])_{k\in\mathbb{N}}$ of~$\sigma_\RSH$ such that~$t_0=0$ and, for all~$k\in\mathbb{N}$,
+\[
+t_{k+1}:=\min\big\{t\in\mathbb{N}\colon t>t_k\,\wedge\,\xvec[t]\neq\xvec[t_k]\big\}
+\]
+if this minimum exists, and
+\[
+t_{k+1}:=t_k+1
+\]
+otherwise.
+\end{definition}
+According to this definition, if $\tau_\RSH=(\yvec[k])_{k\in\mathbb{N}}$ is the trajectory of a run~$\sigma_\RSH$ of the RSH, we have either
+\[
+\underbrace{\xvec[0],\dots,\xvec[t_1-1]}_{=\yvec[0]},\underbrace{\xvec[t_1],\dots,\xvec[t_2-1]}_{=\yvec[1]},\underbrace{\xvec[t_2],\dots,\xvec[t_3-1]}_{=\yvec[2]},\dots
+\]
+or
+\[
+\underbrace{\xvec[0],\dots,\xvec[t_1-1]}_{=\yvec[0]},\underbrace{\xvec[t_1],\dots,\xvec[t_2-1]}_{=\yvec[1]},\dots,\underbrace{\xvec[t_\ell]}_{=\yvec[\ell]},\underbrace{\xvec[t_\ell]}_{=\yvec[\ell+1]},\underbrace{\xvec[t_\ell]}_{=\yvec[\ell+2]},\dots
+\]
+in the special case that $\xvec[t_k]=\xvec[t_{k+1}]$ for all~$k\ge\ell$. Note that a run~$\sigma_\RSH$ is a random sequence of search points and so is its trajectory~$\tau_\RSH$.
+
+As mentioned above, a run~$\sigma_\QSH$ of a QSH never reproduces the same search point in consecutive steps except for the last search point. Therefore, we refrain from defining the trajectory of~$\sigma_\QSH$ as we did for RSHs in Definition~\ref{def:runtrajectory}, since this trajectory would be equal to~$\sigma_\QSH$.
+
+Now, the crucial observation is that for a fixed sequence~$\sigma$, the probability that a run of the associated QSH coincides with~$\sigma$ is exactly the same as the probability that a run of the considered RSH has trajectory~$\sigma$. In other words, the runs of the QSH and the trajectories of the runs of the RSH share the same distribution\footnote{Note that the set of infinite sequences of search points in not countable. Thus, technically, we consider the probability space over the sigma-algebra generated by all sets of sequences starting with the same first elements. Lemma~\ref{lem:trajectory} reflects this notion. For reasons of simplicity, we assume this argument implicitly for the remainder of this section.}. This is a direct consequence Lemma~\ref{lem:transfer}. 
+
+\begin{lemma}\label{lem:trajectory}
+Let~$\sigma_\QSH:=(\xvec[k]_\QSH)_{k\in\mathbb{N}}$ be a run of the considered QSH and let~$\tau_\RSH:=(\xvec[t_k]_\RSH)_{k\in\mathbb{N}}$ be the trajectory of a run~$\sigma_\RSH:=(\xvec[t]_\RSH)_{t\in\mathbb{N}}$ of the associated RSH. Then,
+\begin{equation*}
+\Pr\big[\forall k\in\{0,\dots,\ell\}\colon\xvec[k]_\QSH=\yvec[k]\big]=\Pr\big[\forall k\in\{1,\dots,\ell\}\colon\xvec[t_k]_\RSH=\yvec[k]\big]
+\end{equation*}
+holds for every~$\ell\in\mathbb{N}\cup\{\infty\}$ and for every infinite sequence~$\sigma:=(\yvec[k])_{t\in\mathbb{N}}$ of search points in~$\mathcal{S}$.
+\end{lemma}
+
+\begin{proof}
+On the one hand, for $P_\QSH:=\Pr\big[\forall k\in\{0,\dots,\ell\}\colon\xvec[k]_\QSH=\yvec[k]\big]$, we have
+\[
+P_\QSH =\Pr\big[\xvec[0]_\QSH=\yvec[0]\big]\cdot\prod_{k=1}^\ell\Pr\big[\xvec[k]_\QSH=\yvec[k]\bmid\xvec[k-1]_\QSH=\yvec[k-1]\big]
+\]
+and on the other hand, for $P_\RSH:=\Pr\big[\forall k\in\{0,\dots,\ell\}\colon\xvec[t_k]_\RSH=\yvec[k]\big]$, we have
+\[
+P_\RSH=\Pr\big[\xvec[t_0]_\RSH=\yvec[0]\big]\cdot\prod_{k=1}^\ell\Pr\big[\xvec[t_k]_\RSH=\yvec[k]\bmid\xvec[t_{k-1}]_\RSH=\yvec[k-1]\big].
+\]
+
+Thus, in order to show Lemma~\ref{lem:trajectory}, it suffices to show that
+\begin{equation}
+\label{eq:firsttransition}
+\Pr\big[\xvec[t_0]_\RSH=\xvec\big]=\Pr\big[\xvec[0]_\QSH=\xvec\big]
+\end{equation}
+holds for all~$k\in\mathbb{N}$ and~$\xvec\in\mathcal{S}$ and that
+\begin{equation}
+\label{eq:othertransition}
+\Pr\big[\xvec[t_{k+1}]_\RSH=\yvec\bmid\xvec[t_k]_\RSH=\xvec\big]=\Pr\big[\xvec[k+1]_\QSH=\yvec\bmid\xvec[k]_\QSH=\xvec\big]
+\end{equation}
+holds for all~$\xvec,\yvec\in\mathcal{S}$ with~$\xvec\neq\yvec$. In this, we assume all conditional probabilities are defined and non-zero, since otherwise the result holds trivially with both probabilities equal to zero.
+
+Equation~(\ref{eq:firsttransition}) holds since $t_0=0$, and both the considered RSH and the associated QSH generate the initial search point uniformly at random.
+
+To show equation~(\ref{eq:othertransition}), we recall that by the definition of the~$t_k$'s, we have that $\xvec[t_{k+1}-1]_\RSH=\xvec[t_k]_\RSH$ and that $\xvec[t_{k+1}]_\RSH\neq\xvec[t_k]_\RSH$. Since~$\sigma_\RSH$ forms a Markov chain, we have for all $\xvec \neq \yvec$ that
+\[
+\Pr\big[\xvec[t_{k+1}]_\RSH=\yvec\bmid\xvec[t_k]_\RSH=\xvec\big]=\Pr\big[\xvec[1]_\RSH=\yvec\bmid\xvec[1]_\RSH\neq\xvec\,\wedge\,\xvec[0]_\RSH=\xvec\big].
+\]
+Applying the laws of conditional probability, we get 
+\[
+\Pr\big[\xvec[1]_\RSH=\yvec\bmid\xvec[1]_\RSH\neq\xvec\,\wedge\,\xvec[0]_\RSH=\xvec\big]=\frac{\Pr\big[\xvec[1]_\RSH=\yvec\bmid\xvec[0]_\RSH=\xvec\big]}{\Pr\big[\xvec[1]_\RSH\neq\xvec\bmid\xvec[0]_\RSH=\xvec\big]}.
+\]
+Therefore,
+\[
+\Pr\big[\xvec[t_{k+1}]_\RSH=\yvec\bmid\xvec[t_k]_\RSH=\xvec\big]=\frac{p_\RSH(\xvec,\yvec)}{p_\RSH(\xvec)}.
+\]
+Finally, since~$\sigma_\QSH$ also forms a Markov chain, we have
+\[
+\Pr\big[\xvec[k+1]_\QSH=\yvec\bmid\xvec[k]_\QSH=\xvec\big]=\Pr\big[\xvec[1]_\QSH=\yvec\bmid\xvec[0]_\QSH=\xvec\big]=p_\QSH(\xvec,\yvec).
+\]
+Then the equation~(\ref{eq:othertransition}) follows from Lemma~\ref{lem:transfer}.
+\end{proof}
+
+A central notion in the main lemma of this section (Lemma~\ref{lem:runtime}) is the notion of \emph{frequency} of a search point. Lemma~\ref{lem:trajectory} assures that the following definition of the \emph{expected frequency} is well-defined.
+\begin{definition}[Frequency~$M(\xvec)$ with Expectation~$m(\xvec)$]
+\label{def:frequency}
+Let the \emph{frequency}~$M_\QSH(\xvec)$ and $M_\RSH(\xvec)$ of a non-optimal search point~$\xvec$ be the random variable that denotes the number of occurrences of~$\xvec$ in the run~$\sigma_\QSH$ of the considered QSH and in the trajectory~$\tau_\RSH$ of the run of associated RSH, respectively. If~$\xvec$ is optimal, we set~$M_\RSH(\xvec)$ and~$M_\QSH(\xvec)$  to be the random variable that is~$0$ with probability~$1$. Then, for every~$\xvec\in\mathcal{S}$, we call the value
+\[
+m(\xvec):=\EXP\big[M_\RSH(\xvec)\big]=\EXP\big[M_\QSH(\xvec)\big]
+\]
+the \emph{expected frequency} of~$\xvec$.
+\end{definition}
+
+Note that for the conservative selection rule, the fitness is strictly monotonically increasing along the trajectory. Therefore, the random variable $M(\xvec)$ takes only values in $\{0,1\}$, and its expectation $m(\xvec)$ (for non-optimal $\xvec$) is just the probability that $\xvec$ occurs in the trajectory. We now give the main lemma of this section which connects the runtime of the considered search heuristic to its expected frequencies and expected progress times.
+
+\begin{lemma}\label{lem:runtime}
+Let~$r(\xvec)$ be the expected progress time of the considered search heuristic and let its optimization time~$T$ be finite in expectation. For a search point~$\xvec\in\mathcal{S}$, let $m(\xvec)$ be the expected frequency of~$\xvec$ as defined in Definition~\ref{def:frequency}. Then, we have
+\[
+\EXP[T] = \sum_{\xvec \in \mathcal{S}} m(\xvec) \cdot r(\xvec).
+\]
+\end{lemma}
+
+Note, that in this lemma the quantity~$r(\xvec)$ depends on whether we consider the classical or the quantum search heuristic but the quantity~$m(\xvec)$ does not.
+
+
+\begin{proof}[Proof of Lemma~\ref{lem:runtime}]
+Let~$\sigma=(\xvec[t])_{t\in\mathbb{N}}$ be a run of the considered search heuristic and let $(\yvec[k])_{k\in\mathbb{N}}:=(\xvec[t_k])_{k\in\mathbb{N}}$ be its trajectory in the case where we consider the RSH and $(\yvec[k])_{k\in\mathbb{N}}:=\sigma$ in the case where we consider the QSH.
+
+For a non-optimal search point~$\xvec\in\mathcal{S}$ and~$k\in\mathbb{N}$, let $M_k(\xvec)$ be the random indicator variable that takes the value~1 if $\yvec[k]=\xvec$, and the value~0 otherwise. Moreover, let~$R_k:=R(\yvec[k])$ be the random variable that denotes the number of queries the considered search heuristic needs to move from~$\yvec[k]$ to~$\yvec[k+1]$. We set~$R_k(\xvec):=0$ and~$M_k(\xvec):=0$ if~$\xvec$ is optimal.
+
+Then we have
+\[
+T=\sum_{k\in\mathbb{N}} R_k
+\]
+and
+\[
+M(\xvec)=\sum_{k\in\mathbb{N}} M_k(\xvec).
+\]
+
+Let~$k\in\mathbb{N}$. We want to determine~$\EXP[R_k]$. By the law of total expectation, we have that
+\[
+\EXP[R_k]=\sum_{\xvec\in\mathcal{S}}r(\xvec)\Pr[\yvec[k]=\xvec],
+\]
+since, for both the RSH and the QSH,~$r(\xvec)$ is the expected number of queries needed to leave the search point~$\xvec$. Next, we have
+\[
+\Pr[\yvec[k]=\xvec]=\EXP[M_k(\xvec)],
+\]
+and therefore
+\[
+\EXP[R_k]=\sum_{\xvec\in\mathcal{S}}r(\xvec)\EXP[M_k(\xvec)].
+\]
+Finally, we can determine~$\EXP[T]$. By the linearity of expectation, we get
+\[
+\EXP[T]
+=\sum_{k\in\mathbb{N}}\EXP[R_k]
+=\sum_{k\in\mathbb{N}}\sum_{\xvec\in\mathcal{S}}r(\xvec)\EXP[M_k(\xvec)]
+=\sum_{\xvec\in\mathcal{S}}r(\xvec)\EXP[M(\xvec)],
+\]
+which concludes the proof of the statement. Note that in the last step we could reorder the sum since we assumed that~$T$ has finite expectation.
+\end{proof}
+
+
+
+\subsection{Approximate Runtimes}
+\label{subsec:approximation}
+
+In this section, we introduce the tools we will apply later to approximate the runtime of the considered QSH by studying the optimization behavior of the associated RSH. We start with our central theorem, which allows us to bound the runtime of the considered QSH in terms of the progress times and transition probabilities of the associated RSH.
+
+\begin{theorem}\label{thm:runtime}
+Let~\lb and~\ub be the two positive absolute constants from Theorem~\ref{thm:probamp}. For all search points~$\xvec\in\mathcal{S}$, let~$r_\RSH(\xvec)$ be the expected progress time of the considered RSH (see Definition~\ref{def:cost}), and let $m(\xvec)$ be the expected frequency of~$\xvec$ in the trajectory of its run (see Definition~\ref{def:frequency}).
+
+The optimization time of the considered RSH is finite if and only if the optimization time~$T_\QSH$ of the associated QSH is finite. In this case, $T_\QSH$ satisfies
+\[
+\lb \sum_{\xvec \in \mathcal{S}} m(\xvec) \cdot \big(r_\RSH(\xvec)\big)^{\nicefrac{1}{2}}\le\EXP[T_\QSH]\le\ub \sum_{\xvec \in \mathcal{S}} m(\xvec) \cdot \big(r_\RSH(\xvec)\big)^{\nicefrac{1}{2}}.
+\]
+\end{theorem}
+
+\begin{proof}
+The RSH and QSH are equally likely to take any fixed trajectory through the search space, only with different speed. Recall from Lemma~\ref{lem:runtime} that 
+\begin{equation}\label{eq:runtime}
+\EXP[T] = \sum_{\xvec \in \mathcal{S}} m(\xvec) \cdot r(\xvec)
+\end{equation}
+and that the quantity~$r(\xvec)$ depends on whether we consider the classical or the quantum search heuristic but the quantity~$m(\xvec)$ does not.
+
+Since the search space is finite, the expected progress times~$r_\RSH(\xvec)$ and~$r_\QSH(\xvec)$ differ at most by a constant factor depending on the search space~$\mathcal{S}$, the mutation operator~$\mut$, and the objective function~$f$. Thus if Equation~\eqref{eq:runtime} yields a finite value for the RSH, then it also does so for the QSH, and vice versa.
+
+So the RSH has finite expected optimization time if and only if the QSH has. Hence, Theorem~\ref{thm:runtime} is a direct consequence of Lemma~\ref{lem:runtime} and Lemma~\ref{lem:qshrate}.
+\end{proof}
+
+Next, we prove a lemma which is tailored for analyzing the problems in Section~\ref{sec:functions}. It is useful if we can partition the search space into regions where the progress probability of the RSH behaves similarly. This turns out to be very convenient for the analysis of a QSH when the associated RSH is already understood. A good example for the situation is the fitness level based analysis of the function \onemax in Section~\ref{subsec:onemax}. (However, in general the regions do not need to correspond to fitness levels.) In this case, the runtimes of QSH and RSH are strongly related.
+
+\begin{lemma}
+\label{lem:regions}
+Let~\lb and~\ub be the two positive absolute constants from Theorem~\ref{thm:probamp}. Let~$\ell\in\mathbb{N}$ and let $\mathcal{S}$ be partitioned into $\ell$ parts~$\mathcal{S}_1, \dots, \mathcal{S}_\ell$.
+
+Suppose, for every $j\in\{1,\dots,\ell\}$, there exist two real values~$p_j$ and~$P_j$ with $0<p_j\le P_j\le 1$ such that for all non-optimal search points $\xvec\in\mathcal{S}_j$, the progress probability~$p_\RSH(\xvec)$ of the considered RSH satisfies the inequalities
+\[
+p_j\le p_\RSH(\xvec)\le P_j.
+\]
+For $j\in\{1,\dots,\ell\}$, let~$T_j$ denote the number of queries spend by the RSH on leaving search points in $\mathcal{S}_j$. Then the optimization time~$T_\QSH$ of the associated QSH satisfies
+\[
+\lb\sum_{j=1}^\ell p_j^{\nicefrac{1}{2}}\EXP[T_j]\le \EXP[T_\QSH] \le\ub\sum_{j=1}^\ell P_j^{\nicefrac{1}{2}}\EXP[T_j].
+\]
+\end{lemma}
+
+Before we proof this lemma, we restate it for the case that we only consider one region. This proves useful for bounding the runtime of the considered QSH in case that there is an easy way to bound the progress probability as well as the runtime of the associated classical variant.
+
+\begin{corollary}
+\label{cor:regions}
+Let~\lb and~\ub be the two positive absolute constants from Theorem~\ref{thm:probamp}. Suppose there exist two values $p_{\min}$ and $p_{\max}$ in $\mathbb{R}$ with $0<p_{\min}\le p_{\max}\le 1$ such that, for all non-optimal~$\xvec\in\mathcal{S}$, the progress probability~$p_\RSH(\xvec)$ of the considered RSH satisfies the inequality
+\[
+p_{\min}\le p_\RSH(\xvec)\le p_{\max}. 
+\]
+Then the optimization time~$T_\RSH$ of the considered RSH and the optimization time~$T_\QSH$ of the associated QSH satisfy
+\[
+\lb p_{\min}^{\nicefrac{1}{2}}\EXP[T_\RSH]\le \EXP[T_\QSH] \le \ub p_{\max}^{\nicefrac{1}{2}}\EXP[T_\RSH].
+\]
+\end{corollary}
+
+Note that Corollary~\ref{cor:regions} implies that~$\EXP[T_\QSH]\in\Oh(\EXP[T_\RSH])$ since we may always choose $p_{\max}=1$. We now turn to the proof of Lemma~\ref{lem:regions}.
+
+\begin{proof}[Proof of Lemma~\ref{lem:regions}]
+For the beginning, let~$j\in\{1,\dots,\ell\}$ and~$\xvec\in\mathcal{S}$ be fixed. Starting with Lemma~\ref{lem:qshrate}, we have
+\[
+\lb \big(r_\RSH(\xvec)\big)^{\nicefrac{1}{2}} \le r_\QSH(\xvec)\le \ub \big(r_\RSH(\xvec)\big)^{\nicefrac{1}{2}}
+\]
+Thus, by equation~(\ref{eq:rshrate}), we get
+\[
+\lb \big(p_\RSH(\xvec)\big)^{-\nicefrac{1}{2}} \le r_\QSH(\xvec)\le \ub \big(p_\RSH(\xvec)\big)^{-\nicefrac{1}{2}}.
+\]
+We multiply the three parts of the two inequalities by $m(\xvec)$. This gives us
+\[
+\lb \, m(\xvec) \big(p_\RSH(\xvec)\big)^{-\nicefrac{1}{2}} \le m(\xvec) r_\QSH(\xvec)\le \ub m(\xvec) \big(p_\RSH(\xvec)\big)^{-\nicefrac{1}{2}}.
+\]
+Since we assumed that $p_j\le p_\RSH(\xvec)\le P_j$ for all non-optimal points $\xvec\in\mathcal{S}_j$ (and since $m(\xvec)=0$ for all optimal~$\xvec$), this implies
+\[
+\lb p_j^{\nicefrac{1}{2}} m(\xvec) \big(p_\RSH(\xvec)\big)^{-1} \le m(\xvec) r_\QSH(\xvec)\le \ub P_j^{\nicefrac{1}{2}}m(\xvec) \big(p_\RSH(\xvec)\big)^{-1}.
+\]
+We substitute equation~(\ref{eq:rshrate}) again and obtain
+\[
+\lb p_j^{\nicefrac{1}{2}} m(\xvec) r_\RSH(\xvec) \le m(\xvec) r_\QSH(\xvec)\le \ub P_j^{\nicefrac{1}{2}} m(\xvec) r_\RSH(\xvec).
+\]
+Finally, we sum over all~$\xvec\in\mathcal{S}_j$ and all~$j\in\{1,\dots,\ell\}$ which results in
+\[
+\lb \sum_{j=1}^\ell p_j^{\nicefrac{1}{2}}\!\! \sum_{\xvec\in\mathcal{S}_j} m(\xvec) r_\RSH(\xvec) \le\sum_{\xvec\in\mathcal{S}} m(\xvec) r_\QSH(\xvec)\le \ub\sum_{j=1}^\ell P_j^{\nicefrac{1}{2}}\!\!\sum_{\xvec\in\mathcal{S}_j} m(\xvec) r_\RSH(\xvec).
+\]
+Then Lemma~\ref{lem:regions} follows directly from Lemma~\ref{lem:runtime}.
+\end{proof}
+
+\subsection{The Adapted Markov Chain}\label{subsec:markovchains}
+Recall that the considered RSH can be seen as a Markov chain that performs one query each step and has transition probabilities $p_\RSH(\xvec,\yvec)$ as defined before. The situation for the associated QSH is slightly more complicated. At each sampling step, the QSH has probability $1$ of sampling a new solution (unless it has found an absorbing optimum) because the probability has been quantum mechanically amplified. However, if the current solution is $\xvec$ then to make the one sampling step costs the algorithm in expectation a total of $r_\QSH(\xvec)\in\Theta\big(p_\RSH(\xvec)^{-\nicefrac{1}{2}}\big)$ queries where $p_\RSH(\xvec)$ is the progress probability of the RSH. Nevertheless, we can still model the QSH as a Markov chain which charges in expectation one query per step by scaling the transition probabilities of the corresponding RSH appropriately. It turns out that, with respect to the runtime, the QSH behaves asymptotically as if it was a RSH with these adapted transition probabilities.
+
+
+\begin{theorem}
+\label{thm:scaling}
+Let~$T_\QSH$ be the optimization time of the considered QSH. For the corresponding RSH, let $p_\RSH(\xvec,\yvec)$ be the transition probability between the points~$\xvec$ and~$\yvec$ and let $p_\RSH(\xvec)$ be the progress probability at the point~$\xvec$. Then
+\[
+\EXP[T_\QSH]\in \Theta\big(\EXP[T_{\widetilde{\RSH}}]\big),
+\]
+where~$T_{\widetilde{\RSH}}$ is the optimization time of the (adapted) RSH corresponding to the adapted transition probabilities
+\begin{equation*}
+p_{\widetilde{\RSH}}(\xvec,\yvec)=\begin{cases}
+1-p_\RSH(\xvec)^{\nicefrac{1}{2}} & \text{if }\xvec=\yvec,\\
+p_\RSH(\xvec,\yvec)/p_\RSH(\xvec)^{\nicefrac{1}{2}} & \text{if }\xvec\neq\yvec\text{ and }p_\RSH(\xvec)>0,\\
+0 & \text{otherwise}.
+\end{cases}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+First note that $p_{\widetilde{\RSH}}(\xvec,\yvec)$ is well-defined, since, for~$p_\RSH(\xvec)>0$, we have
+\[
+\sum_{\yvec\in\mathcal{S}}p_{\widetilde{\RSH}}(\xvec,\yvec)=1-p_\RSH(\xvec)^{\nicefrac{1}{2}}+\frac{\sum_{\yvec\in\mathcal{S}\setminus\{\xvec\}}p_\RSH(\xvec,\yvec)}{p_\RSH(\xvec)^{\nicefrac{1}{2}}}=1.
+\]
+Next, let $p_{\widetilde{\RSH}}(\xvec) = 1-p_{\widetilde{\RSH}}(\xvec,\xvec)$ be the progress probability at $\xvec$ of the adapted RSH. Then we have, for every non-absorbing point, that
+\[
+r_\RSH(\xvec)^{\nicefrac{1}{2}}= p_\RSH(\xvec)^{-\nicefrac{1}{2}}=p_{\widetilde{\RSH}}(\xvec)^{-1}=r_{\widetilde{\RSH}}(\xvec).
+\]
+For every non-absorbing points~$\xvec$ and every other point~$\yvec$ we have
+\[
+\frac{p_{\widetilde{\RSH}}(\xvec,\yvec)}{p_{\widetilde{\RSH}}(\xvec)}=\frac{p_\RSH(\xvec,\yvec)}{p_\RSH(\xvec)},
+\]
+that is, the probabilities to move from~$\xvec$ to~$\yvec$ conditioned on the event that the process moves at all coincide for the adapted RSH and the RSH corresponding to the considered QSH. Thus, these probabilities also coincide for the adapted RSH and the QSH itself. Therefore, the run of the considered QSH, the trajectory of the corresponding RSH, and the trajectory of the adapted RSH all have the same distribution and
+\[
+m_\QSH(\xvec)=m_\RSH(\xvec)=m_{\widetilde{\RSH}}(\xvec).
+\]
+Together, this implies that
+\[
+\sum_{\xvec\in\mathcal{S}} m_\QSH(\xvec)\cdot r_\RSH(\xvec)^{\nicefrac{1}{2}}=\sum_{\xvec\in\mathcal{S}} m_{\widetilde{\RSH}}(\xvec)\cdot r_{\widetilde{\RSH}}(\xvec)
+\]
+and $\EXP[T_\QSH]\in \Theta(\EXP[T_{\widetilde{\RSH}}])$ follows from Lemma~\ref{lem:runtime} and Theorem~\ref{thm:runtime}.
+\end{proof}
+
+
+\section{Runtime Analysis of Basic Fitness Functions}
+\label{sec:functions}
+
+In this section we present asymptotically tight runtime bounds for the progressive and conservative variants of QLS and the (1+1)~QEA on the pseudo-Boolean optimization problems \onemax, \leadingones, \discrepancy, \needle, and \jumpm and compare them to their classical counterparts. The results of this section are summarized in Table~\ref{tabA} in the introduction. Throughout this section, let~$n\in\mathbb{N}$ be the length of the bit-strings that are the search points. Since we are only interested in asymptotic results we may assume that~$n$ is sufficiently large. In particular, in order to make the following proofs more readable, we suppress rounding signs. For example, without further notice we assume that~$n/2$ is an integer.
+
+\subsection{OneMax}
+\label{subsec:onemax}
+The pseudo-Boolean function~\onemax returns the Hamming weight~$\ham{\cdot}$ of a bit-string~$\xvec\in\{0,1\}^n$, that is, it counts the number of one-bits in $\xvec$,
+\begin{equation}
+\onemax(\xvec):=\ham{\xvec}=\sum_{i=1}^n x_i\,.
+\end{equation}
+
+We start with the well-known result on the runtimes of the considered classical search heuristics on the objective function \onemax (compare~\cite{djwea02}).
+\begin{theorem}\label{thm:onemaxclassic}
+The runtimes of the (1+1)~EA, RLS, the (1+1)~EA$^*$, and RLS$^*$ for minimizing \onemax are in $\Theta(n\log\,n)$.
+\end{theorem}
+
+We show that the expected query time in the quantum version decreases only by a logarithmic factor.
+\begin{theorem}\label{thm:onemaxquantum}
+The runtimes of  the (1+1)~QEA, QLS, the (1+1)~QEA$^*$, and QLS$^*$ for minimizing \onemax are in $\Theta(n)$.
+\end{theorem}
+
+In this subsection, our particular focus is to demonstrate how the proof of Theorem~\ref{thm:onemaxquantum} can be derived from the ingredients of the proof of Theorem~\ref{thm:onemaxclassic}. To this end, we retrace the steps necessary to prove Theorem~\ref{thm:onemaxclassic}. The core of this proof is a bound on the progress probabilities of the considered RSHs.
+
+\begin{proposition}
+\label{prop:onemaxprogress}
+Let~$k\in\{1,\dots,n\}$ and let~$\xvec\in\{0,1\}^n$ be a search point of Hamming weight $k$. Then for each, the (1+1)~EA, RLS, the (1+1)~EA$^*$, and RLS$^*$, the progress probability is in~$\Theta(k/n)$ and consequently the expected numbers of queries needed to find a search point of Hamming weight at most {$k-1$} when starting in~$\xvec$ is in~$\Theta(n/k)$.
+\end{proposition}
+
+We omit the proof to this proposition. For RLS and RLS$^*$, the proof is straight-forward. For the (1+1)~EA and the (1+1)~EA$^*$, the proof is well-known and can be easily deduced from the results and proofs in~\cite{djwea02}.
+
+The previous proposition already allows us to derive an upper bound on the runtimes of the four classical search heuristics. The search space may be subdivided into regions of equal fitness, which we call~\emph{fitness levels}. In the worst case, a run visits search points for all fitness levels, giving us the upper runtime bound of~$\Oh(n\log n)$ in Theorem~\ref{thm:onemaxclassic}.
+
+In order to use the same approach to show the lower bound in Theorem~\ref{thm:onemaxclassic}, we have to be slightly more careful, since the search heuristic may skip some fitness values. However, the following statement ascertains that with sufficiently large probability, still linearly many fitness levels are visited.
+
+\begin{proposition}
+\label{prop:onemaxmanypoints}
+Consider a run of the (1+1)~EA, RLS, the (1+1)~EA$^*$, or RLS$^*$ that finds the optimum. With probability at least~$1/6$, this run visits at least~$n/24$ many non-optimal search points with distinct Hamming-weights.
+\end{proposition}
+
+\begin{proof}
+First, we show that with probability at least~$1/3$, the Hamming weight of the initial search point~$\xvec[0]$ (which is uniformly distributed for all four search heuristics) is at least~$n/4$. This is a direct consequence of the Markov Inequality (see, e.g., Chapter~1 in~\cite{DoerrA11}). The random variable~$X:=n-\ham{\xvec[0]}$ has expectation~$\EXP[X]=n/2$ (each bit is a one-bit with probability~$1/2$). Thus,
+\[
+\Pr\Big[\ham{\xvec[0]}< \frac{n}{4}\Big]=\Pr\Big[X>\frac{3}{2}\EXP[X]\Big]\le\frac{2}{3}.
+\]
+
+Next, suppose that the initial search point has indeed Hamming weight at least~$n/4$. For RLS and RLS$^*$, this directly implies Proposition~\ref{prop:onemaxmanypoints}, since both search heuristics then necessarily need to visit search points of Hamming weights~$1,\dots,n/4$ in order to reach the optimum. For the (1+1)~EA and the (1+1)~EA$^*$, this does not need to be true. However, we may bound the expected number of one-bits flipped each time the algorithms improve their current search point. Because of the symmetry of the \onemax function, the same analysis applies to both search heuristics.
+
+Let~$\xvec\in\{0,1\}^n$ be the current search point of Hamming weight~$k\in\{1,\dots,n\}$ of the (1+1)~EA or the (1+1)~EA$^*$ and let~$\yvec$ be the next random search point selected by the respective search heuristic. We are interested in the progress~$\Delta:=\ham{\xvec}-\ham{\yvec}$, in particular we want to give a constant upper bound on the expectation of~$\Delta$ conditioned on the event that~$\Delta\ge 1$. By the law of total expectation, we have that
+\[
+\EXP\big[\Delta\big]=\EXP\big[\Delta\bmid\Delta\ge 1\big]\Pr\big[\Delta\ge 1\big]
+\]
+since $\Delta\ge 0$ (worse search points are never selected). We already know from Proposition~\ref{prop:onemaxprogress} that
+\[
+\Pr\big[\Delta\ge 1\big]\ge\frac{k}{\euler n},
+\] 
+both for the (1+1)~EA and the (1+1)~EA$^*$. Moreover, we get an upper bound of~$k/n$ on~$\EXP[\Delta]$ if we condition on the event that none of the zero-bits in~$\xvec$ flips. Thus,
+\[
+\EXP\big[\Delta\bmid\Delta\ge 1\big]\le\euler\le 3
+\]
+
+We conclude the proof of Proposition~\ref{prop:onemaxmanypoints} by applying the same argument using the Markov inequality as above. We have just seen that, in expectation, the progress made by the search heuristic in the first~$n/24$ improvements is at most~$n/8$. Thus, the probability that it exceed~$n/4$, the Hamming weight of the first search point, is at most~$1/2$. In other words, with probability at least~$1/6=(1/3)\cdot(1/2)$, the run visits at least~$n/24$ search points of distinct Hamming weight before reaching the optimum. 
+\end{proof}
+
+Proposition~\ref{prop:onemaxmanypoints}, together with Proposition~\ref{prop:onemaxprogress}, now allows us to prove Theorem~\ref{thm:onemaxquantum} based on the following idea. Suppose the run of the considered search heuristic indeed visits at least~$n/24$ fitness levels before it finds the optimum. Then we get a lower bound on the runtime if we sum over the lower bounds on the times to leave these fitness levels given in Proposition~\ref{prop:onemaxmanypoints}. In a worst case scenario, the fitness levels visited before finding the optimum are the levels with values $(23/24)n,\dots,n$. However, even then the runtime is at least $\Omega(n)$ as stated in Theorem~\ref{thm:onemaxquantum}.
+
+%So far, we have only recapitulated a version of the well-known proof of Theorem~\ref{thm:onemaxclassic}. However, as we will soon see, this proof is most instructive for the proof of Theorem~\ref{thm:onemaxquantum}. In fact, for this proof there is little more to do than to apply Lemma~\ref{lem:regions} to the results of the previous three propositions.
+
+\begin{proof}[Proof of Theorem~\ref{thm:onemaxquantum}]
+The following proof holds for all four QSHs considered in Theorem~\ref{thm:onemaxquantum}. Thus, we consider one of these QSHs and its corresponding RSH. 
+
+Let~$T_\QSH$ be the optimization time of the considered QSH. For all $k\in\{1,\dots,n\}$, let $\mathcal{S}_k$ be the set of all search points in~$\{0,1\}^n$ of Hamming weight~$k$ and let~$T_k$ be is the number of queries the RSH spends on leaving the search points in~$\mathcal{S}_k$. 
+
+We start with the upper bound on~$\EXP[T_\QSH]$. By Lemma~\ref{lem:regions} and Proposition~\ref{prop:onemaxprogress} we have that
+\[
+\EXP[T_\QSH] \in\Oh\left(\sum_{k=1}^n\Big(\frac{k}{n}\Big)^{\nicefrac{1}{2}}\EXP[T_k]\right)
+\]
+Moreover, Proposition~\ref{prop:onemaxprogress} gives us that $\EXP[T_k]\in\Oh(n/k)$, where we pessimistically assume that the RSH visits all fitness levels. Together, this yields
+\[
+\EXP[T_\QSH]\in\Oh\left(n^{\nicefrac{1}{2}}\sum_{k=1}^{n}\frac{1}{k^{\nicefrac{1}{2}}}\right).
+\]
+Thus, since
+\[
+\sum_{k=1}^n k^{-\nicefrac{1}{2}}\le 1+\int_1^{n}x^{-\nicefrac{1}{2}}dx=2n^{1/2}-1
+\]
+we get $\EXP[T_\QSH]\in\Oh(n)$.
+
+We now turn to the lower bound on~$\EXP[T_\QSH]$. Here, we have to be more careful since the typical run does not visit all fitness levels. Let~$I\subseteq\{1,\dots,n\}$ be the random set of Hamming weights of non-optimal search points visited by the RSH. Then we apply Proposition~\ref{prop:onemaxmanypoints} and condition on the event that the run of the RSH visits at least~$n/24$ fitness levels, that is,
+\[
+\EXP[T_\QSH]\ge\frac{\EXP\big[T_\QSH\bmid |I|\ge n/24\big]}{6}
+\]
+We again invoke Lemma~\ref{lem:regions} and Proposition~\ref{prop:onemaxprogress} and get
+\[
+\EXP[T_\QSH]\in\Omega\left(\sum_{k=1}^n\Big(\frac{k}{n}\Big)^{\nicefrac{1}{2}}\EXP\big[T_k\bmid |I|\ge n/24\big]\right).
+\]
+Then, Proposition~\ref{prop:onemaxprogress} gives us that
+\[
+\EXP[T_\QSH]\in\Omega\left(n^{1/2}\EXP\Big[\sum_{k\in I}\frac{1}{k^{\nicefrac{1}{2}}}\,\Big|\,|I|\ge n/24\,\Big]\right).
+\]
+Note that the random sum~$\sum_{k\in I}k^{-\nicefrac{1}{2}}$ strongly depends on the random choice of~$I$. However, for all~$|I|\ge n/24$, this sum is bounded from below by
+\[
+\sum_{k=(\nicefrac{23}{24})n}^n\frac{1}{k^{\nicefrac{1}{2}}}\ge\int_{(\nicefrac{23}{24})n}^{n}x^{-\nicefrac{1}{2}}dx=2\big(1-(23/24)^{\nicefrac{1}{2}}\big)n^{\nicefrac{1}{2}}\in\Omega\big(n^{\nicefrac{1}{2}}\big).
+\]
+Therefore, we have $\EXP[T_\QSH]\in\Omega(n)$ which concludes the proof of Theorem~\ref{thm:onemaxclassic}.
+\end{proof}
+
+\subsection{LeadingOnes}
+\label{subsec:leadingones}
+The pseudo-Boolean function~\leadingones counts the number of one-bits preceding the first zero-bit in a bit-string~$\xvec\in\{0,1\}^n$, that is, let
+
+\begin{equation}
+\leadingones(\xvec):=\sum_{k=1}^n\prod_{i=1}^k x_i\,.
+\end{equation}
+
+
+The following theorem can be deduced from~\cite{djwea02}.
+
+\begin{theorem}\label{thm:leadingonesclassic}
+ The runtimes of the (1+1)~EA, RLS, the (1+1)~EA$^*$, and RLS$^*$ maximizing \leadingones are in $\Theta(n^2)$.
+\end{theorem}
+
+For the progressive selection rule, quantum acceleration does not yield a substantial speedup. In contrast, for the conservative selection rule the runtime decreases considerably.
+
+\begin{theorem}\label{thm:leadingonesquantum}
+ The runtimes of the (1+1)~QEA$^*$ and of QLS$^*$ maximizing \leadingones are in $\Theta(n^{3/2})$. The runtimes of the (1+1)~QEA or QLS maximizing \leadingones are in $\Theta(n^{2})$.
+\end{theorem}
+
+\begin{proof}
+ We start with the conservative selection strategy. Let us first consider QLS$^*$. For any non-optimal search point~$\xvec$, the mutation step yields a better search point if and only if the first zero-bit is flipped. So the progress probability of RLS$^*$ is $p_\RSH(\xvec) = 1/n$ for all non-optimal search points. For the (1+1)~QEA$^*$ let $\xvec$ be any non-optimal search point. Assume that $x_i$ is the first zero-bit in~$\xvec$. Then the mutation step yields a better search point if and only if $x_i$ is flipped, and all preceding bits are unchanged. Therefore, the progress probability is
+ \[
+ p_\RSH(\xvec) = \frac{1}{n}\Big(1-\frac{1}{n}\Big)^{i-1}\,.
+ \]
+ Thus, since~$(1-1/n)^{n-1}\ge\euler^{-1}$ and~$0\le i\le n$, we may bound the progress probability by $1/(\euler\,n)\le p_\RSH(\xvec)\le 1/n\,$.
+
+ So for both QLS$^*$ and the (1+1)~QEA$^*$, we have shown that
+\[
+\frac{1}{\euler\,n}\le p_\RSH(\xvec)\le \frac{1}{n}.
+\]
+Therefore, by Corollary~\ref{cor:regions},
+ \[
+ \EXP[T_\QSH] \in \Theta(n^{-\nicefrac{1}{2}}\EXP[T_\RSH]) = \Theta(n^{3/2}).
+ \]
+
+Now consider the progressive selection strategy. The upper bound is trivial,  Lemma~\ref{lem:regions} implies that QSH is always asymptotically at least as fast in expectation as the corresponding RSH.
+
+ For the lower bound, we partition the search space into two sets 
+ \[
+ \mathcal{S}_1 := \left\{\xvec \mid \leadingones(\xvec) < n/2 \right\},
+ \]
+ \[
+ \mathcal{S}_2 := \left\{\xvec \mid \leadingones(\xvec) \geq n/2 \right\},
+ \]
+and give a lower bound for the time spent in $\mathcal{S}_1$.
+
+% Let $M_\RSH(\xvec)$ be the random variable that assigns to each run the number of occurrences of $\xvec$ in the trajectory and $m_\RSH(\xvec)$ its expectation. Recall that for $M_\RSH(\xvec)$ and $m_\RSH(\xvec)$ we do not need to distinguish between RSH and QSH. 
+
+We want to apply Lemma~\ref{lem:regions}. For this, we have to give a lower bound on the progress probability~$p_\RSH(\xvec)$ of RLS and the (1+1)~EA for all~$\xvec\in\mathcal{S}_1$. Thus, let~$\xvec$ be any search point in $\mathcal{S}_1$. First consider RLS. The progressive selection strategy will accept any search point of equal fitness. Thus if the mutation operator flips any bit in the second half of $\xvec$, then the offspring is accepted. Therefore,
+ \[
+ p_\RSH(\xvec) \geq 1/2.
+ \]
+
+Now we turn to the (1+1)~EA. If the mutation operator flips exactly one bit in the second half, and no bit in the first half, then the offspring will be accepted since it has at least the same fitness and differs from $\xvec$ (which is required in the quantum case). There are many other ways to produce offsprings that are accepted, but this particular way will suffice. Hence, the progress probability is at least
+ \[
+ p_\RSH(\xvec) \ge
+ \frac{n}{2}\cdot\frac{1}{n}\cdot\Big(1-\frac{1}{n}\Big)^{n-1}\ge
+ \frac{1}{2\euler}\,.
+ \]
+ In both cases, for the QSH and the (1+1)~QEA, we have $p_\RSH(\xvec) \geq 1/(2\euler)$. Therefore, by Corollary~\ref{cor:regions}, we get
+\[
+\EXP[T_\QLS]\in\Omega(\EXP[T^{(1)}_\RLS])
+\]
+and
+\[
+\EXP[T_\QEA]\in\Omega(\EXP[T^{(1)}_\EA]),
+\]
+where~$\EXP[T^{(1)}_\RLS]$ and~$\EXP[T^{(1)}_\EA]$ are the expected times needed by RLS and the (1+1)~EA to leave~$\mathcal{S}_1$. These expected times are at least of the same order as the expected times to solve the \leadingones problem on~$n/2$ bits. (Just consider the first~$n/2$ bits of $\xvec$). Thus $\EXP[T^{(1)}_\RLS]\in\Omega(n^2)$ and~$\EXP[T^{(1)}_\EA]\in\Omega(n^2)$. (Another way to see this is to recapture the proof of Theorem~\ref{thm:leadingonesclassic}). Therefore, Theorem~\ref{thm:leadingonesquantum} follows.
+\end{proof}
+
+
+\subsection{Discrepancy}
+\label{subsec:discrepancy}
+The pseudo-Boolean function~\discrepancy denotes half the difference in the number of one-bits and zero-bits in a bit-string~$\xvec\in\{0,1\}^n$ of even length~$n$, that is, let \begin{equation}
+\discrepancy(\xvec):=\left|\frac{n}{2}-\onemax(\xvec)\right|\,.
+\end{equation}
+
+This function is not a standard test function for evolutionary algorithms, because it is too easy to optimize. However, it demonstrates that for easy problems (with high progress probabilities) a QSH is not necessarily strictly faster than the corresponding RSH.
+
+\begin{lemma}\label{lem:discrepancyofX0}
+Let~$n\in\mathbb{N}$ be even and let~$\xvec\in\{0,1\}^n$ be chosen uniformly at random. Then,
+\[
+\EXP[\discrepancy(\xvec)]\in\Theta(n^{\nicefrac{1}{2}})\,.
+\]
+\end{lemma}
+
+\begin{proof}
+Let~$n=2k$. Then, the lemma follows from
+\ignore{
+\[
+\EXP[\discrepancy(\xvec)]=2\,\sum_{i=0}^k(k-i)\tbinom{2k}{i}2^{-2k}=k\,\tbinom{2k}{k}\,2^{-2k}
+\]
+}
+\begin{align*}
+\EXP[\discrepancy(\xvec)]
+&=2\,\sum_{i=0}^k(k-i)\tbinom{2k}{i}2^{-2k}\\
+&=\sum_{i=0}^k\Big((2k-i)\tbinom{2k}{i}-i\tbinom{2k}{i}\Big)\,2^{-2k}\\
+&=\sum_{i=0}^k 2k\Big(\tbinom{2k-1}{i}-\tbinom{2k-1}{i-1}\Big)\,2^{-2k}\\
+&=2k\,\tbinom{2k-1}{k}\,2^{-2k}\\
+&=k\,\tbinom{2k}{k}\,2^{-2k},
+\end{align*}
+and from~$\binom{2k}{k}\sim 2^{2k}/\sqrt{\pi\,k}$ due to Stirling's formula.
+\end{proof}
+
+For the function \discrepancy, we show that the runtimes of the RSHs and QSHs we consider are asymptotically equal.
+\begin{theorem}
+For each of the algorithms (1+1)~EA, RLS, (1+1)~QEA, and QLS, both for the conservative and for the progressive selection strategy, the runtime for minimizing \discrepancy is in $\Theta(\sqrt{n})$.
+\end{theorem}
+
+\begin{proof}
+We first show that throughout the runs of the classical algorithms (RLS, the (1+1)~EA, RLS$^*$, and the (1+1)~EA$^*$) the progress probabilities are bounded below by positive constants. By Corollary~\ref{cor:regions}, this implies that the runtimes of the QSHs and the corresponding RSHs are of the same order.
+
+For every search point~$\xvec$ with~$\discrepancy(\xvec)>0$ we have at least $n/2$ zero-bits or $n/2$ one-bits. In both cases, flipping exactly one of these bits and leaving all other bits untouched decreases the discrepancy by one. Thus, the progress probability is at least $(n/2)\cdot (1/n)\ge 1/2$ for RLS and at least $(n/2)\cdot (1/n)\cdot(1-1/n)^{n-1}\ge 1/(2\euler)$ for the (1+1)~EA, independent of the selection strategy we use. 
+
+It remains to establish the runtimes of the classical algorithms. Since the objective function \discrepancy behaves symmetrically for all search points of equal value, the runtimes of the classical algorithms coincide for the progressive and the conservative selection strategy. We restrict ourselves to the conservative versions and show that both have runtimes in~$\Theta(n^{\nicefrac{1}{2}})$.
+
+To this end, consider a search point~$\xvec$ with~$\discrepancy(\xvec)>0$, and let $\yvec$ be the search point after one mutation and selection step. Then for both RLS$^*$ and the (1+1)~EA$^*$, the expected progress is bounded from above and below by two positive constants, that is
+\begin{equation}
+\label{disc:drift}
+\frac{1}{2\euler}\le\EXP[\discrepancy(\xvec)-\discrepancy(\yvec)]\le 1.
+\end{equation}
+The lower bound holds since both strategies make a progress of one with probability at least~$1/2\euler$ as we have already seen above. The upper bound holds since the progress is bounded from above by the expected number of flipped bits which equals one for both algorithms.
+
+By classical drift analysis (see~\cite{HeY04}), the inequalities in~(\ref{disc:drift}) imply that the runtimes are of the same order as the objective value of the initial search point, which we have shown in Lemma~\ref{lem:discrepancyofX0} to be in~$\Theta(n^{\nicefrac{1}{2}})$.
+\end{proof}
+
+\subsection{Needle}
+\label{subsec:needle}
+The pseudo-Boolean function~\needle has a unique optimum, and is constant elsewhere. For $\xvec\in\{0,1\}^n$,
+\begin{equation}
+\needle(\xvec):=\begin{cases}
+1, & \text{if } \xvec = (0,\ldots,0)\\
+0, & \text{else.}\end{cases}
+\end{equation}
+
+\begin{theorem}\label{thm:needleclassic}~
+\begin{enumerate}[(a)]
+\item The runtime of the (1+1)~EA maximizing \needle is in $\Theta(2^n)$.
+\item The runtime of RLS maximizing \needle is in $\Theta(2^n)$.
+\item The runtime of the (1+1)~EA$^*$ maximizing \needle is in $\Theta(\frac{1}{2^n}n^{n})$.
+\item RLS$^*$ asymptotically almost surely does not find the global maximum of \needle (that is, with probability tending to $1$ as $n\to\infty$). 
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+The statement for RLS$^*$ is clear because the algorithm only finds the optimum if the starting point is either the optimum itself or adjacent to the optimum. The probability that this happens is exponentially small.
+
+For RLS and the (1+1)~EA, see \cite{garnierKS99}. For the (1+1)~EA$^*$, the algorithm starts in a point~$\xvec\in\{0,1\}^n$ with probability~$2^{-n}$ and then needs in expectation~$\Theta(n^d)$ steps to find the optimum~$(0,\dots,0)$, where~$d>0$ is the Hamming weight of~$\xvec$. For $\xvec = (0,\dots,0)$, it needs $0$ steps. Thus, by the Binomial formula, we have $\EXP[T_{\EA^*}]\in\Theta(\mu_{\EA^*})$ with
+\[
+\mu_{\EA^*}=\frac{1}{2^n}\sum_{d=1}^n\binom{n}{d}n^{d}
+=\frac{(n+1)^n-1}{2^n}
+=\frac{(1+1/n)^n n^n-1}{2^n}
+\]
+Hence, $\EXP[T_{\EA^*}]\in\Theta\big((n/2)^n\big)$ since~$\lim_{n\to\infty}(1+1/n)^n=\euler$.
+\end{proof}
+
+
+We show that the quantum versions perform equally bad on the \needle function. Only the $(1+1)~QEA^*$ is better than the $(1+1)~EA^*$. However, since the runtime is super-exponential (growing faster than any exponential function), the improvement is small in comparison.
+
+\begin{theorem}\label{thm:needlequantum}~
+\begin{enumerate}[(a)]
+\item The runtime of the (1+1)~QEA maximizing \needle is in $\Theta(2^n)$.
+\item The runtime of QLS maximizing \needle is in $\Theta(2^n)$.
+\item The runtime of the (1+1)~QEA$^*$ maximizing \needle is in $\Theta(\frac{\euler^{\sqrt{n}}}{2^n}n^{\nicefrac{n}{2}})$.
+\item QLS$^*$ asymptotically almost surely does not find the global maximum of \needle.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+First let us look at the progressive algorithms. Since all points except the optimum are of equal fitness, the algorithms accept every sample point as a new search point. Hence, the progress probability is $1$, and $\EXP[T_\QSH] \in \Theta(\EXP[T_\RSH])$ by Corollary~\ref{cor:regions}. This proves \emph{(a)} and~\emph{(b)}.
+
+The statement for QLS$^*$ follows immediately from the statement for RLS$^*$ in Theorem~\ref{thm:needleclassic} since both algorithms have exactly the same probability to terminate by Theorem~\ref{thm:probamp}.
+
+So let us look at the (1+1)~QEA$^*$. The algorithm will visit at most two search points $\xvec[0]$ and $\xvec[1]$, with $\xvec[0]$ drawn uniformly at random, and $\xvec[1] = (0,\ldots,0)$ the optimum. Therefore, the expected number of visits~$m(\xvec)$ is~$\frac{1}{2^n}$ for all $\xvec\neq (0,\ldots,0)$.
+
+Assume that the Hamming weight of $\xvec[0]$ is $d$. Then the progress probability~$p_{\QEA^*}(\xvec[0])$ of the associated (1+1)~EA$^*$ is~$n^{-d}$ and its expected progress time is in~$\Theta(n^d)$ (or~0 if $\xvec[0]=(0,\ldots,0)$). Since there are exactly $\binom{n}{d}$ search points with Hamming weight $d$, we have by Theorem~\ref{thm:runtime} that $\EXP[T_{\QEA^*}]\in\Theta(\mu_{\QEA^*})$ with
+\[
+\mu_{\QEA^*}:=\frac{1}{2^n}\sum_{d=1}^n\binom{n}{d}n^{\nicefrac{d}{2}}\,.
+\]
+By the Binomial formula, we obtain
+\[
+\mu_{\QEA^*}=\frac{1}{2^n}\big((n^{\nicefrac{1}{2}}+1)^n-1\big)=\frac{1}{2^n}\big((1+n^{-\nicefrac{1}{2}})^n n^{\nicefrac{n}{2}}-1\big)
+\]
+and therefore, since $\euler^{x-2x^2}\le 1+x\le \euler^x$ holds for all~$x\in[-1/2,1/2]$, we have
+\[
+\frac{\euler^{\sqrt{n}-2}n^{\nicefrac{n}{2}}-1}{2^n}\le\mu_{\QEA^*}\le\frac{\euler^{\sqrt{n}}n^{\nicefrac{n}{2}}-1}{2^n}.
+\]
+Thus,
+\[
+\EXP[T_{\QEA^*}]\in\Theta\Big(\frac{\euler^{\sqrt{n}}n^{\nicefrac{n}{2}}}{2^n}\Big).
+\]
+\end{proof}
+
+
+\subsection{Jump}
+\label{subsec:jump}
+Let $m$ be a positive integer constant. The pseudo-Boolean function~\jumpm is defined as follows. For $\xvec\in\{0,1\}^n$,
+
+\begin{equation}
+\jumpm(\xvec):=\begin{cases}
+\onemax(\xvec), & \text{if } 0 < \onemax(\xvec) < m \\
+2n-\onemax(\xvec), & \text{if } \onemax(\xvec) \geq m \\
+2n, & \text{if } x=(0,\ldots,0)
+\end{cases}
+\end{equation}
+
+The function has a unique maximum in~$(0,\ldots,0)$, but has small fitness in a region around this point. Therefore, typically a RSH will have to jump to the optimum. This problem has been analyzed by Droste, Jansen, and Wegener \cite{djwea02} in order to show that a wide variance of runtimes can occur. Compared to these authors, we have changed the definition of the function slightly so that the indices are more convenient for our analysis.
+
+
+\begin{theorem}\label{thm:jumpclassic}
+Let $m\in\mathbb{N}$ with~$m\ge 2$ be a constant.
+\begin{enumerate}[(a)]
+\item  The runtimes of the (1+1)~EA and the (1+1)~EA$^*$ maximizing \jumpm are in $\Theta(n^m)$.
+\item RLS and RLS$^*$ asymptotically almost surely do not find the global maximum of \jumpm.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+For the (1+1)~EA, see \cite{djwea02}. For the (1+1)~EA$^*$, note that for any two search points $\xvec$ and $\yvec$ with the same number of one-bits, the problem is symmetric with respect to $\xvec$ and $\yvec$. That is, there is a fitness-invariant automorphism of the space mapping $\xvec$ to $\yvec$. Therefore, the runtime is the same for $\xvec$ and $\yvec$. So the runtime is equal for the (1+1)~EA and the (1+1)~EA$^*$, and the statement for the (1+1)~EA$^*$ follows.
+
+The statements for RLS and RLS$^*$ are obvious because the only fitness-increasing paths ending in the optimum start either in the optimum itself or in a search point of Hamming weight $1$. Since the sequence of search points will be such a path, the algorithm can only find the optimum if it starts either in the optimum itself or in a point of Hamming weight $1$. By the Chernoff bound (see, e.g., Chapter~1 in~\cite{DoerrA11}), the probability for this event is exponentially small as $n\rightarrow \infty$.
+\end{proof}
+
+We find that for \jumpm, the conservative algorithm gains quadratic speedup (for $m>1$) while the progressive one is hardly better than its classic version. The reason is that in the conservative setting there is one very hard step (the jump) with no easy alternatives, whereas in the progressive version the algorithm is allowed to make easy moves along the boundary of the gap. Note that for the classical algorithms, there is no difference between the conservative and the progressive selection strategy.
+
+\begin{theorem}\label{thm:jumpquantum}
+Let $m\in\mathbb{N}$ with~$m\ge 2$ be a constant.
+\begin{enumerate}[(a)]
+\item The runtime of the (1+1)~QEA maximizing \jumpm is in $\Theta(n^{m-\nicefrac{1}{2}})$.
+\item The runtime of the (1+1)~QEA$^*$ maximizing \jumpm is in $\Theta(n^{\nicefrac{m}{2}})$.
+\item
+QLS and QLS$^*$ asymptotically almost surely does not find the global maximum of \jumpm.
+\end{enumerate}
+\end{theorem}
+
+
+Before we prove the theorem, we state a lemma.
+
+\begin{lemma}\label{lem:MovingAlongLayer}
+Let $\xvec \in\{0,1\}^n$ be of Hamming weight $k\in\{1,\dots,n\}$. Then the probability $p$ that the mutation operator of the (1+1)~EA generates a vector $\yvec \neq \xvec$ of the same Hamming weight satisfies
+\[
+\frac{\min\{k,n-k\}}{2\euler n}\le p\le \frac{k}{n}.
+\]
+\end{lemma}
+
+\begin{proof}
+Since $\yvec \neq \xvec$ and both vectors have the same Hamming weight, the mutation operator has to flip at least one one-bit and at least one zero-bit.
+
+We bound~$p$ from below by the probability that exactly one zero-bit and one one-bit are flipped in~$\xvec$,
+\[
+p \ge k(n-k)\cdot \frac{1}{n^2}\cdot \left(1-\frac{1}{n}\right)^{n-2}\ge\frac{\min\{k,n-k\}}{2\euler n},
+\] 
+since
+\[
+k(n-k) = \min\{k,n-k\}\cdot\max\{k,n-k\}\ge\frac{\min\{k,n-k\}n}{2}.
+\]
+
+To bound~$p$ from above, we apply the union-bound to the (not necessarily independent) events that a given pair of a zero-bit and a one-bit is flipped in~$\xvec$, while we do not care whether the other bits flip. Therefore
+\[
+p \le k(n-k)\cdot \frac{1}{n^2}\le\frac{k}{n}.
+\]
+\end{proof} 
+
+\begin{proof}[Proof of Theorem~\ref{thm:jumpquantum}]
+The statements for QLS and QLS$^*$ follow directly from the statements for RLS and RLS$^*$, because the classical algorithm will find the optimum if and only if the quantum algorithm does.
+
+For the (1+1)~QEA and (1+1)~QEA$^*$, we divide the run of the algorithms into three phases, some of which may be empty. In the first phase, the fitness is strictly less than $m$. In the second phase, the fitness is at least $m$, but strictly smaller than $2n-m$. In the third phase, the fitness is at least $2n-m$. 
+
+We claim that the problem of leaving the first phase is strictly easier than the problem of maximizing \onemax. In fact, consider the auxiliary problem where all search points $\xvec$ with $0 < \onemax(\xvec) < m$ have the same fitness as in \jump, but all other search points have fitness $2n$. Then the problem of leaving the first phase for \jumpm is the same as finding a global maximum of the auxiliary problem. On the other hand, the auxiliary problem is identical with the problem \onemax except that a larger sets of points are global maxima.
+
+So the problem of leaving the first phase is indeed easier than \onemax. By Theorem~\ref{thm:onemaxquantum}, the (1+1)~QEA and the (1+1)~QEA$^*$ will both spend in expectation at most linear time in the first phase.
+
+Similarly, it is easy to see that again both, the (1+1)~QEA and the (1+1)~QEA$^*$, will spend in expectation at most linear time in the second phase.
+
+For the third phase, we distinguish between the (1+1)~QEA and the (1+1)~QEA$^*$. First we look at the (1+1)~QEA$^*$. Given a search point $\xvec\in\{0,1\}^n$ of fitness $2n-m$, it will accept only the optimum as its next search point. Thus, the expected optimization time for the third phase is exactly~$r_\QSH(\xvec)$. Since its Hamming weight is $m$, the progress probability~$p_\RSH(\xvec)$ of the corresponding (1+1)~EA$^*$ is $n^{-m}$ (independently of the choice of~$x$). Thus, the runtime of the third phase is
+\[
+r_\QSH(\xvec)\in\Theta\big((r_\RSH(\xvec))^{\nicefrac{1}{2}}\big)=\Theta\big(\big(p_\RSH(\xvec)\big)^{-\nicefrac{1}{2}}\big)=\Theta\big(n^{\nicefrac{m}{2}}\big).
+\]
+Since the other phases took at most linear time, for $m>1$ the runtime of the (1+1)~QEA$^*$ is dominated by the third phase and is in $\Theta\left(n^{\nicefrac{m}{2}}\right)$.
+
+We now turn to the (1+1)~QEA. Again, let $\xvec\in\{0,1\}^n$ be a search point of Hamming weight~$m$. This time, the situation is slightly more complicated since the (1+1)~QEA may accept any other search point of Hamming weight~$m$. We therefore again consider the corresponding (1+1)~EA. The probability that the mutation operator produces another search point of Hamming weight~$m$ is in $\Theta(m/n) = \Theta(1/n)$ by Lemma~\ref{lem:MovingAlongLayer}, since $m$ is a constant. On the other hand, the probability that the mutation operator yields the optimum is in $\Theta(n^{-m})$. Therefore, the probability to jump to the optimum subject to the condition that we accept the search point is
+\begin{align*}
+\Pr\left(\mut(\xvec) = (0,\ldots,0) \mid \jumpm(\mut(\xvec)) \leq m \right)
+\in\Theta\big(n^{-(m-1)}\big).
+\end{align*}
+So we expect to visit $\Theta(n^{m-1})$ search points in the third phase. Moreover, for all search points~$\xvec$ of Hamming weight~$m$, the progress probability~$p_\RSH(\xvec)$ of the (1+1)~EA is in~$\Theta(1/n)$. Therefore, by Theorem~\ref{thm:runtime}, the optimization time~$T^{(3)}_\QSH$ for the third phase of the (1+1)~QEA satisfies
+\[
+\EXP[T^{(3)}_\QSH]\in\Theta(\mu_\QSH^{(3)})
+\]
+with
+\[
+\mu_\QSH^{(3)}=\sum_{\xvec\colon \ham{\xvec}=m}m(\xvec) (r_\RSH(\xvec))^{\nicefrac{1}{2}}.
+\]
+We have already seen that
+\[
+(r_\RSH(\xvec))^{\nicefrac{1}{2}}\in\Theta(n^{\nicefrac{1}{2}})
+\]
+and that 
+\[
+\sum_{\xvec\colon \ham{\xvec}=m}m(\xvec)\in\Theta(n^{m-1}).
+\]
+Therefore, $\EXP[T^{(3)}_\QSH]$ is in~$\Theta(n^{m-1/2})$.
+\end{proof}
+
+\subsection{TinyTrap}
+\label{subsec:tinytrap}
+Let~$d:=\frac{3 n}{2\log_2 n}$ be an integer\footnote{For values of $n$ where~$d$ is non-integral we can round~$d$ and obtain the same asymptotic results.} and let \tinytrap be the pseudo-Boolean function that maps $\xvec\in\{0,1\}^n$ to
+\begin{equation}
+\tinytrap(\xvec):=
+\begin{cases}
+\onemax(\xvec)\,, & \text{if }\onemax(\xvec)\le d-1 \\
+-1\,, & \text{else.}
+\end{cases}
+\end{equation}
+
+RLS and QLS with either selection strategy have unbounded runtime minimizing \tinytrap, since the initial search point might be the local minimum~$(0,\dots,0)$. We therefore restrict ourselves to the different variants of the~$(1+1)$-EA.
+
+\begin{theorem}\label{thm:tinytrapclassical}~
+The runtime of the (1+1)~EA and the (1+1)~EA$^*$ minimizing \tinytrap is at least $2^{\nicefrac{n}{4}}$.
+\end{theorem}
+
+\begin{proof}
+The following argument holds for both selection strategies. Consider the event where the (1+1)~EA starts in the local minimum~$(0,\dots,0)$. To leave this point, at least~$d$ of the bits have to be flipped which (by the union bound) happens with probability at most
+\[
+\binom{n}{d}\cdot\left(\frac{1}{n}\right)^d\le\left(\frac{\euler n}{d}\right)^d\cdot\left(\frac{1}{n}\right)^d = \left(\frac{d}{\euler}\right)^{-d}\le n^{-\nicefrac{5d}{6}}=2^{-\nicefrac{5n}{4}}
+\]
+since~$d/\euler\ge n^{\nicefrac{5}{6}}$ for sufficiently large~$n$ (and thus, sufficiently large $d$). Therefore, conditioned on the event to start in~$(0,\dots,0)$, the runtime of the (1+1)~EA is at least~$2^{\nicefrac{5n}{4}}$ and since the probability to start in~$(0,\dots,0)$ is~$2^{-n}$, the unconditional runtime is at least~$2^{\nicefrac{n}{4}}$ by the law of total expectation.
+\end{proof}
+
+
+\begin{theorem}\label{thm:tinytrapquantum}~
+The runtime of the (1+1)~QEA and the (1+1)~QEA$^*$ minimizing \tinytrap is in $\Oh(1)$.
+\end{theorem}
+
+\begin{proof}
+The following argument holds for both selection strategies. With very high probability the first search point has Hamming weight at least~$d$ in which case the runtime is~$1$. However, since $\euler n/d\le n^{\nicefrac{1}{12}}$ for sufficiently large~$n$, there are at most
+\[
+\sum_{i=0}^{d-1}\binom{n}{i}\le n\binom{n}{d}\le n\left(\frac{\euler n}{d}\right)^d\le n\cdot n^{\nicefrac{d}{12}}=n 2^{\nicefrac{n}{8}}
+\]
+search points of Hamming weight at most~$d-1$. Hence, the probability that the initial search point is one of them is at most~$n2^{-\nicefrac{7n}{8}}$. Next, we give an upper bound on the runtime of the (1+1)~QEA conditioned on the event that it is indeed initialized with one of these points. In this case, we consider two phases, where the first phase ends when the (1+1)~QEA has either found the local minimum~$(0,\dots,0)$ or a global optimum. Like in the proof of Theorem~\ref{thm:jumpquantum}, the length of this phase is dominated by the runtime of the (1+1)~QEA on \onemax which is in~$\Theta(n)$.
+
+At the beginning of the second phase, the (1+1)~QEA either found a global optimum (in this case we are done) or the current search point is the local minimum~$(0,\dots,0)$. For the corresponding (1+1)~EA, the probability to leave the local minimum~$(0,\dots,0)$ is at least the probability to flip exactly~$d$ of the zero-bits, that is
+\[
+\binom{n}{d}\cdot\left(\frac{1}{n}\right)^d(1-1/n)^{n-d}\ge\frac{1}{\euler}\cdot\left(\frac{n}{d}\right)^d\cdot\left(\frac{1}{n}\right)^d\ge \frac{1}{\euler}\cdot n^{-d}=\frac{1}{\euler}\cdot2^{-\nicefrac{3n}{2}}.
+\]
+Thus, the expected progress time~$r_\RSH((0,\dots,0))$ of the (1+1)~EA is in $\Oh(2^{\nicefrac{3n}{2}})$. Now, we recall that we are actually looking at the (1+1)~QEA. By Lemma~\ref{lem:qshrate}, the expected progress time $r_\QSH((0,\dots,0))$ of the (1+1)~QEA is at most~$\Oh(2^{\nicefrac{3n}{4}})$. Note that this difference is the reason why the following argument does not give runtime~$\Theta(1)$ for the classical $(1+1)$~EA as well. However, for the $(1+1)$~QEA we have just seen that the runtime, conditioned on the event that the Hamming weight of the initial search point is at most $d-1$, is in $\Oh(2^{\nicefrac{3n}{4}})$ (the runtime of the second phase dominates the runtime of the first phase). Recall that the probability of the initial search point actually satisfying this condition is only $\Oh(n 2^{-\nicefrac{7n}{8}})$. Hence, the total (unconditional) runtime of the (1+1)~QEA is in~$\Oh(1+n 2^{-\nicefrac{7n}{8}}\cdot 2^{\nicefrac{3n}{4}})=O(1)$  by the law of total expectation.
+\end{proof}
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+In this paper, we have presented an approach to evolutionary algorithms on a quantum computer where we keep the mutation and selection process from the classical setting and use quantum probability amplification (Grover search) in order to find an acceptable offspring more quickly. We show that this does not affect the trajectory the algorithm takes on its way to an optimal solution, the quantum amplification only speeds it up. Furthermore our approach is universal, that is, it works for any mutation operator. We also provide tools for estimating the runtime using parameters of the classical heuristic.
+
+For five of the six problems we investigated we encountered that using quantum search gave at most a quadratic improvement over the corresponding classical heuristic. This is similar to other general settings like unordered search~\cite{BennetBBGV1997,Zalka99} or query complexity of local search on a graph~\cite{Aaronson06}, in which it is proven or conjectured that quantum computers can give at most a quadratic speedup. 
+
+On the example of the function \tinytrap we saw that an exponential runtime of a RSH may drop to polynomial, even to~$\Theta(1)$ for the corresponding QSH. However, keep in mind that this is due to the occurrence of an highly unlikely event (starting in the trap region) and will hardly be observed in a typical run. It is an interesting question whether such an improvement from exponential to polynomial runtime can also occur in less artificial problems and in a typical run of a QSH.
+
+The other analyzed examples \onemax, \leadingones, \discrepancy, \needle, and \jumpm show that a substantial speedup is possible (as for \leadingones) but is not guaranteed (as for \discrepancy). The harder it is for the classical search heuristic to make progress, the better will quantum acceleration work. 
+
+We have also seen that it is important to choose the selection strategy carefully, since not only the runtime in the classical setting but also the speedup due to quantum acceleration depends on the choice of the selection strategy. The reason for the different results is that by allowing equality of the objective functions we increase the number of valid successor states and thus we increase the probability to find such a state. But quantum enhancement is more powerful if these probabilities are small, as is illustrated by Corollary~\ref{cor:regions}. However, we believe there are ways to keep quantum enhancement powerful and still allow the algorithm to move to a successor state with unchanged objective value.
+
+To conclude, we demonstrated a wide range of different behaviors of the progressive and conservative versions of the (1+1)~QEA and QLS on a number of well-studied basic pseudo-Boolean functions. In the line of this research, the next step would be to analyze the effects of quantum acceleration on classical problems in combinatorial optimization.
+
+\bibliographystyle{abbrv}
+\bibliography{abbreviations,proceedings,paper}
+
+\end{document}

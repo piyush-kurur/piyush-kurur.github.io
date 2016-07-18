@@ -1,0 +1,833 @@
+\documentclass[conference]{IEEEtran}
+%\documentclass[11pt]{article}
+%\usepackage{hyperref}
+%\usepackage{showlabels}
+%\usepackage[hmargin=1in,vmargin=1in]{geometry}
+\usepackage{cite}
+\usepackage{verbatim}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{multirow}
+\renewcommand{\=}{\approx}
+\newcommand{\Va}{\mathbf{a}}
+\newcommand{\Vb}{\mathbf{b}}
+\newcommand{\Vc}{\mathbf{c}}
+\newcommand{\Vd}{\mathbf{d}}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\nroot}[1]{\omega^{#1}}
+\newcommand{\hlf}{\frac{1}{2}}
+\newcommand{\Fn}{\mathbb{F}^n}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Fp}{\mathbb{F}_p}
+\newcommand{\Fa}{\F(\eta)}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\Z}{\mathbb{Z}/n\mathbb{Z}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\Ra}{\mathcal{R}(\eta)}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle #1|}
+\newcommand{\ring}{\F[X]/(X^n-1)}
+\newcommand{\aring}{\F(\eta)[X]/(X^n-1)}
+\newcommand{\iprod}[2]{\langle #1,#2 \rangle}
+\newcommand{\Sb}{\bar{S}}
+\newcommand{\ideal}[1]{\langle #1 \rangle}
+\newcommand{\weight}[1]{\ensuremath{\mathrm{w}\left(#1\right)}}
+\newcommand{\symp}[2]{\ensuremath{\left\langle #1,#2 \right\rangle}}
+\newcommand{\transpose}[1]{\ensuremath{#1^{\mathrm{T}}}}
+\newcommand{\high}{\rule{0pt}{1.1em}}
+
+\newcommand{\centraliser}[1]{\ensuremath{\overline{#1}}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma} \newtheorem{claim}[theorem]{Claim}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\usepackage{pgf}
+\usepackage{tikz}
+
+\begin{document}
+\IEEEoverridecommandlockouts
+\title{Quantum Cyclic Code of length dividing $p^{t}+1$}
+\author{\IEEEauthorblockN{Sagarmoy Dutta\IEEEauthorrefmark{1}}\thanks{\IEEEauthorrefmark{1}Part of this work was done while the author was visiting  Max Planck Institut f\"ur Informatik funded by Research I foundation and MPI}
+  \IEEEauthorblockA{Dept of Computer Science and Engineering\\
+  Indian Institute of Technology Kanpur\\
+  Kanpur, UP, India, 208016\\
+  {\tt sagarmoy@cse.iitk.ac.in}}
+ \and
+  \IEEEauthorblockN{Piyush P Kurur}
+  \IEEEauthorblockA{Dept of Computer Science and Engineering\\
+  Indian Institute of Technology Kanpur\\
+  Kanpur, UP, India, 208016\\
+  {\tt ppk@cse.iitk.ac.in}\\
+ and\\
+  Max-Planck Institut f\"ur Informatik\\
+  Campus E1 4, 66123, Saarbr\"ucken, Germany}
+  }
+\date{} \maketitle
+
+\newcommand{\etal}[0]{\emph{et al}}
+
+\begin{abstract}
+
+  In this paper, we study cyclic stabiliser codes over $\mathbb{F}_p$
+  of length dividing $p^t+1$ for some positive integer $t$. We call
+  these $t$-Frobenius codes or just Frobenius codes for short. We give
+  methods to construct them and show that they have efficient decoding
+  algorithms.
+
+  An important subclass of stabiliser codes are the linear stabiliser
+  codes. For linear Frobenius codes we have stronger results: We
+  completely characterise all linear Frobenius codes. As a
+  consequence, we show that for every integer $n$ that divides $p^t+1$
+  for an odd $t$, there are no linear cyclic codes of length $n$. On
+  the other hand for even $t$, we give an explicit method to construct
+  all of them. This gives us many explicit examples of Frobenius
+  code which include the well studied Laflamme code.
+
+  We show that the classical notion of BCH distance can be generalised
+  to all the Frobenius codes that we construct, including the
+  non-linear ones, and show that the algorithm of Berlekamp can be
+  generalised to correct quantum errors within the BCH limit. This
+  gives, for the first time, a family of codes that are neither CSS
+  nor linear for which efficient decoding algorithm exits.
+
+%  The explicit examples that we construct are summarised in
+%  Table~\ref{tab:explicit-examples-short} and explained in detail in
+%  Tables~\ref{tab:explicit-examples-2} (linear case) and
+%  \ref{tab:explicit-examples-3} (non-linear case).
+
+\end{abstract}
+
+\section{Introduction}
+
+Successful implementation of quantum computing requires handling
+errors that occur while processing, storing and communicating quantum
+information. Good quantum error correcting codes are therefore a key
+technology in the eventual building of quantum computing devices,
+besides, perhaps more importantly, their theory provides some elegant
+mathematics. An important class of codes are the stabiliser
+codes~\cite{gottesman:1996:error}, which not only captured the
+isolated examples constructed
+earlier~\cite{Sho95,Ste96a,BDSW96,LMPZ96}, but built a solid
+foundation for subsequent
+works~\cite{calderbank98quantum,Ashikhmin2000nonbinary,arvind2003family}.
+
+Constructing stabiliser codes require handling the slightly
+non-standard symplectic inner product. The CSS
+construction~\cite{calderbank96css,steane96css} gives one elegant and
+natural way, albeit with some loss of generality, to handle this
+difficulty. For this, one needs a self-dual classical code, or
+more generally two classical codes one contained in the dual of the
+other, thereby reusing the intuition built for classical codes.
+Another approach to the problem, again with some loss of generality,
+is to look at linear stabiliser
+codes~\cite{calderbank98quantum}. Linear stabiliser codes can also be
+characterised as linear classical codes over a quadratic extension of
+the base field~\cite[Theorem 3]{calderbank98quantum}~\cite[Lemma
+18]{ketkar2005nonbinary} which are Hermitian self-dual.
+
+In this article, we study mainly cyclic stabiliser codes. Cyclic
+codes, being well studied classically, have recently been studied in
+detail~\cite{calderbank98quantum,thangaraj2001quantumcyclic,salah2006quantumBCH,ketkar2005nonbinary},
+mostly from the perspective of either self dual codes or Hermitian
+self dual codes. We explore another approach to simplify the
+symplectic condition, namely, we restrict our attention to cyclic
+codes of length dividing $p^t +1$ over $\mathbb{F}_p$.
+
+
+\subsubsection*{Our contribution}
+
+In this article, we focus on cyclic stabiliser codes over the field
+$\mathbb{F}_p$ whose lengths divide $p^t+1$, for some positive integer
+$t$. We call such codes $t$-\emph{Frobenius codes}, or just
+\emph{Frobenius codes}, because of the key role played by the
+Frobenius automorphism. Restricting to such lengths, while
+constraining, is not that bad, as there is a healthy, i.e. almost
+linear, density of such lengths (see \cite{dutta2011code}). In bargain, we get a
+simpler formulation of the isotropy condition, which helps in the
+analysis of these codes considerably. Furthermore, this simplicity of
+the isotropic condition allows us to extend the notion of BCH distance
+for these codes and give efficient decoding algorithms. Since none of
+the codes that we construct are CSS --- all our codes are uniquely
+cyclic (See Section~\ref{sec:quantum-cyclic-codes} for a definition)
+and by Proposition~\ref{prop:uniquely-cyclic-is-non-css} are not CSS
+--- and some of them are non-linear, this gives a family of codes for
+which efficient decoding algorithms were not known before.
+
+We study the subfamily of \emph{linear} Frobenius codes in detail and
+completely characterise them
+(Theorems~\ref{thm:linear-necessary-condition}
+and~\ref{thm:main-construction}). This has two consequences, one
+negative and another positive. Firstly, over $\mathbb{F}_p$, we show
+that there are no $t$-Frobenius linear codes when $t$ is odd
+(Corollary~\ref{cor:nonexistance-power-odd}). This is a somewhat
+serious limitation of linear cyclic codes as the density of such
+lengths $n$ seems to be almost linear (see \cite{dutta2011code} for
+details). Moreover, this impossibility is purely Galois theoretic
+unlike other known restriction that arise from sphere packing bounds
+or linear programming bounds.
+
+On the positive side, the characterisation of linear Frobenius codes
+gives us ways to explicitly construct examples of linear Frobenius
+codes of lengths $p^{2t}+1$. Again, since the density of such lengths
+are also healthy, this technique give sizable number of explicit
+examples including the well studied Laflamme
+code. Table~\ref{tab:explicit-examples-short} give such examples for
+$p=2$ and lengths less than 100.
+
+%% Linear stabiliser codes were introduced by Calderbank \etal
+%% \cite{calderbank98quantum} and is an important subfamily of stabiliser
+%% codes. We have the following impossibility results. Linear cyclic
+%% stabiliser codes of length dividing $p^t+1$ cannot exist over
+%% $\mathbb{F}_p$ unless $t$ is even
+%% (Corollary~\ref{cor:nonexistance-power-odd}).  Furthermore, when $t$
+%% is even, these codes are never CSS (Proposition
+%% \ref{prop:linear-non-css}) unless their distance is $1$ and hence
+%% trivial from the error correction perspective. 
+
+%% In fact, when the length divides $p^{2m} +1$, we give a complete
+%% characterisation of all possible linear cyclic codes over
+%% $\mathbb{F}_p$ (Theorems~\ref{thm:linear-necessary-condition}
+%% and~\ref{thm:main-construction}). Apart from the consequence that
+%% these codes are not CSS as mentioned above, our characterisation
+%% directly gives explicit constructions
+%% (Table~\ref{tab:explicit-examples}). When the underlying field is
+%% $\mathbb{F}_2$, the only example for $m =1$ is the well studied
+%% Laflamme code. 
+
+%% The characterisation of these codes also gives an efficient decoding
+%% algorithm for them.  More precisely, we can extend the notion of BCH
+%% distance of classical cyclic codes to these codes and show that if the
+%% BCH distance is at least $2t+1$, then we can correct any quantum error
+%% of weight at most $t$ in polynomial time.
+
+%% Although we study only linear cyclic stabiliser codes in this article,
+%% our notion of cyclicity is quite generic and is applicable even to
+%% non-stabiliser codes. This can be of independent interest.
+
+\section{Preliminaries}\label{sec:prelims}
+
+We give a brief overview of the notation used in this paper. For a
+prime power $q = p^k$, $\mathbb{F}_q$ denotes the unique finite field
+of cardinality $q$. The product $\mathbb{F}_p^n$ is a vector space
+over the finite field $\mathbb{F}_p$ and an element
+$\mathbf{a}=(a_1,\ldots,a_n)^\mathrm{T}$ in it is thought of as a column
+vectors.  Fix a $p$-dimensional Hilbert space $\mathcal{H}$. An
+orthonormal basis for $\mathcal{H}$ is of cardinality $p$. Fix one
+such basis and denote it by $\{ \ket{a} | a \in \mathbb{F}_p \}$.  As
+is standard in quantum computing, for an element
+$\mathbf{a}=(a_1,\ldots,a_n)^\mathrm{T}$ in $\mathbb{F}_p^n$,
+$\ket{\mathbf{a}}$ denotes the tensor product
+$\ket{a_1}\otimes\ldots\otimes\ket{a_n}$.  The set $\{
+\ket{\mathbf{a}} | \mathbf{a} \in \mathbb{F}_p^n \}$ forms a basis for
+the $n$-fold tensor product $\mathcal{H}^{\otimes^n}$. A
+\emph{quantum code} over $\mathbb{F}_p$ of \emph{length} $n$ is a
+subspace of the tensor product $\mathcal{H}^{\otimes^n}$. There is by
+now a significant literature on quantum codes
+\cite{knill2000theory,gottesman:1996:error,calderbank98quantum}.
+
+Let $\zeta$ denote the primitive $p$-th root of unity
+$\exp{\frac{2\pi\iota}{p}}$.  For $\Va$ and $\Vb$ in $\mathbb{F}_p^n$,
+define the operators $U_{\mathbf{a}}$ and $V_{\mathbf{b}}$ on
+$\mathcal{H}^{\otimes^n}$ as $U_\mathbf{a} \ket{\mathbf{x}} =
+\ket{\mathbf{x} + \mathbf{a}}$ and $V_\mathbf{b} \ket{\mathbf{x}} =
+\zeta^{\mathbf{b}^\mathrm{T} \mathbf{x}} \ket{\mathbf{x}}$
+respectively. The operator $U_\mathbf{a}$ can be thought of as a
+\emph{position error} and $V_\mathbf{b}$ as a \emph{phase error}. In a
+quantum channel, both position errors and phase errors can occur
+simultaneously. These are captured by the \emph{Weyl} operators
+$U_\mathbf{a} V_\mathbf{b}$.
+
+For elements $\mathbf{a}$ and $\mathbf{b}$ of the vector space
+$\mathbb{F}_p^n$ the \emph{joint weight}
+$\weight{\mathbf{a},\mathbf{b}}$ is the number of positions $i$ such
+that at least one of $a_i$ or $b_i$ is not zero. The \emph{weight} of
+the Weyl operator $U_\mathbf{a}V_\mathbf{b}$ is the joint weight
+$\weight{\mathbf{a},\mathbf{b}}$. Occurrence of a quantum error at $t$
+positions is modelled as the channel applying an unknown Weyl operator
+$U_\mathbf{a}V_\mathbf{b}$ of weight $t$ on the transmitted message.
+
+An important subclass of quantum codes are stabiliser
+codes~\cite{gottesman:1996:error}. These are closely connected to
+isotropic subsets. For any two vectors
+$\mathbf{u}=(\mathbf{a},\mathbf{b})$ and
+$\mathbf{v}=(\mathbf{c},\mathbf{d})$ of
+$\mathbb{F}_p^{n}\times\mathbb{F}_p^n$, define the \emph{symplectic
+  inner product} $\symp{\mathbf{u}}{\mathbf{v}}$ as the scalar
+$\transpose{\mathbf{a}}\mathbf{d} - \transpose{\mathbf{b}}\mathbf{c}$
+of $\mathbb{F}_p$.  A subset $S$ of $\mathbb{F}_p^{2n}$ is called
+\emph{totally isotropic}~\cite{calderbank98quantum}, or just
+\emph{isotropic}, if for any two elements $\mathbf{u}$ and
+$\mathbf{v}$ of $S$, $\symp{\mathbf{u}}{\mathbf{v}} = 0$.
+
+
+Isotropic subspaces of $\mathbb{F}_p^{2n}$ are closely related to
+stabiliser codes. Calderbank
+\etal~\cite{calderbank97orthogonal,calderbank98quantum} were the first
+to study this relation when the underlying field is
+$\mathbb{F}_2$. Later, this was generalised to arbitrary
+fields~\cite{Ashikhmin2000nonbinary,arvind2003family}. We summaries
+these results in a form convenient for our purposes.
+\begin{theorem}[\cite{calderbank97orthogonal,Ashikhmin2000nonbinary,
+    arvind2003family}]%
+  \label{thm:iso-stab-connection}
+  Let $S$ be a isotropic subspace of $\mathbb{F}_p^{2n}$ for some
+  positive integer $n$. Let $\omega$ be either the primitive $p$-th
+  root of unity $\exp{\frac{2\pi \iota}{p}}$ or $\sqrt{-1}$, depending
+  on whether $p$ is odd or even respectively.  Then, the subset
+  $\mathcal{S} = \{ \omega^{\Va^T \Vb} U_\Va V_\Vb | (\Va,\Vb) \in S
+  \}$ of unitary operators forms an Abelian group. Furthermore, the
+  set of vectors invariant under the operators in $\mathcal{S}$ forms
+  a quantum stabiliser code and the operator
+ $P = \frac{1}{\#\mathcal{S}}\sum_{U \in \mathcal{S}} U$
+ is the projection to it.
+\end{theorem}
+
+Let $S$ be a subspace of $\mathbb{F}_p^{2n}$. By the
+\emph{centraliser} of $S$, denoted by $\centraliser{S}$, we mean the
+subspace of all $\mathbf{u}$ in $\mathbb{F}_p^{2n}$, such that
+$\symp{\mathbf{u}}{\mathbf{v}} = 0$, for all $\mathbf{v}$ in $S$. We
+have the following theorem on the error correcting properties of the
+stabiliser codes.
+
+\begin{theorem}[\cite{calderbank97orthogonal,Ashikhmin2000nonbinary, arvind2003family}]
+  \label{thm:isotropic-main-properties}
+  Let $S$ be a isotropic subspace of $\mathbb{F}_p^{2n}$ and let
+  $\mathcal{C}$ be the associated stabiliser code. Then the dimension
+  of the subspace $S$ is at most $n$. If $S$ has dimension $n - k$ for
+  some $k> 0$ then the centraliser $\centraliser{S}$, as a vector
+  space over $\mathbb{F}_p$, is of dimension $n+k$ and the code
+  $\mathcal{C}$, as a Hilbert space, is of dimension $p^{k}$.
+  Furthermore, if the minimum weight
+  $\textrm{min}\{\weight{\mathbf{u}} | \mathbf{u} \in \centraliser{S}
+  \setminus S \}$ is $d$ then $\mathcal{C}$ can detect up to $d-1$
+  errors and correct up to $\floor{\frac{d - 1}{2}}$ errors.
+\end{theorem}
+
+Let $\mathcal{C}$ be a stabiliser code associated with an $n-k$
+dimensional totally isotropic subspace $S$ of $\mathbb{F}_p^{2n}$. By
+the \emph{stabiliser dimension} of $\mathcal{C}$ we mean the integer
+$k$. Similarly, we call the weight $\textrm{min}\{ \weight{\mathbf{u}}
+| \mathbf{u} \in \centraliser{S} \setminus S \}$ the \emph{distance}
+of $\mathcal{C}$.  In this context, recall that the stabiliser code
+associated to the isotropic set $S$ is called \emph{$\delta$-pure}, if the
+minimum of the joint weights of non-zero elements of the centraliser
+$\centraliser{S}$ is $\delta$. It follows from
+Theorem~\ref{thm:isotropic-main-properties} that a $\delta$-pure code is of
+distance at least $\delta$. A stabiliser code over $\mathbb{F}_p$ of length
+$n$, stabiliser dimension $k$ and distance $\delta$ is called an
+$[[n,k,\delta]]_p$ code.
+
+\section{Quantum Cyclic codes}\label{sec:quantum-cyclic-codes}
+
+In this section we define quantum cyclic codes and study some of its
+properties. Fix a prime $p$ and a positive integer $n$ coprime to $p$
+for the rest of the section. Let $N$ denote the right shift operator
+over $\mathbb{F}_p^n$, i.e.  the operator that maps $\mathbf{u} =
+(u_1,\ldots,u_n)$ to $(u_n,u_1,\ldots,u_{n-1})$.  Consider the unitary
+operator $\N$ defined as $\N \ket{\mathbf{u}} = \ket{N \mathbf{u}}$.
+Recall that a classical code over $\mathbb{F}_p$ is cyclic if for all
+code words $\mathbf{u}$, its right shift $N\mathbf{u}$ is also a code
+word. Motivated by this definition, we have the following definition
+for quantum cyclic codes.
+
+\begin{definition}\label{def_qcc} 
+  A quantum code $\mathcal{C}$ is \emph{cyclic} if for any vector
+  $\ket{\psi}$ in $\mathcal{C}$, the vector $\N \ket{\psi}$ is in
+  $\mathcal{C}$.
+\end{definition}
+
+Let $S$ be a subspace of $\mathbb{F}_p^n \times \mathbb{F}_p^n$. We
+say that $S$ is \emph{simultaneously cyclic} if for all $(\Va,\Vb)$ in
+$S$, $(N\Va,N\Vb)$ is also in $S$. Stabiliser codes with simultaneously
+cyclic isotropic sets were first studied by Calderbank
+\etal~\cite[Section 5]{calderbank98quantum} and was taken as the
+definition of cyclic codes in subsequent
+works~\cite{thangaraj2001quantumcyclic,salah2006quantumBCH,ketkar2005nonbinary}. In
+this context, we show that for stabiliser codes, simultaneous
+cyclicity and our definition of cyclicity coincide.
+
+\begin{proposition}\label{prop:stab-cyclic} 
+  An isotropic subset of $\mathbb{F}_p^{n}\times\mathbb{F}_p^n$ is
+  simultaneously cyclic if and only if the associated stabiliser code
+  is cyclic.
+\end{proposition} 
+% \begin{IEEEproof} 
+%   For a code $\mathcal{C}$ with projection operator $P$, it is easy to
+%   verify that $\mathcal{C}$ is cyclic if and only if $\N^\dag P \N =
+%   P$.  Let $S$ be an isotropic subset of
+%   $\mathbb{F}_p^{n}\times\mathbb{F}_p^n$ and let $\mathcal{C}$ be the
+%   associated stabiliser code.
+% 
+%   Assume that $\mathcal{C}$ is cyclic.  From
+%   Theorem~\ref{thm:iso-stab-connection}, the projection operator to
+%   $\mathcal{C}$ is given by $P = \sum_{(\Va,\Vb) \in S}
+%   \alpha_{\Va,\Vb} U_\Va V_\Vb$, where $\alpha_{\Va,\Vb} =
+%   \omega^{\Va^T \Vb}$. Notice that $\N^\dag U_\Va V_\Vb \N = U_{N \Va}
+%   V_{N \Vb}$. Therefore, the set $S$ should be simultaneously cyclic,
+%   otherwise the support of $\N^\dag P \N$ will not match with that of
+%   $P$.
+%   
+%   Conversely, if $S$ is simultaneously cyclic, then we have $(N \Va, N
+%   \Vb)$ is in $S$ for all $(\Va,\Vb)$ in $S$. The inverse of the shift
+%   operation $N$ is just $\transpose{N}$. Therefore, $\Va^T N^T N \Vb =
+%   \Va^T \Vb$ and hence the scalars $\alpha_{\Va,\Vb}$ are also
+%   preserved. Thus, $\N^\dag P \N = P$ and as a result, $\mathcal{C}$
+%   is cyclic.
+% \end{IEEEproof}
+
+
+Let $\R$ denote the cyclotomic ring $\mathbb{F}_p[X]/X^n -1$ of
+polynomials modulo $X^n -1$. When dealing with cyclic codes, it is
+often convenient to think of vectors of $\mathbb{F}_p^n$ as
+polynomials in $\R$ by identifying the vector
+$\mathbf{a}=(a_0,\ldots,a_{n-1})$ with the polynomials $a(X) = a_0 +
+\ldots + a_{n-1} X^{n-1}$. We use the bold face Latin letter, for
+example $\mathbf{a}$, $\mathbf{b}$ etc, to denote vectors and the
+corresponding plain face letter, $a(X)$, $b(X)$ respectively, for the
+associated polynomial.  Recall that, classical cyclic codes are ideals
+of this ring $\R$. In the ring $\R$, the polynomial $X$ has a
+multiplicative inverse namely $X^{n-1}$. Often, we write $X^{-1}$ to
+denote this inverse.  Notice that for any two vectors $\mathbf{a}$ and
+$\mathbf{b}$ in $\mathbb{F}_p^n$, if $a(X)$ and $b(X)$ denote the
+corresponding polynomials in $\R$, then the coefficient of $X^k$ in
+the product $a(X)b(X^{-1})\mod X^n -1$ is the inner product
+$\transpose{\mathbf{a}}N^k\mathbf{b}$, where $N$ is the right shift
+operator. An immediate consequence is the following.
+
+\begin{proposition}\label{prop:isotropy-polynomials}
+  Let $S$ be a simultaneously cyclic subset of $\mathbb{F}_p^n \times
+  \mathbb{F}_p^n$. Then $S$ is isotropic if and only if for any two
+  elements $\mathbf{u} = (\mathbf{a},\mathbf{b})$ and $\mathbf{v} =
+  (\mathbf{c},\mathbf{d})$, the corresponding polynomials satisfy the
+  condition
+  \[
+  b(X)c(X^{-1}) - a(X)d(X^{-1}) = 0 \mod X^n -1.
+  \]
+\end{proposition}
+
+
+Let $S$ be a simultaneously cyclic subspace of $\mathbb{F}_p^{n}\times
+\mathbb{F}_p^n$.  Define $A$ and $B$ to be the projections of $S$ onto
+the first and last $n$ coordinates respectively, i.e. $A=\{ \mathbf{a}
+| (\mathbf{a},\mathbf{b}) \in S \}$ and $B = \{ \mathbf{b} |
+(\mathbf{a},\mathbf{b}) \in S \}$. Since $S$ is simultaneously cyclic,
+$A$ and $B$ are cyclic subspaces of $\mathbb{F}_p^n$ and hence are
+ideals of the ring $\R$. Let $g(X)$ be the factor of $X^n - 1$ that
+generates $A$. Since $g(X)$ is an element of $A$, there exists a
+polynomial $f(X)$ in $\R$ such that $(\mathbf{g},\mathbf{f}) \in
+S$. If this $\mathbf{f}$ is unique then we say that $S$ is
+\emph{uniquely cyclic} and call the pair $(g(X),f(X))$ of polynomials,
+a \emph{generating pair} for $S$. We have the following proposition.
+
+\begin{proposition}\label{prop:uniquely-cyclic}
+  A simultaneously cyclic subspace $S$ of $\mathbb{F}_p^n \times
+  \mathbb{F}_p^n$ is uniquely cyclic if and only if for every element
+  $(0,\mathbf{a})$ in $S$, $\mathbf{a} = 0$. If $S$ is uniquely cyclic
+  generated by the pair $(g,f)$, then every element of $S$ is of the
+  form $(a g, a f)$ for some $a(X)$ in $\mathbb{F}_p[X]/X^n -1$.
+\end{proposition}
+
+For a CSS code, the underlying isotropic set $S$ is a product
+$C_1\times C_2$ of two $n$-length classical codes over $\mathbb{F}_p$
+In particular, elements $(\mathbf{a},0)$ and $(0,\mathbf{b})$ for
+$\mathbf{a}$ and $\mathbf{b}$ in $C_1$ and $C_2$ respectively belong
+to $S$.  Therefore, we have the following proposition as a
+consequences of Proposition~\ref{prop:uniquely-cyclic}.
+
+\begin{proposition}\label{prop:uniquely-cyclic-is-non-css}
+  Any uniquely cyclic stabiliser code is not CSS unless it is of
+  distance $1$.
+\end{proposition}
+
+
+For uniquely cyclic codes the isotropy condition in
+Proposition~\ref{prop:isotropy-polynomials} can be simplified as
+follows.
+
+\begin{proposition}\label{prop:isotropy-uniquely-cyclic}
+  Let $S$ be a simultaneously cyclic subspace of $\mathbb{F}_p^n
+  \times \mathbb{F}_p^n$ with generating pair $(g,f)$. Then $S$ is
+  isotropic if and only if $g(X)f(X^{-1})=g(X^{-1})f(X)$ modulo $X^n
+  -1$. Moreover, any pair $(a,b)$ belongs to $\centraliser{S}$ if and
+  only if $g(X)b(X^{-1})=a(X^{-1})f(X)$ modulo $X^n-1$.
+\end{proposition}
+
+Consider a quadratic extension $\mathbb{F}_{p^2}=\mathbb{F}_p(\eta)$
+of $\mathbb{F}_p$ obtained by adjoining a root $\eta$ of some quadratic
+irreducible polynomial over $\mathbb{F}_p$. Identify the product
+$\mathbb{F}_p^n \times \mathbb{F}_p^n$ with the the vector space
+$\mathbb{F}_{p^2}^n$ by mapping a pair of vectors $(\mathbf{a},
+\mathbf{b})$ to the vector $\mathbf{a} + \eta \mathbf{b}$. Similarly
+for the cyclotomic ring $\R$, identify the product ring $\R \times \R$
+with the cyclotomic ring $\R(\eta) = \mathbb{F}_{p^2}[X]/X^n -1$.  Let
+$S$ be any isotropic subspace of $\mathbb{F}_p^n \times
+\mathbb{F}_p^n$. The associated stabiliser code $\mathcal{C}_S$ is
+said to be \emph{linear}~\cite{calderbank98quantum} if $S$ under the
+above identification is a subspace of $\mathbb{F}_{p^2}^n$.  Isotropic
+subspaces of $\mathbb{F}_p^n \times \mathbb{F}_p^n$ associated to
+linear stabiliser codes are classical cyclic codes of length $n$ over
+$\mathbb{F}_p(\eta)$. Thus the following proposition follows.
+
+\begin{proposition}\label{prop:centraliser-ideal-connection}
+  Let $S$ be an isotropic simultaneously cyclic subspace of the product
+  $\mathbb{F}_p^n \times \mathbb{F}_p^n$. The associated stabiliser
+  code $\mathcal{C}_S$ is linear if and only if $S$ is an ideal of the
+  cyclotomic ring $\mathbb{F}_{p^2}[X]/X^n -1$. Furthermore, if
+  $\mathcal{C}_S$ is linear then the centraliser $\centraliser{S}$ is
+  also an ideal of $\mathbb{F}_{p^2}[X]/X^n -1$.
+\end{proposition}
+
+It follows from the theory of classical codes that both $S$ and
+$\centraliser{S}$ are ideals generated by factors of $X^n -1$ over
+$\mathbb{F}_{p^2}$. In this context, we make the following definition.
+
+\begin{definition}[BCH distance]
+  Let $g(X)$ be a factor of the polynomial $X^n - 1$ over the field
+  $\mathbb{F}_q$, $n$ coprime to $q$. The \emph{BCH distance} of the
+  polynomial $g(X)$ is the largest integer $d$ such that the
+  consecutive distinct powers $\beta^{\ell}$,$\beta^{\ell+1},\ldots,
+  \beta^{\ell + d -2}$ are roots of $g$, for some primitive $n$-th
+  root $\beta$.
+\end{definition}
+
+Recall that, the distance of a classical cyclic code is at least the
+BCH distance of its generating polynomial. In the setting of
+stabiliser codes, the distance is related to the minimum joint weight
+of elements of $\centraliser{S}$
+(Theorem~\ref{thm:isotropic-main-properties}). Motivated by this
+analogy, we define the BCH distance of linear stabiliser codes as
+follows.
+
+\begin{definition}
+  Let $S$ be a isotropic subset of $\mathbb{F}_p^{n}\times
+  \mathbb{F}_p^n$ associated to a linear cyclic stabiliser code
+  $\mathcal{C}$. The \emph{BCH distance of $\mathcal{C}$} is the BCH
+  distance of the generator polynomial of the centraliser
+  $\centraliser{S}$.
+\end{definition}
+
+We have the following theorem which follows from
+Theorem~\ref{thm:isotropic-main-properties}.
+
+\begin{theorem}
+  Let $\mathcal{C}$ is be any linear cyclic stabiliser code of BCH
+  distance $d$. Then it is $d$-pure and hence has distance at least
+  $d$.
+\end{theorem}
+
+
+\section{Linear cyclic codes of length dividing $p^{t}+1$}
+
+In this section, we study linear cyclic stabiliser codes over
+$\mathbb{F}_p$ whose length divides $p^{t} +1$. The main motivation to restrict
+our attention to lengths of this form is captured in the following proposition.
+
+\begin{proposition}\label{prop:inverse-frob}
+If the integer $n$ divides $p^t+1$, for some positive integer $t$ then $X^{-1}$
+in the cyclotomic
+ring $\mathbb{F}_p[X]/X^{p^t+1} -1$ is $X^{p^{t}}$. Therefore, for
+every polynomial $g(X)$ over any extension of $\mathbb{F}_p$ we have $g(X^{-1})$ is
+$g(X)^{p^t}$.
+\end{proposition}
+
+The above-mentioned property simplifies the isotropy condition for polynomials
+considerably and allows us to completely characterise all linear
+cyclic codes of such lengths.
+
+Let $\mathbb{F}_p(\eta)/\mathbb{F}_p$ be an extension of degree $d$. 
+When dealing with cyclic
+quantum codes of length $n$, we use $\R$ to denote the cyclotomic ring
+$\mathbb{F}_p[X]/X^n -1$. The extension ring $\Ra$ is then the
+cyclotomic ring $\mathbb{F}_{p}(\eta)[X]/X^n -1$. Linear codes are
+associated with quadratic extension and identification of the pair of
+vectors $(\Va,\Vb)$ with $\Va+\eta \Vb$ maps its isotropic set to an ideal
+of $\Ra$.
+
+% For the rest of the article fix an irreducible quadratic polynomial
+% $c(X)$ in $\mathbb{F}_p[X]$. Let $\eta$ be a root of $c(X)$ in the
+% extension field $\mathbb{F}_{p^2}$. The conjugate root $\eta^p$ will
+% be denoted as $\eta'$. As before, when dealing with linear cyclic
+% quantum codes of length $n$, we use $\R$ to denote the cyclotomic ring
+% $\mathbb{F}_p[X]/X^n -1$. The extension ring $\Ra$ is then the
+% cyclotomic ring $\mathbb{F}_{p^2}[X]/X^n -1$.  We first have the
+% following proposition.
+
+
+\begin{lemma}\label{lem:cyclic-linear}
+  Let $S$ be the isotropic ideal associated to a linear cyclic
+  stabiliser code over $\mathbb{F}_p$ of length dividing $p^t+1$. Then $S$ is
+  uniquely cyclic.
+\end{lemma}
+
+
+
+Consider the Frobenius automorphism $\sigma$ on a degree $d$ extension
+$\mathbb{F}_p(\eta)/\mathbb{F}_p$ which maps any element $\alpha$ in
+ $\mathbb{F}_p(\eta)$ to $\alpha^p$. This can be naturally
+ extended to
+polynomials over $\mathbb{F}_p(\eta)$ and therefore on $\Ra$ as
+follows: For a polynomial $a(X) = a_0 + \ldots + a_n X^n$ where $a_i$
+are in $\mathbb{F}_p(\eta)$, $\sigma(a)$ is defined as $\sigma(a_0) +
+\ldots + \sigma(a_n) X^n$. We call this the \emph{Frobenius
+  involution}.
+
+Constructing linear cyclic codes correspond to constructing generators
+for the associated isotropic ideal. We make use of the following
+Galois theoretic lemma to characterise such generators.
+
+\begin{lemma}\label{lem:degree} 
+  Let the integer $n$ divide $p^t+1$ for some positive integer $t$. 
+\begin{enumerate}
+\item Any irreducible factor of $X^{n} -1$ over
+  $\mathbb{F}_p$ other than the factors $X -1$ or $X+1$ has even degree.
+\item Let $f(X)$ be any irreducible factor of $X^n-1$ over $\mathbb{F}_p$ whose degree is divisible by $d$ for some positive integer $d$. Over the extension field $\mathbb{F}_{p^d}=\mathbb{F}_p(\eta)$, $f(X)$ splits into $d$ irreducible factors $f_0(X,\eta), \ldots, f_{d-1}(X,\eta)$  such that $f_i = \sigma^i(f_0)$.
+\end{enumerate}
+\end{lemma}
+
+Consider the extension field $\mathbb{F}(\eta)=\mathbb{F}_{p^2}$ and
+let $S$ be any ideal of $\Ra$. The following theorem gives a
+necessary condition for it to be isotropic and hence give a linear
+cyclic code.
+
+\begin{theorem}\label{thm:linear-necessary-condition}
+  Let $\mathbb{F}_p(\eta)$ be a quadratic extension of $\mathbb{F}_p$.
+ Let $n$ divide $p^t +1$ and $S$ be an isotropic ideal of
+  $\mathbb{F}_p(\eta)[X]/X^n-1$. Then $t$ is even and the ideal $S$ is
+  generated by the product polynomial $g(X) \cdot h(X,\eta)$ where
+  $g(X)$ and $h(X,\eta)$ are two coprime factors of $X^n -1$
+  satisfying the following condition.
+  \begin{enumerate}
+  \item \label{prop-g-polynomial} $g(X)$ is any factor of $X^n - 1$
+    over $\mathbb{F}_p$ which contains both $X-1$ and $X+1$ as
+    factors.
+  \item \label{prop-h-polynomial} $h(X,\eta)$ is any factor of
+    $\frac{X^n -1}{g}$ over $\mathbb{F}_{p^2}$, such that for any
+    irreducible factor $r(X,\eta)$ of $\frac{X^n -1}{g}$ over
+    $\mathbb{F}_{p^2}$, $r(X,\eta)$ divides $h(X,\eta)$ if and only if
+    $\sigma(r) = r(X,\eta')$ \emph{does not}.
+  \end{enumerate}
+\end{theorem}
+
+A corollary of the above theorem is the following impossibility
+result.
+
+\begin{corollary}\label{cor:nonexistance-power-odd}
+  Let $n$ be any integer that divides $p^t+1$, where $t$ is odd. Then there
+  does not exist any linear cyclic stabiliser codes of length $n$ over
+  $\mathbb{F}_p$.
+\end{corollary}
+
+For example, $9,11,19,27,33,43,57,59,67,81,83,99$ are the numbers less
+then hundred that divide $2^t+1$ for some odd $t$. Hence there is no binary
+linear cyclic code of such lengths.
+
+The next theorem shows that the conditions in
+Theorem~\ref{thm:linear-necessary-condition} are also sufficient to
+construct isotropic ideals of $\Ra$. This gives us a way of
+constructing linear cyclic stabiliser of length dividing $p^{2m} +1$. This theorem directly follows from a more generalised construction given in Theorem~\ref{thm:gen-const} and Theorem~\ref{thm:connection}.
+
+\begin{theorem}\label{thm:main-construction}
+  Let $n$ divide $p^{2m} +1$ and $\mathbb{F}_p(\eta)$ be a quadratic
+extension of $\mathbb{F}_p$. Let $g(X)$ and $h(X,\eta)$ be factors of
+  $X^n -1$ satisfying the properties~\ref{prop-g-polynomial} and
+  \ref{prop-h-polynomial} of
+  Theorem~\ref{thm:linear-necessary-condition}.  Then the ideal $S$ of
+  $\mathbb{F}_p(\eta)[X]/X^n-1$ generated by the product $g \cdot h$
+ is isotropic as a subset
+  of $\mathbb{F}_p^n \times \mathbb{F}_p^n$ and the associated
+  stabiliser code is linear and cyclic.
+\end{theorem}
+
+In the rest of the article, we refer to
+cyclic stabiliser codes whose length divide $p^{t}+1$ as $t$-Frobenius
+codes. For linear $2m$-Frobenius codes, we call the factorisation $g(X) \cdot
+h(X,\eta)$ characterised above as the \emph{canonical factorisation}
+associated to the code.
+
+\begin{theorem}
+  Let $\mathcal{C}$ be a linear $2m$-Frobenius code over
+  $\mathbb{F}_p$ with canonical factorisation $g
+  \cdot h$. The stabiliser dimension of the code
+  $\mathcal{C}$ is $\mathrm{deg}(g)$. The centraliser $\centraliser{S}$
+ of $S$ is the ideal generated by $h(X,\eta)$ and hence the BCH distance of
+ $\mathcal{C}$ is BCH distance of $h$. 
+\end{theorem}
+Again the proof follows from the more general theorem \ref{thm:gen-prop} and \ref{thm:connection}.
+
+\section{Generalisation to nonlinear codes}
+We have already shown that if $n$ divides $p^t+1$ for some odd integer $t$
+ then no linear code of length $n$ exists. In this section we show how to
+construct nonlinear codes of such length. The construction is a
+generalisation of Theorem~\ref{thm:main-construction}. The major difference
+is that the extension of $\mathbb{F}_p$ is no longer restricted
+to be quadratic. 
+
+\begin{theorem}\label{thm:gen-const}
+  Let $n$ divide $p^{dm}+1$ and $\mathbb{F}_p(\eta)$ be a degree $d$
+  extension of $\mathbb{F}_p$. Let $g(X)$ and $h(X,\eta)$ be co-prime factors
+  of $X^n-1$ satisfying the following properties.
+  \begin{enumerate}
+  \item $g(X)$ is any factor of $X^n-1$ over $\mathbb{F}_p$ which
+    contains all the the irreducible factor of $X^n-1$ over
+    $\mathbb{F}_p$ whose degree is not divisible by $d$.
+  \item $h(X,\eta)$ is any factor of $\frac{X^n-1}{g}$ over
+    $\mathbb{F}_p(\eta)$ such that for any irreducible factor
+    $r(X,\eta)$ of $\frac{X^n-1}{g}$ over $\mathbb{F}_p(\eta)$,
+    $r(X,\eta)$ divides $h(X,\eta)$ if and only if none of the factors
+    $\sigma(r),\ldots,\sigma^{d-1}(r)$ divide $h$
+    i.e. $\frac{X^n-1}{g(X)}=\prod_{i=0}^{d-1}\sigma^i(h)$.
+  \end{enumerate}
+  Fix any nonzero $\alpha$ in $\mathbb{F}_p$ and let $a(X,\eta)$ be
+  the polynomial, uniquely defined by Chinese remaindering, as
+  follows.
+
+  \[
+  a = \left\{\begin{array}{ll}
+  1 & \mod g \\
+  \sigma^i(\alpha\eta) & \mod \sigma^i(h) \mbox{ for all } 0\leq i <d \\
+  \end{array}\right.
+  \]
+  Then $a(X,\eta)$ is a polynomial in $\mathbb{F}_p[X]$ and the
+  uniquely cyclic subspace generated by $(g,ag)$ is isotropic.
+\end{theorem}
+
+The following theorem shows that the linear codes obtained from Theorem~\ref{thm:main-construction} are indeed a subclass of the codes
+generated from Theorem~\ref{thm:gen-const}
+\begin{theorem}\label{thm:connection}
+Let $c(X)=X^2+c_1X+c_0$ be an irreducible polynomial over $\mathbb{F}_p$ and $\eta,\eta'$ be roots of $c(X)$. Fix $d=2$, $\mathbb{F}_p(\eta')/\mathbb{F}_p$ to be the extension and $\alpha=-c_0^{-1}$ in Theorem~\ref{thm:gen-const} and let $S$ be the corresponding isotropic subspace. Then the image
+of $S$ under the map $(u,v)\mapsto u+\eta v$ is an ideal of the cyclotomic
+ring $\mathbb{F}_p(\eta)[X]/(X^n-1)$ and its generator is given by
+the polynomial $g(X)h(X,\eta)$ where $g,h$ satisfies the properties in Theorem~\ref{thm:linear-necessary-condition}. Moreover the centraliser $\centraliser{S}$ also maps to an the ideal generated by $h$.
+\end{theorem}
+
+As before, we call $g\cdot h$ as the canonical factorisation associated with the above mentioned $t$-Frobenius codes. We also
+call the BCH distance of $h$ to be the BCH distance of $\mathcal{C}$.
+
+\begin{theorem}\label{thm:gen-prop}
+Let $g(X)\cdot h(X,\eta)$ be the canonical factorisation associated with
+a $t$-Frobenius code $\mathcal{C}$ as in Theorem~\ref{thm:gen-const}. The
+stabiliser dimension of $\mathcal{C}$ is $\deg(g)$. If the BCH distance of $h$ is $\delta$ then $\mathcal{C}$ is $\delta$-pure and
+hence has distance at least $\delta$. 
+\end{theorem}
+
+As a demonstration of our construction we list
+(Table~\ref{tab:explicit-examples-short}) some explicit examples of
+codes where the characteristic $p$ of the underlying finite field is
+2. The distance given in this table is the BCH distance.  The actual
+distance can be larger. Canonical factors and their roots 
+ are given in \cite{dutta2011code}. We have both linear and non-linear codes for parameters with dagger whereas star denotes only nonlinear codes.
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Length & Parameters\\
+\hline
+5 & [[5,1,3]] \\ 
+\hline
+9 & [[9,3,3]]* \\
+\hline
+13 & [[13,1,5]] \\ 
+\hline
+17 & [[17,1,7]] , [[17,9,3]] \\ 
+\hline
+19 & [[19,1,3]]* \\
+\hline
+25 & [[25,1,4]] , [[25,5,3]] \\ 
+\hline
+27 & [[27,21,2]]*, [[27,9,3]]* \\
+\hline
+29 & [[29,1,5]] \\ 
+\hline
+37 & [[37,1,5]] \\ 
+\hline
+41 & [[41,1,7]] , [[41,21,4]] \\ 
+\hline
+53 & [[53,1,7]] \\ 
+\hline
+57 & [[57,21,5]]*, [[57,39,3]]* \\
+\hline
+61 & [[61,1,7]] \\ 
+\hline
+\multirow{2}{*}{65} & [[65,5,13]]*, [[65,13,8]] , [[65,17,9]], [[65,17,11]]* ,\\
+	& [[65,29,7]]$^\dagger$ , [[65,41,5]]$^\dagger$ , [[65,53,3]]$^\dagger$ \\ 
+\hline
+67 & [[67,1,7]]* \\
+\hline
+81 & [[81,21,4]]*, [[81,75,2]]*\\
+\hline
+97 & [[97,1,9]] , [[97,49,5]] \\ 
+\hline
+99 & [[99,69,3]]* \\
+\hline
+\end{tabular}
+\vspace{-1mm}
+\end{center}
+\caption{Explicit examples of Frobenius codes over $\mathbb{F}_2$}
+\label{tab:explicit-examples-short}
+\vspace{-1cm}
+\end{table}
+\section{Decoding}
+
+Let $\mathcal{C}$ be a $t$-Frobenius code based on a degree $d$ extension $\mathbb{F}_p(\eta)$ as in Theorem~\ref{thm:gen-const}. Let the code $\mathcal{C}$ have length $n$ and  BCH distance $\delta=2\tau +1$. Much like in the classical case, we show that there is an poly$(n)$ time quantum algorithm to correct any quantum error of weight at most $\tau$. We use two key algorithms: (1) Kitaev's
+phase estimation~\cite[5.2]{nielsen:and:chuang} algorithm and (2) The
+Berlekamp decoding algorithm~\cite[p-98,6.7]{vLin} for classical BCH
+codes.
+
+\begin{theorem}[Berlekamp]\label{thm:berlekamp-recast}
+  Let $h(X)$ be a factor of $X^n - 1$ of BCH distance $\delta =2 \tau +1$ over
+  a finite field $\mathbb{F}_q$, $q$ and $n$ coprime. Let $e(X)$ be
+  any polynomial of weight at most $\tau$ over $\mathbb{F}_q$. Given a
+  polynomial $r(X) = e(X) \mod h(X)$, there is a polynomial time
+  algorithm to find $e(X)$.
+\end{theorem}
+
+Let the canonical factorisation of the $\mathcal{C}$ be $g\cdot h$ so that its isotropic subspace is generated by the pair $(g,ag)$ where $a = \sigma^i(\alpha\eta) \mod \sigma^i(h)$. Assume that we
+transmitted a quantum message $\ket{\varphi} \in \mathcal{C}$ over the
+quantum channel and received the corrupted state $\ket{\psi} =
+U_\mathbf{u} V_\mathbf{v} \ket{\varphi}$, where the vectors
+$\mathbf{u}$ and $\mathbf{v}$ are unknown but fixed for the rest of
+the section. We show that using quantum phase finding we can recover the polynomial $\alpha\eta u(X^{-1})-v(X^{-1}) \mod h$ without disturbing $\ket{\psi}$. Provided the joint weight w$(\mathbf{u},\mathbf{v})\leq \tau$ we can now find $\mathbf{u}$ and $\mathbf{v}$ using Berlekamp algorithm. The sent message is recovered by applying the
+inverse map $V_\mathbf{v}^\dag U_\mathbf{u}^\dag$ on $\ket{\psi}$. Hence we have the following theorem about decoding.
+% linear $t$-Frobenius codes.
+
+\begin{theorem}\label{thm:main-decoding-theorem}
+  Let $\mathcal{C}$ be a $t$-Frobenius code, as in Theorem~\ref{thm:gen-const}, of length
+  $n$ and BCH distance $\delta = 2\tau+1$. There is quantum
+  algorithm that takes time polynomial in $n$ to correct errors of
+  weight at most $\tau$.
+\end{theorem}
+
+\section{Conclusion}
+In this paper, we studied cyclic stabiliser codes of length dividing
+$p^t +1$ over $\mathbb{F}_p$. It is natural to ask whether
+the construction can be generalised for arbitrary code length. For 
+higher degree extensions the gap between actual and BCH
+distance could be significant. Therefore, it would be interesting to
+find a better lower bound and in particular to know whether
+Berlekamp like algorithms can be used to decode up to that
+bound. Unlike previous definition of cyclicity, our definition
+is applicable to non-stabiliser codes as well. An open problem is to
+construct cyclic non-stabiliser codes.
+
+
+% Although we do not have an example yet, an
+% encouraging fact is that the first computer generated non-stabiliser
+% codes with parameters $((5,6,2))$ given by Rains \etal~\cite{RHSS97}
+% is closely linked to the Laflamme code
+% (See~\cite{arvind:2004:nonstabilizer} for this connection).
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,bibdata} 
+
+%\newpage
+%\appendix
+
+\end{document}
+
+

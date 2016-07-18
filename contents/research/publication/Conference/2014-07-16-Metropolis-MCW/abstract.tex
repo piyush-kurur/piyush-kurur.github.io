@@ -1,0 +1,26 @@
+\documentclass[12pt]{article}
+\title{Performance of Metropolis Algorithm for the Minimum Weight Codeword Problem}
+\begin{document}
+\maketitle 
+
+We study the performance of the Metropolis algorithm for the problem
+of finding a code word of weight less than or equal to $\ell$, given a
+generator matrix of a binary linear code. The algorithm uses as its
+search space, the set of all generator matrices of the code. Let
+$\mathrm{wt}(g)$ denote the Hamming weight of a code word $g$. We use
+the following cost function: the cost $c(G)$ associated with the
+generator matrix $G$ is the minimum of $\mathrm{wt}(g)^\alpha$, where
+$g$ varies over the rows of $G$ and $\alpha$ is a positive constant.
+We prove that the associated Markov chains mix rapidly for
+temperatures $T$ greater than or equal to $n^\alpha$, where $n$ is the
+block length. Therefore, the algorithm will find a code word of length
+less that $\ell$ if the probability $p_\ell$ of such a code word is
+high in the stationary distribution. Since a good bound for $p_\ell$
+is difficult to estimate, to understand the algorithm's performance,
+we experiment with various settings of the temperature parameter $T$
+and the exponent $\alpha$ in the cost function, for certain BCH codes
+and full dimensional codes. The Metropolis algorithm performed very
+well in comparison to previously known experimental results which had
+used certain other search heuristics.
+
+\end{document}

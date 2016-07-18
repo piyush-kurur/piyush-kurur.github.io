@@ -1,0 +1,69 @@
+For $1\leq m\leq n$, the pseudo-Boolean function~\jumpm is defined as follows. For $\mathbf{x}\in\{0,1\}^n$,
+
+\begin{equation}
+\jumpm(\mathbf{x}):=\begin{cases}
+2n-\onemax(\mathbf{x}), & \text{if } \onemax(\mathbf{x}) \geq m \\
+\onemax(\mathbf{x}), & \text{if } 0 < \onemax(\mathbf{x}) < m \\
+2n, & \text{if } x=(0,\ldots,0)
+\end{cases}
+\end{equation}
+
+The function has a unique maximum in~$(0,\ldots,0)$, but has small fitness in a region around this point. Therefore, typically a RSH will have to jump to the optimum. This problem has been analyzed by Droste, Jansen, and Wegener in order to show that a wide variance of optimization times can occur.
+
+\begin{theorem}\label{thm:jumpclassic}
+Let $m> 1$. The expected optimization times of the (1+1)~EA and the (1+1)~EA for maximizing \jumpm are in~$\Theta(n^m)$.
+
+Asymptotically almost surely, RLS and RLS$^*$ will never find the maximum of \jumpm.
+\end{theorem}
+\begin{proof}
+In \cite{djwea02}, Droste, Jansen, and Wegener prove the result for the (1+1)~EA. However, for any two search points $\mathbf{x}$ and $\mathbf{y}$ with the same number of $1$-bits, the problem is symmetric with respect to $\mathbf{x}$ and $\mathbf{y}$. I.e., there is a fitness-invariant automorphism of the space mapping $\mathbf{x}$ to $\mathbf{y}$. Therefore, the expected optimization time is the same for $\mathbf{x}$ and $\mathbf{y}$. So the expected running time is equal for the (1+1)~EA and the (1+1)~EA$^*$, and the statement for the (1+1)~EA$^*$ follows.
+
+The statements for RLS and RLS$^*$ are obvious because the only fitness-increasing paths ending in the optimum start either in the optimum itself or in a search point of Hamming weight $1$. Since the sequence of search points will be such a path, the algorithm can only find the optimum if it starts either in the optimum itself or in a point of Hamming weight $1$. By the Chernoff bound, the probability for this event is exponentially small as $n\rightarrow \infty$.
+\end{proof}
+
+
+In Section~\ref{sec:qrsh} we have seen that a QSH can achieve at most a quadratic speed-up over an RSH. We find that for \jumpm, the conservative algorithm gains the whole quadratic speed-up (for $m>2$) while the progressive one is hardly better than its classic version. The reason is that in the conservative setting there is one very hard step (the jump) with no easy alternatives, whereas in the progressive version the algorithm is allowed to make easy moves along the boundary of the gap. Note that for the classical algorithms, there is no difference between the conservative and the progressive selection strategy.
+
+\begin{theorem}
+Let $m > 1$.
+
+The expected optimization time of the (1+1)~QEA$^*$ for maximizing \jumpm is in~$\Theta(n^{m-\nicefrac{1}{2}})$.
+
+The expected optimization time of the (1+1)~QEA for maximizing \jumpm is in~$\Theta(n^{m/2})$, where $c$ is the same constant as in Theorem~\ref{thm:jumpclassic}.
+
+With probability tending to $1$ as $n \to \infty$, QLS and QLS$^*$ will never find the maximum of \jumpm.
+\end{theorem}
+
+\begin{proof}
+The statements for QLS and QLS$^*$ follow directly from the statements for RLS and RLS$^*$, because the classical algorithm will find the optimum if and only if the quantum algorithm does.
+
+For the (1+1)~QEA and (1+1)~QEA$^*$, we divide the run of the algorithms into three phases, some of which may be empty. In the first phase, the fitness is at most $n$. In the second phase, the fitness is strictly larger than $n$, but strictly smaller than $2n-m$. In the third phase, the fitness is at least $2n-m$. 
+
+We claim that the problem of leaving the first phase is strictly easier than the problem of maximizing \onemax. In fact, consider the auxiliary problem where all search points $\mathbf{x}$ with $0 < \onemax(\mathbf{x}) < m$ have the same fitness as in \jump, but all other search points have fitness $2n$. Then the problem of leaving the first phase for \jump is the same as finding a global maximum of the auxiliary problem. On the other hand, the auxiliary problem is identical with the problem \onemax except that a larger sets of points are global maxima.
+
+So the problem of leaving the first phase is indeed easier than \onemax. By Theorem~\ref{thm:onemaxclassic}, the algorithm will in expectation spend at most linear time in the first phase.
+
+Similarly, it is easy to see that the algorithm will in expectation spend at most linear time in the second phase.
+
+
+For the third phase, we distinguish between the (1+1)~QEA and the (1+1)~QEA$^*$. First we look at the (1+1)~QEA. Given a search point $\mathbf{x}$ of Hamming weight $m$, it will accept any other search point of Hamming weight $m$. The probability that the mutation operator produces such a search point is in $\Theta(m/n) = \Theta(1/n)$ by Lemma~\ref{lem:MovingAlongLayer}, since $m$ is constant. On the other hand, the probability that the mutation operator yields the optimum is in $\Theta(n^{-m})$. Therefore, the probability to jump to the optimum subject to the condition that we accept the search point is
+\begin{eqnarray*}
+\Prob\left(\MutOp(\mathbf{x}) = (0,\ldots,0) \mid \jumpm(\MutOp(\mathbf{x})) \leq m \right)
+&  \in &
+\Theta\left(\frac{n^{-m}}{1/n}\right) \\
+&=& \Theta\left(n^{-(m-1)}\right).
+\end{eqnarray*}
+So we expect to visit $\Theta(n^{m-1})$ search points in the third phase. Since the transition probability is $p_k = \Theta(1/n)$, we obtain as estimated optimization time for the third phase
+\[
+\TQSH^{(3)}=\sum_{k_0 \le k\le K}p_k^{-\nicefrac{1}{2}} = \Theta\left(n^{m-1}p_k^{-\nicefrac{1}{2}}\right) = \Theta\left(n^{m-\nicefrac{1}{2}}\right) ,
+\]
+where $k_0$ is the index of the first search point in the third phase.
+
+Since the other phases took at most linear time, for $m>1$ the optimization time of the (1+1)~QEA is dominated by the third phase and is in $\Theta\left(n^{m-\nicefrac{1}{2}}\right)$.
+
+Now let us turn to the (1+1)~QEA$^*$. Given a search point $\mathbf{x}$ of Hamming weight $m$, it will accept only the optimum as its next search point. As for the (1+1)~QEA, the probability that the mutation operator yields this search point is in $\Theta(n^{-m})$. Hence, $p_k = \Theta(n^{-m})$, and the estimated optimization time for the third phase is
+\[
+\TQSH^{(3)}=p_k^{-\nicefrac{1}{2}} = \Theta\left(n^{m/2}\right).
+\]
+Since the other phases took at most linear time, for $m>1$ the optimization time of the (1+1)~QEA$^*$ is dominated by the third phase and is in $\Theta\left(n^{m/2}\right)$.
+\end{proof}

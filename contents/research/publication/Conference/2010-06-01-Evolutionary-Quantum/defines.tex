@@ -1,0 +1,138 @@
+%\usepackage[obey]{fixacm}
+
+\usepackage[T1]{fontenc}
+\usepackage{color,graphicx}
+%\usepackage{amsmath,amsthm,amssymb,amsfonts}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{nicefrac}
+\usepackage{enumerate}
+\usepackage{xspace}
+\usepackage{url}\urlstyle{rm}
+%\usepackage[colorlinks]{hyperref}
+\definecolor{linkblue}{rgb}{0.2,0.2,0.8}
+\definecolor{ppkgreen}{rgb}{0,0.7,0.4}
+
+
+%\hypersetup{
+%  colorlinks = false,
+%}
+
+%  urlcolor = linkblue,
+%  linkcolor=linkblue,
+%  filecolor=linkblue,
+%  citecolor=linkblue,
+
+%  pdfauthor = {\@author},
+%  pdfkeywords = {computer science, theory, quantum algorithm, randomized search heuristic, evolutionary computation, runtime analysis},
+%  pdftitle = {\@title}
+%  pdfsubject = {\@author: \@title}
+%  pdfpagemode = UseNone
+
+
+
+\newcommand{\splitpages}{}
+%\newcommand{\splitpages}{\newpage}
+
+\renewcommand{\arraystretch}{1.3}
+
+% Comments, Margins, etc
+\newcommand{\ignore}[1]{}
+
+%\newcommand{\comment}[1]{}
+\newcommand{\comment}[1]{{\bf [#1]}}
+%\newcommand{\comment}[1]{\mbox{}\smash{\makebox[0pt]{\raisebox{1.2ex}{$\blacktriangledown$}}}\marginpar{\raggedright\scriptsize{\makebox[0pt][r]{{$\blacktriangledown\,$}}#1}}}
+
+%\newcommand{\daniel}[1]{\comment{\textcolor{blue}{#1}}}
+%\newcommand{\johannes}[1]{\comment{\textcolor{red}{#1}}}
+%\newcommand{\piyush}[1]{\comment{\textcolor{ppkgreen}{#1}}}
+%\newcommand{\todo}[1]{\comment{#1}}
+\newcommand{\daniel}[1]{}
+\newcommand{\johannes}[1]{}
+\newcommand{\piyush}[1]{}
+\newcommand{\todo}[1]{}
+
+
+% References
+\newcommand{\sref}[1]{Section~\ref{#1}}
+\newcommand{\tref}[1]{Theorem~\ref{#1}}
+\newcommand{\lref}[1]{Lemma~\ref{#1}} 
+\newcommand{\cref}[1]{Corollary~\ref{#1}}
+\newcommand{\pref}[1]{Proposition~\ref{#1}} 
+\newcommand{\fref}[1]{Figure~\ref{#1}}
+\newcommand{\eref}[1]{Equation~\ref{#1}}
+\newcommand{\dref}[1]{Definition~\ref{#1}}
+
+% Theorem environment
+\numberwithin{equation}{section}
+\newtheorem{algorithm}{Algorithm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conjecture}{Conjecture}
+
+% clrscode environment
+\newlength{\mpwidth}%
+\setlength{\mpwidth}{\linewidth}%
+\addtolength{\mpwidth}{-7.5mm}%
+\addtolength{\mpwidth}{-1.25pt}%
+\newcommand{\code}[1]{{%
+  \begin{center}%
+    \psframebox[linecolor=black,boxsep=true,framesep=3mm,framearc=.1]{
+      \begin{minipage}{\mpwidth}\vspace{-2ex}
+        \begin{codebox}%
+        #1      
+        \end{codebox}%
+      \end{minipage}%
+    }%
+  \end{center}%
+}}
+
+% Mathematic abbreviations
+\newcommand{\RSet}{\ensuremath{\mathbb{R}}\xspace}
+\newcommand{\ZSet}{\ensuremath{\mathbb{Z}}\xspace}
+\newcommand{\NSet}{\ensuremath{\mathbb{N}}\xspace}
+\newcommand{\euler}{\ensuremath{\mathrm{e}}\xspace}
+
+
+\newcommand{\BigOh}[1]{\ensuremath{O\left(#1\right)}}
+\newcommand{\Oh}{\ensuremath{{O}}} %% Big-Oh-Notation
+\newcommand{\oh}{\ensuremath{{o}}} %% Small-oh-Notation
+\newcommand{\Prob}{\ensuremath{\mathrm{Prob}}}
+\newcommand{\EXP}{\ensuremath{\operatorname{E}}}
+
+
+
+\newcommand{\rsh}{RSH\xspace} 
+\newcommand{\ooea}{(1+1)~EA\xspace} 
+\newcommand{\ea}{EA\xspace}
+\newcommand{\rls}{RLS\xspace} 
+\newcommand{\qrsh}{QSH\xspace} 
+\newcommand{\qrls}{QLS\xspace}
+\newcommand{\qea}{QEA\xspace} 
+\newcommand{\qooea}{(1+1)~\qea}
+
+% Pseudo-Boolean functions
+\newcommand{\onemax}{\textsc{OneMax}\xspace}
+\newcommand{\binval}{\textsc{BinaryValue}\xspace}
+\newcommand{\needle}{\textsc{Needle}\xspace}
+\newcommand{\leadingones}{\textsc{LeadingOnes}\xspace}
+\newcommand{\discrepancy}{\textsc{Disc}\xspace}
+\newcommand{\alternation}{\textsc{Alternation}\xspace}
+
+\newcommand{\ket}[1]{\ensuremath{\left\vert #1 \right\rangle}}
+\newcommand{\bra}[1]{\ensuremath{\left\langle #1 \right\vert}}
+\newcommand{\bracket}[2]{\ensuremath{\left\langle #1 \vert #2 \right\rangle}}
+\newcommand{\SCal}[0]{\ensuremath{\mathcal{S}}\xspace}
+%\newcommand{\TQ}[0]{\ensuremath{T_{\mathrm{QSH}}}\xspace}
+\newcommand{\TQSH}[0]{\ensuremath{T_{\mathrm{QSH}}}\xspace}
+\newcommand{\TE}[0]{\ensuremath{T_{\mathrm{E}}}\xspace}
+%\newcommand{\TOPT}[0]{\ensuremath{T_{\mathrm{OPT}}}\xspace
+\newcommand{\TOPT}[0]{\ensuremath{T}\xspace}
+%\newcommand{\TCL}[0]{\ensuremath{T_{\mathrm{RSH}}}\xspace}
+\newcommand{\TRSH}[0]{\ensuremath{T_{\mathrm{RSH}}}\xspace}
+\newcommand{\MutOp}[1]{\ensuremath{\textsc{mut}\left(#1\right)}}
+\newcommand{\Tmax}[0]{\ensuremath{T_{\mathrm{max}}}\xspace}

@@ -1,0 +1,1298 @@
+\documentclass[11pt]{article}
+\bibliographystyle{alpha}
+
+\usepackage{todonotes}
+
+\usepackage{fullpage}
+% Uncomment this when debuging labels. This will display labels
+% citations etc when they are refered. Which makes some debuggin
+% easier. Comment it for the final version.
+
+%\usepackage{showkeys}
+\input{preamble}
+\renewcommand{\R}{\mathcal{R}} %these two are very specific to thsi
+\renewcommand{\F}{\mathcal{F}} %file. was just lazy
+
+\newcommand{\mr}{\mathcal{M}_\mathcal{R}} %M_r
+
+\title{Fast Integer Multiplication Using Modular Arithmetic \footnote{A preliminary version appeared in the proceedings of the 40th ACM Symposium on Theory of Computing, 2008.}}
+\author{Anindya De\thanks{Research done while the author was at the Dept
+    of Computer Science and Engineering, IIT Kanpur}\\
+  Computer Science Division\\
+  University of California at Berkeley\\
+  Berkeley, CA 94720, USA\\
+  {\tt anindya@eecs.berkeley.edu}\\
+  %
+  \and
+  Piyush P Kurur%
+  \thanks{Research supported through Research I Foundation project
+    NRNM/CS/20030163},\\ %
+  Dept. of Computer Science and Engineering\\%
+  Indian Institute of Technology Kanpur\\%
+  Kanpur, UP, India, 208016\\
+  {\tt ppk@cse.iitk.ac.in}\\%
+  \and%
+  Chandan Saha\\%
+  Dept. of Computer Science and Engineering\\%
+  Indian Institute of Technology Kanpur\\%
+  Kanpur, UP, India, 208016\\%
+  {\tt csaha@cse.iitk.ac.in}%
+  \and  Ramprasad Saptharishi%
+  \thanks{Research done while visiting IIT Kanpur %
+    under Project FLW/DST/CS/20060225}\\%
+  Chennai Mathematical Institute\\%
+  Plot H1, SIPCOT IT Park\\%
+  Padur PO, Siruseri, India, 603103\\%
+  {\tt ramprasad@cmi.ac.in}
+}
+
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We give an $N\cdot \log N\cdot 2^{O(\log^*N)}$ time algorithm to
+multiply two $N$-bit integers that uses modular arithmetic for
+intermediate computations instead of arithmetic over complex numbers
+as in F\"{u}rer's algorithm, which also has the same and so far the
+best known complexity. The previous best algorithm using modular
+arithmetic (by Sch{\"{o}}nhage and Strassen) has complexity $O(N \cdot
+\log N \cdot \log\log N)$. The advantage of using modular arithmetic
+as opposed to complex number arithmetic is that we can completely
+evade the task of bounding the truncation error due to finite
+approximations of complex numbers, which makes the analysis relatively
+simple. Our algorithm is based upon F\"{u}rer's algorithm, but uses
+FFT over multivariate polynomials along with an estimate of the least
+prime in an arithmetic progression to achieve this improvement in the
+modular setting. It can also be viewed as a $p$-adic version of
+F\"{u}rer's algorithm.
+\end{abstract}
+
+\section{Introduction}
+
+Computing the product of two $N$-bit integers is nearly a ubiquitous
+operation in algorithm design. Being a basic arithmetic operation, it
+is no surprise that multiplications of integers occur as intermediate
+steps of computation in algorithms from every possible domain of
+computer science. But seldom do the complexity of such multiplications
+influence the overall efficiency of the algorithm as the integers
+involved are relatively small in size and the multiplications can
+often be implemented as fast hardware operations. However, with the
+advent of modern cryptosystems, the study of the bit complexity of
+integer multiplication received a significant impetus. Indeed, large
+integer multiplication forms the foundation of many modern day
+public-key crystosytems, like RSA, El-Gamal and Elliptic Curve
+crytosystems. One of the most notable applications is the RSA
+cryptosystem, where it is required to multiply two primes that are
+hundreds or thousands of bits long. The larger these primes the harder
+it is to factor their product, which in turn makes the RSA extremely
+secure in practice.
+
+In this paper, our focus is more on the theoretical aspects of integer
+multiplication, it being a fundamental problem in its own right. This
+is to say, we will be concerned with the asymptotic bit complexity of
+mutiplying two $N$-bit integers with little emphasis on optimality in
+practice. We begin with a brief account of earlier work on integer
+multiplication algorithms.
+
+\subsection{Previous Work}
+
+The naive approach to multiply two $N$-bit integers leads to an
+algorithm that uses $O(N^2)$ bit operations. Karatsuba \cite{K63}
+showed that some multiplication operations of such an algorithm can be
+replaced by less costly addition operations which reduces the overall
+running time of the algorithm to $O(N^{\log_23})$ bit
+operations. Shortly afterwards, this result was improved by Toom
+\cite{T63} who showed that for any $\varepsilon>0$, integer
+multiplication can be done in $O(N^{1+\varepsilon})$ time. This led to
+the question as to whether the time complexity can be improved further
+by replacing the term $O(N^{\epsilon})$ by a poly-logarithmic
+factor. In a major breakthrough, Sch\"{o}nhage and
+Strassen~\cite{SS71} gave two efficient algorithms for multiplying
+integers using fast polynomial multiplication. One of the algorithms
+achieved a running time of $O(N\cdot \log N\cdot \log\log N\ldots
+2^{O(\log^*N)})$ using arithmetic over complex numbers (approximated
+to suitable precisions), while the other used arithmetic modulo
+carefully chosen integers to improve the complexity further to
+$O(N\cdot \log N\cdot \log\log N)$ bit operations. The modular
+algorithm remained the best for a long period of time until a recent
+remarkable result by F\"{u}rer \cite{F07} (see also
+\cite{F09}). F\"{u}rer gave an algorithm that uses arithmetic over
+complex numbers and runs in $N\cdot\log N\cdot 2^{O(\log^\ast N)}$
+time. Till date this is the best time complexity known for integer
+multiplication and indeed our result is inspired by F\"{u}rer's
+algorithm.
+
+Further details on other approaches and enhancements to previous
+integer multiplication algorithms can be found in \cite{F09}.
+
+\subsection{The Motivation}
+
+Sch\"{o}nhage and Strassen introduced two seemingly different
+approaches to integer multiplication -- using complex and modular
+arithmetic. F\"{u}rer's algorithm improves the time complexity in the
+complex arithmetic setting by cleverly reducing some costly
+multiplications to simple shift operations. However, the algorithm
+needs to approximate the complex numbers to certain precisions during
+computation. This introduces the added task of bounding the total
+truncation errors in the analysis of the algorithm. On the contrary,
+in the modular setting the error analysis is virtually absent or
+rather more implicit, which in turn simplifies the overall
+analysis. In addition, modular arithmetic gives a discrete approach to
+a discrete problem like integer multiplication. Therefore, it seems
+natural to ask whether we can achieve a similar improvement in time
+complexity of this problem in the modular arithmetic setting. In this
+work, we answer this question affirmatively. We give an $N\cdot
+\log{N}\cdot 2^{O(\log^{*}{N})}$ time algorithm for integer
+multiplication using only modular arithmetic, thus matching the
+improvement made by F\"{u}rer.
+
+\subsection*{Overview of our result}
+
+As is the case in both Sch\"{o}nhage-Strassen's and F\"{u}rer's
+algorithms, we start by reducing the problem to polynomial
+multiplication over a ring $\mathcal{R}$ by properly encoding the
+given integers. Polynomials can be multiplied efficiently using
+Discrete Fourier Transforms (DFT). However, in order that we are able
+to use Fast Fourier Transform (FFT), the ring $\mathcal{R}$ should
+have some special roots of unity. For instance, to multiply two
+polynomials of degree less than $M$ using FFT, we require a
+\emph{principal} $2M$-th root of unity (see
+Definition~\ref{def-principal-root} for principal roots). One way to
+construct such a ring in the modular setting is to consider rings of
+the form $\mathcal{R} = \Z/(2^M + 1) \Z$ as in Sch\"{o}nhage and
+Strassen's work ~\cite{SS71}. In this case, the element $2$ is a
+$2M$-th principal root of unity in $\mathcal{R}$. This approach can be
+equivalently viewed as attaching an `artificial' root to the ring of
+integers. However, this makes the size of $\mathcal{R}$ equal to $2^M$
+and thus a representation of an arbitrary element in $\mathcal{R}$
+takes $M$ bits. This means an $N$-bit integer is encoded as a
+polynomial of degree $M$ with every coefficient about $M$ bits long,
+thereby making $M \approx \sqrt{N}$ as the optimal choice. Indeed, the
+choice of such an $\mathcal{R}$ is the basis of Sch\"{o}nhage and
+Strassen's modular algorithm in which they reduce multiplication of
+$N$-bit integers to multiplication of $\sqrt{N}$-bit integers and
+achieve a complexity of $O(N \cdot \log N \cdot \log \log N)$ bit
+operations.
+
+Naturally, such rings are a little too expensive in our setting. We
+would rather like to find a ring whose size is bounded by some
+polynomial in $M$ and which still contains a principal $2M$-th root of
+unity. In fact, it is this task of choosing a suitable ring that poses
+the primary challenge in adapting F\"{u}rer's algorithm and making it
+work in the discrete setting.
+
+We choose the ring to be $\mathcal{R} = \Z/p^c\Z$, for a prime $p$ and
+a constant $c$ such that $p^c = \mathsf{poly}(M)$. The ring
+$\Z/p^c\Z$, has a principal $2M$-th root of unity if and only if $2M$
+divides $p-1$, which means that we need to find a prime $p$ from the
+arithmetic progression $\inbrace{1 + i\cdot 2M}_{i>0}$. To make this
+search computationally efficient, we also need the degree of the
+polynomials, $M$ to be sufficiently small. This we can achieve by
+encoding the integers as multivariate polynomials instead of
+univariate ones. It turns out that the choice of the ring as
+$\mathcal{R} = \Z/p^c\Z$ is still not quite sufficient and needs a
+little more refinement. This is explained in Section \ref{sec:ring}.
+
+The use of multivariate polynomial multiplications along with a small
+base ring are the main steps where our algorithm differs from earlier
+algorithms by Sch\"{o}nhage-Strassen and F\"{u}rer. Towards
+understanding the notion of \emph{inner} and \emph{outer} DFT in the
+context of multivariate polynomials, we also present a group theoretic
+interpretation of DFT. The use of inner
+and outer DFT plays a central role in both F\"{u}rer's as well as our
+algorithm. Arguing along the line of F\"{u}rer \cite{F07}, we show that
+repeated use of efficient computation of inner DFT's using some
+special roots of unity in $\mathcal{R}$ reduces the number of
+`bad multiplications' (in comparison to Sch\"{o}nhage-Strassen's algorithm)
+and makes the overall process efficient, thereby leading to an $N\cdot \log{N}\cdot 2^{O(\log^{*}{N})}$
+time algorithm.
+
+
+\section{The Basic Setup}
+
+\subsection{The Underlying Ring} \label{sec:ring}
+
+Rings of the form $\mathcal{R} = \Z/(2^M + 1) \Z$ have the nice
+property that multiplications by powers of $2$, the $2M$-th principal
+root of unity, are mere shift operations and are therefore very
+efficient. Although by choosing the ring $\mathcal{R} = \Z/p^c\Z$ we
+ensure that the ring size is small, it comes with a price:
+multiplications by principal roots of unity are no longer just shift
+operations. Fortunately, this can be redeemed by working with rings of
+the form $\mathcal{R} = \Z[\alpha]/(p^c, \alpha^m + 1)$ for some $m$
+whose value will be made precise later. Elements of $\mathcal{R}$ are
+thus $m-1$ degree polynomials over $\alpha$ with coefficients from
+$\Z/p^c\Z$. By construction, $\alpha$ is a $2m$-th root of unity and
+multiplication of any element in $\mathcal{R}$ by any power of
+$\alpha$ can be achieved by shift operations --- this property is
+crucial in making some multiplications in the FFT less costly (see
+Section~\ref{fourier_analysis}).
+
+Given an $N$-bit number $a$, we encode it as a $k$-variate polynomial
+over $\mathcal{R}$ with degree in each variable less than $M$. The
+parameters $M$ and $m$ are powers of two such that $M^k$ is roughly
+$\frac{N}{\log^2N}$ and $m$ is roughly $\log{N}$. The parameter $k$
+will ultimately be chosen a constant (see Section
+\ref{complexity_section}). We now explain the details of this encoding
+process.
+
+\subsection{Encoding Integers into $k$-variate
+  Polynomials}\label{encoding_section}
+
+Given an $N$-bit integer $a$, we first break these $N$ bits into $M^k$
+blocks of roughly $\frac{N}{M^k}$ bits each. This corresponds to
+representing $a$ in base $q = 2^{\frac{N}{M^k}}$.  Let $a = a_0 +
+\ldots + a_{M^k-1}q^{M^k - 1}$, where every $a_i < q$. The number $a$
+is converted into a polynomial as follows:
+\begin{enumerate}
+\item Express $i$ in base $M$ as $i = i_1 + i_2M + \cdots +
+  i_kM^{k-1}$. \label{base_M_item}
+\item Encode each term $a_iq^i$ as the monomial $a_i\cdot
+  X_1^{i_1}X_2^{i_1}\cdots X_k^{i_k}$. As a result, the number $a$
+  gets converted to the polynomial $\sum_{i=0}^{M^k - 1}
+  a_i\cdot X_1^{i_1}\cdots X_k^{i_k}$.
+\end{enumerate}
+
+Further, we break each $a_i$ into $\frac{m}{2}$ equal sized blocks
+where the number of bits in each block is $u = \frac{2N}{M^k\cdot m}$.
+Each coefficient $a_i$ is then encoded as a polynomial in $\alpha$ of
+degree less than $\frac{m}{2}$. The polynomials are then padded with
+zeroes to stretch their degrees to $m$. Thus, the $N$-bit number $a$
+is converted to a $k$-variate polynomial $a(X)$ over
+$\Z[\alpha]/(\alpha^m + 1)$.\\
+
+Given integers $a$ and $b$, each of $N$ bits, we encode them as
+polynomials $a(X)$ and $b(X)$ and compute the product polynomial. The
+product $a\cdot b$ can be recovered by substituting $X_s =
+q^{M^{s-1}}$, for $1\leq s\leq k$, and $\alpha = 2^u$ in the
+polynomial $a(X)\cdot b(X)$.  The coefficients in the product
+polynomial could be as large as $M^k\cdot m\cdot 2^{2u}$ and hence it
+is sufficient to do arithmetic modulo $p^c$ where $p^c > 2M^k\cdot
+m\cdot 2^{2u}$. Our choice of
+the prime $p$ ensures that $c$ is in fact a constant (see
+Section~\ref{complexity_section}). We summarize this discussion as a lemma.
+
+\begin{lemma}\label{lem:encoding-time}
+  Multiplication of two $N$-bit integers reduces to
+  multiplication of two $k$-variate polynomials, with degree in each
+  variable bounded by $M$, over the ring $\Z[\alpha]/(p^c,\alpha^m +
+  1)$ for a prime $p$ satisfying $p^c > 2M^k\cdot m \cdot 2^{2u}$,
+  where $u=\frac{2N}{M^km}$. Furthermore, the reduction can be
+  performed in $O(N)$ time.
+\end{lemma}
+
+
+\subsection{Choosing the Prime}\label{prime_section}
+
+The prime $p$ should be chosen such that the ring $\Z/p^c\Z$ has a
+\emph{principal} $2M$-th root of unity, which is required for
+polynomial multiplication using FFT. A principal root of unity is
+defined as follows.
+
+\begin{definition}\label{def-principal-root}
+\emph{\textsf{(Principal root of unity)}} An $n$-th root of unity
+$\zeta\in \mathcal{R}$ is said to be primitive if it generates a
+cyclic group of order $n$ under multiplication. Furthermore, it is
+said to be principal if $n$ is coprime to the characteristic of
+$\mathcal{R}$ and $\zeta$ satisfies $\sum_{i=0}^{n-1}\zeta^{ij}=0$ for
+all $0< j < n$.
+\end{definition}
+
+\noindent
+In $\Z/p^c\Z$, a $2M$-th root of unity is principal if and only if
+$2M\mid p-1$ (see also Section~\ref{Qp_section}). As a result, we need
+to choose the prime $p$ from the arithmetic progression $\inbrace{1 +
+  i\cdot 2M}_{i> 0}$, which is potentially the main bottleneck of our
+approach. We now explain how to circumvent this problem. \\
+
+
+An upper bound for the least prime in an arithmetic progression is
+given by the following theorem by Linnik \cite{L44}:
+
+\begin{theorem}\label{linnik_theorem}
+\emph{\textsf{(Linnik)}} There exist absolute constants $\ell$ and $L$
+such that for any pair of coprime integers $d$ and $n$, the least
+prime $p$ such that $p\equiv d\bmod{n}$ is less than $\ell n^L$.
+\end{theorem}
+
+Heath-Brown \cite{B92} showed that the \emph{Linnik constant} $L\leq
+5.5$ (a recent work by Xylouris \cite{X09} showed that $L \leq
+5.2$). Recall that $M$ is chosen such that $M^k$ is
+$O\inparen{\frac{N}{\log^2N}}$. If we choose $k=1$, that is if we use
+univariate polynomials to encode integers, then the parameter $M =
+O\inparen{\frac{N}{\log^2N}}$. Hence the least prime $p\equiv
+1\pmod{2M}$ could be as large as $N^L$. Since all known deterministic
+sieving procedures take at least $N^L$ time this is clearly infeasible
+(for a randomized approach see Section~\ref{ERH_section}). However, by
+choosing a larger $k$ we can ensure that the least prime $p\equiv
+1\pmod{2M}$ is $O(N^\varepsilon)$ for some constant $\varepsilon <
+1$. Since primality testing is in deterministic polynomial\footnote{a
+  subexponential algorithm would suffice} time\cite{AKS04}, we can find the least prime $p\equiv 1 \pmod{2M}$ in $o(N)$
+time.
+
+
+\begin{lemma}\label{prime_time}
+If $k$ is any integer greater than $L+1$, then $M^L =
+O\inparen{N^{\frac{L}{L+1}}}$ and hence the least prime $p\equiv
+1\pmod{2M}$ can be found in $o(N)$ time.
+\end{lemma}
+
+\subsubsection*{Choosing the Prime Randomly}\label{ERH_section}
+
+To ensure that the search for a prime $p\equiv 1\pmod{2M}$ does not
+affect the overall time complexity of the algorithm, we considered
+multivariate polynomials to restrict the value of $M$; an alternative
+is to use randomization.
+
+\begin{proposition} \label{prop:randomprime}
+Assuming ERH, a prime $p\equiv 1\pmod{2M}$ can be computed by a
+randomized algorithm with expected running time $\tilde{O}(\log^3 M)$.
+\end{proposition}
+\begin{proof}
+Titchmarsh \cite{Titchmarsh} (see also Tianxin \cite{Tianxin})
+showed, assuming ERH, that the number of primes less than $x$ in the
+arithmetic progression $\{ 1 + i \cdot 2M\}_{i > 0}$ is given by,
+\begin{equation*}
+\pi(x,2M) = \frac{Li(x)}{\varphi(2M)} + O(\sqrt{x} \log x)
+\end{equation*}
+for $2M \leq \sqrt{x} \cdot (\log x)^{-2}$, where $Li(x) =
+\Theta(\frac{x}{\log x})$ and $\varphi$ is the Euler totient
+function. In our case, since $M$ is a power of two, $\varphi(2M) = M$,
+and hence for $x \geq 4M^2 \cdot \log^6 M$, we have $\pi(x, 2M) =
+\Omega\inparen{\frac{x}{M\log x}}$. Therefore, for an $i$ chosen
+uniformly randomly in the range $1 \leq i \leq 2M \cdot \log^6 M$, the
+probability that $i\cdot 2M + 1$ is a prime is at least $\frac{d}{\log
+  x}$ for a constant $d$. Furthermore, primality test of an $O(\log
+M)$ bit number can be done in $\tilde{O}(\log^2 M)$ time using
+Rabin-Miller primality test \cite{M76, R80}. Hence, with $x = 4M^2
+\cdot \log^6 M$, a suitable prime for our algorithm can be found in
+expected $\tilde{O}(\log^3 M)$ time.
+\end{proof}
+
+\noindent \textbf{Remark - } We prefer to use Linnik's theorem (Theorem
+\ref{linnik_theorem}) instead of Proposition \ref{prop:randomprime}
+while choosing the prime in the progression $\{ 1 + i \cdot 2M\}_{i > 0}$
+so as to make the results in this paper independent of the ERH and the usage
+of random bits.
+
+\subsection{Finding the Root of Unity}\label{root_section}
+
+We require a principal $2M$-th root of unity $\rho(\alpha)$ in
+$\mathcal{R}$ to compute the Fourier transforms. This root
+$\rho(\alpha)$ should also have the property that its
+$\inparen{\frac{M}{m}}$-th power is $\alpha$, so as to make some
+multiplications in the FFT efficient (see Section
+\ref{fourier_analysis}). The root $\rho(\alpha)$ can be computed by
+interpolation in a way similar to that in F\"{u}rer's algorithm
+\cite[Section 3]{F07}, except that we need a principal $2M$-th root of
+unity $\omega$ in $\Z/p^c\Z$ to start with.
+
+To obtain such a root, we first obtain a $2M$-th root of unity
+$\omega_1$ in $\Z/p\Z$. A generator $\zeta$ of $\mathbb{F}_p^{\times}$
+can be computed by brute force, as $p$ is sufficiently small, and
+$\omega_1 = \zeta^{(p-1)/2M}$ is a principal $2M$-th root of unity in $\Z/p\Z$.
+A principal $2M$-root of unity
+$\omega_1$ must be a root of the polynomial $f(x) = x^M+1$ in $\Z/p\Z$.  Having obtained $\omega_1$,
+we use Hensel Lifting \cite[Theorem 2.23]{Zuckerman}.
+
+\begin{lemma}[\textsf{Hensel Lifting}]
+  Let $\omega_s$ be a root of $f(x) = x^M + 1$ in $\Z/p^s\Z$. Then
+  there exists a unique root $\omega_{s+1}$ in $\Z/p^{s+1}\Z$ such
+  that $\omega_{s+1}\equiv \omega_s\pmod{p^s}$ and $f(\omega_{s+1}) =
+  0\pmod{p^{s+1}}$. This unique root is given by $\omega_{s+1} =
+  \omega_s - \frac{f(\omega_s)}{f'(\omega_s)}$.\end{lemma}
+
+%%% HANDLING TODO PRES 5
+
+\noindent
+It is clear from the above lemma that we can compute a $2M$-th root of
+unity $\omega = \omega_c$ in $\Z/p^c\Z$. We will need the following
+well-known and useful fact about principal roots of unity in any ring.
+
+\begin{lemma}\cite[Lemma 2.1]{F09}\label{lem:Furer-principal-root}
+  If $M$ is a power of $2$ and $\omega^{M} = -1$ in an arbitrary ring
+  $\mathcal{R}$. If $M$ is relatively prime to the characteristic of
+  $\mathcal{R}$, then $\omega$ is a principal $2M$-th root of unity in
+  $\mathcal{R}$.
+\end{lemma}
+
+\noindent
+Hence it follows that the root $\omega$ of $f(x) = x^M + 1$ in
+$\Z/p^c\Z$ is a principal $2M$-th root of unity in $\Z/p^c\Z$.
+Furthermore, $\zeta^{(p-1)/2M} = \omega_1 \equiv \omega\bmod p$. Since
+$\zeta$ is a generator of $\mathbb{F}_p^\times$, different powers of
+$\zeta$ must generate the group $\mathbb{F}_p^\times$ and hence must
+be distinct modulo $p$. Hence it follows that different powers of
+$\omega$ must be distinct modulo $p$ as well. Therefore, the
+difference between any two of them is a unit in $\Z/p^c\Z$ and this
+makes the following
+interpolation feasible in our setting. \\
+
+\paragraph{Finding $\rho(\alpha)$ from $\omega$:} Since $\omega$ is a
+principal $2M$-th root of unity, $\gamma = \omega^{\frac{2M}{2m}}$ is
+a principal $2m$-th root of unity in $\Z/p^c\Z$. Notice that,
+$\alpha^m + 1$ uniquely factorizes as, $\alpha^m + 1 = (\alpha -
+\gamma)(\alpha - \gamma^3) \ldots (\alpha - \gamma^{2m-1})$. The
+ideals generated by $(\alpha - \gamma^i)$ and $(\alpha - \gamma^j)$
+are mutually coprime as $\gamma^i -\gamma^j$ is a unit for $i\neq j$
+and is contained in the ideal generated by $(\alpha - \gamma^i)$ and
+$(\alpha - \gamma^j)$.  Therefore, using Chinese Remaindering,
+$\alpha$ has the direct sum representation $(\gamma, \gamma^3, \ldots,
+\gamma^{2m-1})$ in $\mathcal{R}$. Since we require
+$\rho(\alpha)^{\frac{2M}{2m}} = \alpha$, it is sufficient to choose a
+$\rho(\alpha)$ whose direct sum representation is $(\omega, \omega^3,
+\ldots, \omega^{2m-1})$. Now use Lagrange's formula to interpolate
+$\rho(\alpha)$ as,
+\begin{equation*}
+  \rho(\alpha) = \sum_{i=1, \text{ } i \text{ odd}}^{2m-1}{\omega^i \cdot \prod_{j=1, \text{ } j \neq i, \text{ } j \text{ odd}}^{2m-1}{\frac{\alpha - \gamma^j}{\gamma^i - \gamma^j}}}
+\end{equation*}
+The inverses of the elements $\gamma^i - \gamma^j$ in $\Z/p^c\Z$ can
+be easily computed in $\text{poly}(\log p)$ time. It is also clear
+that $\rho(\alpha)^M$, in the direct-sum representation, is
+$(\omega^M, \omega^{3M}, \cdots, \omega^{(2m -1)M})$ which is the element $-1$
+in $\R$. Hence $\rho(\alpha)$ is
+a principal $2M$-th root of unity (by Lemma~\ref{lem:Furer-principal-root}).\\
+
+Besides finding a generator $\zeta$ of $\Z/p\Z$ by brute-force (which
+can be performed in $O(p)$ time), all other computations can be done
+in $\text{poly}(\log p)$ time. We summarize this as a lemma.
+
+\begin{lemma}\label{lem:root-time}
+  A principal $2M$-th root of unity $\rho(\alpha)\in \R$ such that
+  $\rho(\alpha)^{2M/2m} = \alpha$ can be computed in deterministic
+  time $O(p \cdot \mathrm{poly}(\log(p)))$ (which is $o(N)$ if $p =
+  o(N)$).
+\end{lemma}
+
+% \subsection*{old}
+
+% We require a principal $2M$-th root of unity $\rho(\alpha)$ in
+% $\mathcal{R}$ to compute the Fourier transforms. This root
+% $\rho(\alpha)$ should also have the property that its
+% $\inparen{\frac{M}{m}}$-th power is $\alpha$, so as to make some
+% multiplications in the FFT efficient (see Section
+% \ref{fourier_analysis}). The root $\rho(\alpha)$ can be computed by
+% interpolation in a way similar to that in F\"{u}rer's algorithm
+% \cite[Section 3]{F07}, except that we need a principal $2M$-th root of
+% unity $\omega$ in $\Z/p^c\Z$ to start with. To obtain such a root, we
+% first obtain a $(p-1)$-th root of unity $\zeta$ in $\Z/p^c\Z$ by
+% lifting a generator of $\mathbb{F}_p^{\times}$. The
+% $\inparen{\frac{p-1}{2M}}$-th power of $\zeta$ gives us the required
+% $2M$-th root of unity $\omega$. A generator of $\mathbb{F}_p^{\times}$
+% can be computed by brute force, as $p$ is sufficiently small. Having
+% obtained a generator, we use Hensel Lifting \cite[Theorem
+%   2.23]{Zuckerman}.
+
+% \begin{lemma}[\textsf{Hensel Lifting}]
+% Let $\zeta_s$ be a primitive $(p-1)$-th root of unity in
+% $\Z/p^s\Z$. Then there exists a unique primitive $(p-1)$-th root of
+% unity $\zeta_{s+1}$ in $\Z/p^{s+1}\Z$ such that $\zeta_{s+1}\equiv
+% \zeta_s\pmod{p^s}$. This unique root is given by $\zeta_{s+1} =
+% \zeta_s - \frac{f(\zeta_s)}{f'(\zeta_s)}$ where $f(x) = x^{p-1} - 1$.
+% \end{lemma}
+
+% \noindent It can be shown that the root $\zeta$ in $\Z/p^c\Z$ thus
+% obtained by lifting is principal. Furthermore, different powers of
+% $\zeta$ are distinct modulo $p$. Therefore, the difference between any
+% two of them is a unit in $\Z/p^c\Z$ and this makes the following
+% interpolation feasible in our setting.
+
+% \paragraph{Finding $\rho(\alpha)$ from $\omega$:} Since
+% $\omega$ is a principal $2M$-th root of unity, $\gamma =
+% \omega^{\frac{2M}{2m}}$ is a principal $2m$-th root of unity in
+% $\Z/p^c\Z$. Notice that, $\alpha^m + 1$ uniquely factorizes as,
+% $\alpha^m + 1 = (\alpha - \gamma)(\alpha - \gamma^3) \ldots (\alpha -
+% \gamma^{2m-1})$, and the ideals generated by $(\alpha - \gamma^i)$ in
+% $\mathcal{R}$ are mutually coprime as $\gamma^i - \gamma^j$ is a unit
+% for $i \neq j$. Therefore, using Chinese Remaindering, $\alpha$ has
+% the direct sum representation $(\gamma, \gamma^3, \ldots,
+% \gamma^{2m-1})$ in $\mathcal{R}$. Since we require
+% $\rho(\alpha)^{\frac{2M}{2m}} = \alpha$, it is sufficient to choose a
+% $\rho(\alpha)$ whose direct sum representation is $(\omega, \omega^3,
+% \ldots, \omega^{2m-1})$. Now use Lagrange's formula to interpolate
+% $\rho(\alpha)$ as,
+% \begin{equation*}
+% \rho(\alpha) = \sum_{i=1, \text{ } i \text{ odd}}^{2m-1}{\omega^i \cdot \prod_{j=1, \text{ } j \neq i, \text{ } j \text{ odd}}^{2m-1}{\frac{\alpha - \gamma^j}{\gamma^i - \gamma^j}}}
+% \end{equation*}
+% The inverses of the elements $\gamma^i - \gamma^j$ can be easily computed in $\Z/p^c\Z$.
+
+\section{Fourier Transform}
+\subsection{Inner and Outer DFT} \label{sec:inoutDFT}
+
+Suppose that $a(x) \in \mathcal{S}[x]$ is a polynomial of degree less
+than $2M$, where $\mathcal{S}$ is a ring containing a $2M$-th principal
+root of unity $\rho$. Let us say that we want to compute the
+$2M$-point DFT of $a(x)$ using $\rho$ as the root of unity. In other
+words, we want to compute the elements $a(1), a(\rho), \ldots,
+a(\rho^{2M-1})$ is $\mathcal{S}$. This can be done in two steps.
+
+\paragraph{Step $1$:}
+Compute the following polynomials using $\alpha = \rho^{2M/2m}$.
+\begin{eqnarray*}
+a_0(x) &=& a(x) \mod (x^{2M/2m} - 1) \\
+a_1(x) &=& a(x) \mod (x^{2M/2m} - \alpha) \\
+			 &\vdots& \\
+a_{2m-1}(x) &=& a(x) \mod (x^{2M/2m} - \alpha^{2m-1}),
+\end{eqnarray*}
+where $\deg(a_j(x)) < \frac{2M}{2m}$ for all $0 \leq j < 2m$.
+
+\paragraph{Step $2$:}
+Note that, $a_j(\rho^{k \cdot 2m + j}) = a(\rho^{k \cdot 2m + j})$ for
+every $0 \leq j < 2m$ and $0 \leq k < \frac{2M}{2m}$. Therefore, all
+we need to do to compute the DFT of $a(x)$ is to evaluate the
+polynomials $a_j(x)$ at appropriate powers of $\rho$.\\
+
+\noindent The idea is to show that both Step $1$ and Step $2$ can be
+performed by computation of some `smaller' DFTs. Let us see how.
+
+\paragraph{Performing Step $1$:}
+The crucial observation here is the following. Fix an integer $\ell$
+in the range $[0, \frac{2M}{2m} - 1]$. Then the $\ell^{th}$
+coefficients of $a_0(x), a_1(x), \ldots, a_{2m-1}(x)$ are exactly
+$e_\ell(1), e_\ell(\alpha), \ldots, e_\ell(\alpha^{2m-1})$,
+respectively, where $e_\ell(y)$ is the polynomial,
+
+\begin{equation*}
+e_\ell(y) = \sum_{j=0}^{2m-1}{a_{j \cdot \frac{2M}{2m} + \ell} \cdot y^j}.
+\end{equation*}
+But then, finding $e_\ell(1), e_\ell(\alpha), \ldots,
+e_\ell(\alpha^{2m-1})$ is essentially computing the $2m$-point DFT of
+$e_\ell(y)$ using $\alpha$ as the $2m^{th}$ root of unity. Therefore,
+all we need to do to find $a_0(x), \ldots, a_{2m-1}(x)$ is to compute
+the DFTs of $e_\ell(y)$ for all $0 \leq \ell < \frac{2M}{2m}$. These
+$\frac{2M}{2m}$ many $2m$-point DFTs are called the \emph{inner} DFTs.
+
+\paragraph{Performing Step $2$:} In order to find $a_j(\rho^{k \cdot
+  2m + j})$, for $0 \leq k < \frac{2M}{2m}$ and a fixed $j$, we first
+compute the polynomial $\tilde{a}_j(x) = a_j(x \cdot \rho^j)$ followed
+by a $\frac{2M}{2m}$-point DFT of $\tilde{a}_j(x)$ using $\rho^{2m}$
+as the root of unity. These $2m$ many $\frac{2M}{2m}$-point DFTs ($j$
+running from $0$ to $2m - 1$) are called the \emph{outer} DFTs. The
+polynomials $\tilde{a}_j(x)$ can be computed by multiplying the
+coefficients of $a_j(x)$ by suitable powers of $\rho$. Such
+multiplications are termed as \emph{bad} multiplications (as they would result in recursive calls to integer
+multiplication). \\
+
+\noindent The above discussion is summarized in the following lemma.
+
+\begin{lemma} \label{lem:inoutDFT} \emph{\textsf{(DFT time = Inner
+      DFTs + Bad multiplications + Outer DFTs)}} \\ Time taken to
+  compute a $2M$-point DFT over $\mathcal{S}$ is sum of:
+\begin{enumerate}
+\item Time taken to compute $\frac{2M}{2m}$ many $2m$-point inner DFTs over $\mathcal{S}$ using $\alpha$ as the $2m$-th root of unity.
+\item Time to do $2M$ multiplications in $\mathcal{S}$ by powers of
+  $\rho$ (bad multiplications).
+\item Time taken to compute $2m$ many $\frac{2M}{2m}$-point outer DFTs over $\mathcal{S}$ using $\rho^{2m}$ as the $\frac{2M}{2m}$-th root of unity.
+\end{enumerate}
+\end{lemma}
+
+\subsection{Analysis of the FFT}\label{fourier_analysis}
+
+We are now ready to analyse the complexity of multiplying the two
+$k$-variate polynomials $a(X)$ and $b(X)$ (see Section
+\ref{encoding_section}) using Fast Fourier Transform. Treat $a(X)$ and
+$b(X)$ as univariate polynomials in variable $X_k$ over the ring
+$\mathcal{S} = \mathcal{R}[X_1, \ldots, X_{k-1}]$. We write $a(X)$ and
+$b(X)$ as $a(X_k)$ and $b(X_k)$, respectively, where $\deg(a(X_k))$
+and $\deg(b(X_k))$ are less than $M$. Multiplication of $a(X)$ and
+$b(X)$ can be thought of as multiplication of the univariates $a(X_k)$
+and $b(X_k)$ over $\mathcal{S}$. Also note that, the root
+$\rho(\alpha)$ (constructed in Section \ref{root_section}) is a
+primitive $2M$-th root of unity in $\mathcal{S} \supset
+\mathcal{R}$. Denote the multiplication complexity of $a(X_k)$ and
+$b(X_k)$ by $\mathcal{F}(2M, k)$.
+
+Multiplication of $a(X_k)$ and $b(X_k)$ using FFT involves computation
+of three $2M$-point DFTs over $\mathcal{S}$ and $2M$ pointwise (or
+componentwise) multiplications in $\mathcal{S}$. Let $\mathcal{D}(2M,
+k)$ be the time taken to compute a $2M$-point DFT over
+$\mathcal{S}$. By Lemma \ref{lem:inoutDFT}, the time to compute a DFT
+is the sum of the time for the inner DFTs, the bad multiplications and
+the outer DFTs. Let us analyse these three terms separately. We will
+go by the notation in Section \ref{sec:inoutDFT}, using $\mathcal{S} =
+\mathcal{R}[X_1, \ldots, X_{k-1}]$ and $\rho = \rho(\alpha)$.
+
+\paragraph{Inner DFT time:} Computing a $2m$-point DFT requires $2m
+\log (2m)$ additions in $\mathcal{S}$ and $m \log (2m)$
+multiplications by powers of $\alpha$. The important observation here
+is: since $\mathcal{R} = \Z[\alpha]/(p^c, \alpha^m + 1)$,
+multiplication by a power of $\alpha$ with an element in $\mathcal{R}$
+can be readily computed by simple cyclic shifts (with possible
+negations), which takes only $O(m \cdot \log p)$ bit operations. An
+element in $\mathcal{S}$ is just a polynomial over $\mathcal{R}$ in
+variables $X_1, \ldots, X_{k-1}$, with degree in each variable bounded
+by $M$. Hence, multiplication by a power of $\alpha$ with an element
+of $\mathcal{S}$ can be done using $\mathcal{N}_{\mathcal{S}} =
+O(M^{k-1} \cdot m \cdot \log p)$ bit operations. A total of $m \log
+(2m)$ multiplications takes $O(m \log m \cdot
+\mathcal{N}_{\mathcal{S}})$ bit operations. It is easy to see that $2m
+\log (2m)$ additions in $\mathcal{S}$ also require the same order of
+time.
+
+Since there are $\frac{2M}{2m}$ many $2m$-point DFTs, the total time
+spent in the inner DFTs is $O(2M \cdot \log m \cdot
+\mathcal{N}_{\mathcal{S}})$ bit operations.
+
+\paragraph{Bad multiplication time:}
+Suppose that two arbitrary elements in $\mathcal{R}$ can be multiplied
+using $\mathcal{M}_{\mathcal{R}}$ bit operations. Mulitplication in
+$\mathcal{S}$ by a power of $\rho$ amounts to $c_{\mathcal{S}} =
+M^{k-1}$ multiplications in $\mathcal{R}$. Since there are $2M$ such
+bad multiplications, the total time is bounded by $O(2M \cdot
+c_{\mathcal{S}} \cdot \mathcal{M}_{\mathcal{R}})$.
+
+\paragraph{Outer DFT time:}
+By Lemma \ref{lem:inoutDFT}, the total outer DFT time is $2m \cdot
+\mathcal{D}\left(\frac{2M}{2m}, k \right)$.
+
+\paragraph{Total DFT time:}Therefore, the net DFT time is bounded as,
+\begin{eqnarray*}
+\mathcal{D}(2M, k) &=& O\left(2M \cdot \log m \cdot \mathcal{N}_{\mathcal{S}} +
+  2M \cdot c_{\mathcal{S}} \cdot \mathcal{M}_{\mathcal{R}}\right) +
+2m \cdot \mathcal{D}\left(\frac{2M}{2m}, k\right) \\
+&=& O\left(2M \cdot \log m \cdot \mathcal{N}_{\mathcal{S}} +
+  2M \cdot c_{\mathcal{S}} \cdot \mathcal{M}_{\mathcal{R}}\right) \cdot
+\frac{\log 2M}{ \log 2m} \\
+&=& O\left(M^k \log M \cdot m \log p + \frac{M^k \log M}{\log m} \cdot
+  \mathcal{M}_{\mathcal{R}}\right),
+\end{eqnarray*}
+putting the values of $\mathcal{N}_{\mathcal{S}}$ and $c_{\mathcal{S}}$.
+
+\paragraph{Pointwise multiplications:}
+Finally, FFT does $2M$ pointwise multiplications in
+$\mathcal{S}$. Since elements of $\mathcal{S}$ are $(k-1)$-variate
+polynomials over $\mathcal{R}$, with degree in every variable bounded
+by $M$, the total time taken for pointwise multiplications is $2M
+\cdot \mathcal{F}(2M, k-1)$ bit operations.
+
+\paragraph{Total polynomial multiplication time:}
+This can be expressed as,
+
+
+\begin{eqnarray} \label{eqn_FFT_complexity}
+\mathcal{F}(2M, k) &=& O\left(M^k \log M \cdot m \log p + \frac{M^k \log M}{\log m} \cdot \mathcal{M}_{\mathcal{R}}\right) + 2M \cdot \mathcal{F}(2M, k-1) \nonumber \\
+&=& O\left(M^k \log M \cdot m \log p + \frac{M^k \log M}{\log m} \cdot \mathcal{M}_{\mathcal{R}}\right),
+\end{eqnarray}
+as $k$ is a constant. \\
+
+% \subsection*{Inverse FFT}
+
+
+% \todo{Pres 9}Computing the inverse of a fourier transform  with $\rho$ as the root
+% of unity just amounts to yet another fourier transform with
+% $\rho^{-1}$ as the root of unity. This can be seen by observing that a
+% fourier transform can be thought of as a matrix multiplication. If $a(x) = a_0 + a_1 x + \cdots a_{2M-1}x^{2M-1}$ and $b_i = a(\rho^i)$ for $i=0\cdots (2M-1)$,  then
+% \begin{eqnarray*}
+% \insquar{\begin{array}{c}b_0\\b_1\\b_2\\ \vdots \\b_{2M-1}\end{array}} & = &  \insquar{\begin{array}{cccc}
+%       1      & 1          & \cdots &  1\\
+%       1      & \rho       & \cdots & \rho^{2M-1}\\
+%       1      & \rho^2     & \cdots & \rho^{2(2M-1)}\\
+%       \vdots & \vdots     & \ddots & \vdots \\
+%       1      & \rho^{2M-1}& \cdots & \rho^{(2M-1)(2M-1)}
+%     \end{array}}\insquar{\begin{array}{c}a_0\\a_1\\a_2\\ \vdots \\a_{2M-1} \end{array}}.
+% \end{eqnarray*}
+% Since $\rho$ is a principal root of unity, it is easy to see that
+% \begin{eqnarray*}
+% \insquar{\begin{array}{c}a_0\\a_1\\a_2\\ \vdots \\a_{2M-1}\end{array}} & = &  \frac{1}{N}\cdot\insquar{\begin{array}{cccc}
+%       1      & 1          & \cdots &  1\\
+%       1      & \rho^{-1}       & \cdots & \rho^{-(2M-1)}\\
+%       1      & \rho^{-2}     & \cdots & \rho^{-2(2M-1)}\\
+%       \vdots & \vdots     & \ddots & \vdots \\
+%       1      & \rho^{-(2M-1)}& \cdots & \rho^{-(2M-1)(2M-1)}
+%     \end{array}}\insquar{\begin{array}{c}b_0\\b_1\\b_2\\ \vdots \\b_{2M-1} \end{array}}.
+% \end{eqnarray*}
+% which is just another fourier transform with $\rho^{-1}$ as a root of unity instead. \\
+
+
+
+We now present an equivalent group theoretic interpretation of the
+above process of polynomial multiplication, which is a subject of
+interest in itself.
+
+\subsection{A Group Theoretic Interpretation}
+
+A convenient way to study polynomial multiplication is to interpret it
+as multiplication in a \emph{group algebra}.
+
+\begin{definition}
+\emph{\textsf{(Group Algebra)}}
+  Let $G$ be any group. The \emph{group algebra} of $G$ over a ring $R$ is
+  the set of formal sums $\sum_{g \in G} \alpha_g g$ where $\alpha_g
+  \in R$ with addition defined point-wise and multiplication defined
+  via convolution as follows
+  $$ \left(\sum_g \alpha_g g\right) \left(\sum_h
+  \beta_h h\right) = \sum_{u}\inparen{\sum_{gh=u} \alpha_g \beta_h}u $$
+\end{definition}
+
+In this section, we study the Fourier transform over the group algebra
+$R[E]$ where $E$ is an \emph{additive abelian group}. Most of this,
+albeit in a different form, is well known but is provided here for
+completeness \cite[Chapter 17]{Igor}.
+
+In order to simplify our presentation, we will fix the base ring to be
+$\C$, the field of complex numbers. Let $n$ be the \emph{exponent} of
+$E$, that is the maximum order of any element in $E$. A similar
+approach can be followed for any other base ring as long as it has a
+principal $n$-th root of unity.
+
+We consider $\C[E]$ as a vector space with basis $\{ x \}_{x \in E}$
+and use the Dirac notation to represent elements of $\C[E]$ --- the
+vector $\ket{x}$, $x$ in $E$, denotes the element $1 . x$ of $\C[E]$.
+
+Multiplying univariate polynomials over $R$ of degree less than $n$
+can be seen as multiplication in the group algebra $R[G]$ where $G$ is
+the cyclic group of order $2n$. Say $a(x) = a_0 + a_1 x +
+\cdots + a_dx^d$ and $b(x)= b_0 + b_1x \cdots + b_dx^d$ (with $d<n$)
+are the polynomials we wish to multiply, they can be embedded in
+$\C[\Z/2n\Z]$ as $\ket{a} = \sum_{i=0}^d a_i \ket{i}$ and $\ket{b} =
+\sum_{i=0}^d b_i\ket{i}$. It is trivial to see that their product in
+the group algebra is the embedding of the product of the
+polynomials. Similarly, multiplying $k$-variate polynomials of degree
+less than $n$ in each variable can be seen as multiplying in the group
+algebra $R[G^k]$, where $G^k$ denotes the $k$-fold product group
+$G\times\ldots \times G$.
+
+
+
+\begin{definition}
+\emph{\textsf{(Characters)}} Let $E$ be an additive abelian group. A
+\emph{character} of $E$ is a homomorphism from $E$ to $\C^*$.
+\end{definition}
+
+An example of a character of $E$ is the trivial character, which we
+will denote by $1$, that assigns to every element of $E$ the complex
+number $1$. If $\chi_1$ and $\chi_2$ are two characters of $E$ then
+their product $\chi_1 . \chi_2$ is defined as $\chi_1 . \chi_2(x) =
+\chi_1(x) \chi_2(x)$.
+
+\begin{proposition}\cite[Chapter 17, Theorem 1]{Igor}\label{prop:dual-isomorphism}
+  Let $E$ be an additive abelian group of exponent $n$. Then the
+  values taken by any character of $E$ are $n$-th roots of
+  unity. Furthermore, the characters form a \emph{multiplicative
+    abelian group} $\hat{E}$ which is isomorphic to $E$.
+\end{proposition}
+
+An important property that the characters satisfy is the following
+\cite[Corollary 2.14]{Isaacs}.
+
+\begin{proposition}\label{prop:schur-orthogonality}
+\emph{\textsf{(Schur's Orthogonality)}}
+  Let $E$ be an additive abelian group. Then
+  \[ \sum_{x \in E} \chi(x) =%
+  \begin{cases}
+    0 & \textrm{ if $\chi \neq 1$,}\\
+    \# E &\textrm{ otherwise}
+  \end{cases} \quad \text{and}\quad
+  \sum_{\chi \in \hat{E}} \chi(x) =%
+  \begin{cases}
+    0 & \textrm{ if $x \neq 0$,}\\
+    \# E &\textrm{ otherwise.}
+  \end{cases}
+  \]
+\end{proposition}
+
+It follows from Schur's orthogonality that the collection of vectors
+$\ket{\chi} = \sum_x \chi(x) \ket{x}$ forms a basis of $\C[E]$. We
+will call this basis the \emph{Fourier basis} of $\C[E]$.
+
+\begin{definition}
+\emph{\textsf{(Fourier Transform)}}
+Let $E$ be an additive abelian group and let $x \mapsto \chi_x$ be an
+isomorphism between $E$ and $\hat{E}$. The \emph{Fourier transform}
+over $E$ is the linear map from $\C[E]$ to $\C[E]$ that sends
+$\ket{x}$ to $\ket{\chi_x}$.
+\end{definition}
+
+Thus, the Fourier transform is a change of basis from the point basis
+$\{ \ket{x} \}_{x \in E}$ to the Fourier basis $\{
+\ket{\chi_x}\}_{x\in E}$. The Fourier transform is unique only up to
+the choice of the isomorphism $x \mapsto \chi_x$. This isomorphism is
+determined by the choice of the principal root of unity.
+
+It is a standard fact in representation theory that any character
+$\chi$ of an abelian group satisfies $\chi_y(x) = \chi_x(y)$ for every
+$x,y$. Using this and Proposition~\ref{prop:schur-orthogonality}, it is easy
+to see that this transform can be inverted by the map $\ket{x} \mapsto
+\frac{1}{n}\ket{\overline{\chi_x}}$. Hence the \emph{Inverse Fourier
+  Transform} is essentially just a Fourier transform using $x\mapsto
+\overline{\chi_x}$ as the isomorphism between $E$ and $\hat{E}$.
+
+\begin{remark}\label{rem-Fourier-inner}
+  Given an element $\ket{f} \in
+  \C[E]$, to compute its Fourier transform (or Inverse Fourier transform) it is sufficient to compute
+  the \emph{Fourier coefficients} $\{\braket{\chi}{f} \}_{\chi \in
+    \hat{E}}$.
+\end{remark}
+
+\subsubsection*{Fast Fourier Transform}
+
+We now describe the Fast Fourier Transform for general abelian groups
+in the character theoretic setting. For the rest of the section fix an
+additive abelian group $E$ over which we would like to compute the
+Fourier transform. Let $A$ be any subgroup of $E$ and let $B =
+E/A$. For any such pair of abelian groups $A$ and $B$, we have an
+appropriate Fast Fourier transformation, which we describe in the rest
+of the section.
+
+\begin{proposition}\label{prop-character-lift}
+  \begin{enumerate}
+  \item Every character $\lambda$ of $B$ can be ``lifted'' to a
+    character of $E$ (which will be denoted by $\tilde\lambda$ defined
+    as follows $\tilde\lambda(x) = \lambda(x + A)$.
+  \item Let $\chi_1$ and $\chi_2$ be two characters of $E$ that when
+    restricted to $A$ are identical. Then $\chi_1 = \chi_2 \tilde\lambda$ for
+    some character $\lambda$ of $B$.
+  \item The group $\hat{B}$ is (isomorphic to) a subgroup of $\hat{E}$
+    with the quotient group $\hat{E}/\hat{B}$ being (isomorphic to)
+    $\hat{A}$.
+  \end{enumerate}
+\end{proposition}
+\begin{proof}
+It is very easy to check that $\tilde\lambda(x) = \lambda(x + A)$ is indeed
+a homomorphism from $E$ to $\C$. This therefore establishes that
+$\hat{B}$ is a subgroup of $\hat{E}$.
+
+\medskip As for the second, define the map $\tilde\lambda(x) =
+\frac{\chi_1(x)}{\chi_2(x)}$. It is easy to check that this is a
+homomorphism from $E$ to $\C$. Then, for $x\in E$ and $a\in A$
+$$
+\tilde\lambda(x + a) = \frac{\chi_1(x)\chi_1(a)}{\chi_2(x)\chi_2(a)} =
+\frac{\chi_1(x)}{\chi_2(x)} = \tilde\lambda(x)
+$$
+And hence $\tilde\lambda$ is equal over cosets over $A$ in $E$ and hence $\chi$
+is indeed a homomorphism from $B$ to $\C$.
+
+\medskip The third part follows from
+Proposition~\ref{prop:dual-isomorphism} and the fact that any quotient
+group of a finite abelian group is isomorphic to a subgroup.
+% For the third, every character $\chi\in \hat{E}$ can be restricted
+% to $A$ to get a character $\phi\in \hat{A}$. Therefore, the
+% restriction map is a natural homomorphism from $\hat{E}$ to
+% $\hat{A}$. It suffices to show that this homomorphism is surjective
+% and the kernel is $\hat{B}$. Suppose $\varphi$ is an arbitrary
+% character of $A$. Let $R = \inbrace{x_b}_{b\in B}$ be a set of coset
+% representatives of $A$ in $E$. Then every element $x\in E$ can be
+% uniquely written as $x_b + a$ where $x_b\in R$ and $a\in
+% A$. Consider the following map:
+% $$
+% \chi(x_b + a) =  \varphi(a)
+% $$ It is easy to verify that this is indeed a character of $E$, whose
+% restriction to $A$ is $\varphi$. Therefore, the restriction map is
+% surjective. And if $\chi$ is in the kernel of this restriction, then
+% $\chi$ and the trivial character are identical on $A$ and therefore
+% $\chi = 1\cdot \lambda = \lambda \in \hat{B}$. Thus, the kernel is
+% precisely $\hat{B}$ and hence $\hat{A}$ is the quotient of $\hat{E}$
+% and $\hat{B}$.
+\end{proof}
+
+
+
+We now consider the task of computing the Fourier transform of an
+element $\ket{f} = \sum f_x \ket{x}$ presented as a list of
+coefficients $\{f_x\}$ in the point basis. For this, it is sufficient
+to compute the Fourier coefficients $\{\braket{\chi}{f}\}$ for each
+character $\chi$ of $E$ (Remark~\ref{rem-Fourier-inner}). To describe
+the Fast Fourier transform we fix two sets of cosets representatives,
+one of $A$ in $E$ and one of $\hat{B}$ in $\hat{E}$ as follows.
+
+\begin{enumerate}
+  \item For each $b \in B$, $b$ being a coset of $A$, fix a coset
+    representative $x_b \in E$ such $b = x_b + A$.
+  \item For each character $\varphi$ of $A$, fix a character
+    $\chi_\varphi$ of $E$ such that $\chi_\varphi$ restricted to $A$ is
+    the character $\varphi$. The characters $\{ \chi_\varphi \}$ form
+    (can be thought of as) a set of coset representatives of $\hat{B}$
+    in $\hat{E}$.
+\end{enumerate}
+
+Since $\{ x_b \}_{b \in B}$ forms a set of coset representatives, any
+$\ket{f} \in \C[E]$ can be written uniquely as $\ket{f} = \sum f_{b,a}
+\ket{x_b + a}$.
+
+\begin{proposition}\label{prop-Fourier-coefficient}
+  Let $\ket{f} = \sum f_{b,a}\ket{x_b + a}$ be an element of $\C[E]$.
+  For each $b \in B$ and $\varphi \in \hat{A}$ let $\ket{f_b}\in
+  \C[A]$ and $\ket{f_\varphi} \in \C[B]$ be defined as
+  follows.
+  \begin{eqnarray*}
+    \ket{f_b} &= & \sum_{a \in A} f_{b,a} \ket {a}\\
+    \ket{f_\varphi} & = &\sum_{b \in B} \overline{\chi}_{\varphi}(x_b)
+    \braket{\varphi}{f_b} \ket{b}
+  \end{eqnarray*}
+  Then for any character $\chi = \chi_\varphi\tilde\lambda$ of $E$ the
+  Fourier coefficient $\braket{\chi}{f} =
+  \braket{\lambda}{f_\varphi}$.
+\end{proposition}
+
+\begin{proof}
+$$
+\braket{\chi}{f} \quad=\quad \sum_{b\in B , a\in A} \overline{\chi_\varphi
+  \tilde\lambda(x_b + a)} \cdot f_{b,a}
+$$
+\noindent
+Recall that for any $\tilde\lambda$, that is a lift of a character $\lambda$ of
+$B$, acts identically inside cosets of $A$ and hence $\tilde\lambda(x_b + a) = \lambda(b)$. Therefore, the above sum can be
+rewritten as follows:
+\begin{eqnarray*}
+\sum_{b\in B , a\in A} \overline{\chi_\varphi
+  \tilde\lambda(x_b + a)} \cdot f_{b,a} & = & \sum_{b\in B} \sum_{a\in A}
+\overline{\chi_\varphi(x_b + a)}\overline{\lambda(b)} \cdot
+f_{b,a}\\
+ & = & \sum_{b\in B} \overline{\lambda(b)}\cdot
+\overline{\chi_\varphi(x_b)}\sum_{a\in A}
+\overline{\varphi(a)} f_{b,a}
+\end{eqnarray*}
+The inner sum over $a$ is precisely $\braket{\varphi}{f_b}$ and
+therefore we have:
+\begin{eqnarray*}
+\braket{\chi}{f} & = & \sum_{b\in B}
+\overline{\lambda(x_b)}\cdot \overline{\chi_\varphi(x_b)}
+\braket{\varphi}{f_b}
+\end{eqnarray*}
+which can be rewritten as $\braket{\lambda}{f_\varphi}$ as claimed.
+\end{proof}
+
+
+We are now ready to describe the Fast Fourier transform given an
+element $\ket{f} = \sum f_x \ket{x}$.
+
+\begin{enumerate}
+\item \label{step_inner_dft} For each $b \in B$ compute the Fourier
+  transforms of $\ket{f_b}$. This requires $\# B$ many Fourier
+  transforms over $A$.
+\item \label{step_bad_mult}As a result of the previous step we have
+  for each $b \in B$ and $\varphi \in \hat{A}$ the Fourier
+  coefficients $\braket{\varphi}{f_b}$. Compute for each $\varphi$ the
+  vectors $\ket{f_\varphi} = \sum_{b \in B}
+  \overline{\chi}_{\varphi}(x_b) \braket{\varphi}{f_b} \ket{b}$. This
+  requires $\# \hat{A} . \# B = \# E$ many multiplications by roots of
+  unity.
+\item \label{step_outer_dft} For each $\varphi \in \hat{A}$ compute
+  the Fourier transform of $\ket{f_\varphi}$. This requires $\#\hat{A}
+  = \# A$ many Fourier transforms over $B$.\label{item-Fourier-B}
+\item Any character $\chi$ of $E$ is of the
+  form $\chi_\varphi \lambda$ for some $\varphi \in \hat{A}$ and
+  $\lambda \in \hat{B}$. Using
+  Proposition~\ref{prop-Fourier-coefficient} we have at the end of
+  Step~\ref{item-Fourier-B} all the Fourier coefficients
+  $\braket{\chi}{f} = \braket{\lambda}{f_\varphi}$.
+\end{enumerate}
+
+If the quotient group $B$ itself has a subgroup that is isomorphic to
+$A$ then we can apply this process recursively on $B$ to obtain a divide and
+conquer procedure to compute Fourier transform. In the standard FFT we
+use $E = \Z/2^n\Z$. The subgroup $A$ is $2^{n-1}E$ which is isomorphic
+to $\Z/2\Z$ and the quotient group $B$ is $\Z/2^{n-1}\Z$.
+
+\subsubsection*{Analysis of the Fourier Transform}
+
+Our goal is to multiply $k$-variate polynomials over $\mathcal{R}$, with the
+degree in each variable less than $M$. This can be achieved by
+embedding the polynomials into the algebra of the product group $E =
+\inparen{\frac{\Z}{2M\cdot \Z}}^k$ and multiplying them as elements of
+the algebra. Since the exponent of $E$ is $2M$, we require a principal
+$2M$-th root of unity in the ring $\mathcal{R}$. We shall use the root
+$\rho(\alpha)$ (as defined in Section~\ref{root_section}) for the
+Fourier transform over $E$.
+
+For every subgroup $A$ of $E$, we have a corresponding FFT. We choose
+the subgroup $A$ as $\inparen{\frac{\Z}{2m\cdot \Z}}^k$ and let $B$ be
+the quotient group $E/A$. The group $A$ has exponent $2m$ and $\alpha$
+is a principal $2m$-th root of unity. Since $\alpha$ is a power of
+$\rho(\alpha)$, we can use it for the Fourier transform over $A$. As
+multiplications by powers of $\alpha$ are just shifts, this makes
+Fourier transform over $A$ efficient.
+
+Let $\mathcal{F}(M,k)$ denote the complexity of computing the Fourier transform
+over $\inparen{\frac{\Z}{2M\cdot \Z}}^k$. We have
+\begin{equation}
+\mathcal{F}(M,k) = \inparen{\frac{M}{m}}^k \mathcal{F}(m,k) + (2M)^k
+\mathcal{M}_{\mathcal{R}}+(2m)^k\mathcal{F}\inparen{\frac{M}{2m},k}
+\label{first_recursive_step}
+\end{equation}
+where $\mathcal{M}_{\mathcal{R}}$ denotes the complexity of multiplications in
+$\mathcal{R}$. The first term comes from the $\# B$ many Fourier transforms
+over $A$ (Step~\ref{step_inner_dft} of FFT), the second term
+corresponds to the multiplications by roots of unity
+(Step~\ref{step_bad_mult}) and the last term comes from the $\# A$
+many Fourier transforms over $B$ (Step~\ref{step_outer_dft}).
+
+Since $A$ is a subgroup of $B$ as well, Fourier transforms over $B$
+can be recursively computed in a similar way, with $B$ playing the
+role of $E$. Therefore, by simplifying the recurrence in
+Equation~\ref{first_recursive_step} we get:
+\begin{equation}
+\mathcal{F}(M,k) = O\inparen{\frac{M^k\log M}{m^k\log m}\mathcal{F}(m,k) +
+  \frac{M^k\log M}{\log m}\mathcal{M}_{\mathcal{R}}}
+\label{eqn_with_Fa}
+\end{equation}
+
+\begin{lemma}\label{lem-Fmk}
+$\mathcal{F}(m,k) = O(m^{k+1}\log m\cdot \log p)$
+\end{lemma}
+\begin{proof}
+The FFT over a group of size $n$ is usually done by taking $2$-point
+FFT's followed by $\frac{n}{2}$-point FFT's. This involves $O(n\log
+n)$ multiplications by roots of unity and additions in base
+ring. Using this method, Fourier transforms over $A$ can be computed
+with $O(m^k\log m)$ multiplications and additions in $\mathcal{R}$. Since each
+multiplication is between an element of $\mathcal{R}$ and a power of $\alpha$,
+this can be efficiently achieved through shifting operations. This is
+dominated by the addition operation, which takes $O(m\log p)$ time,
+since this involves adding $m$ coefficients from $\Z/p^c\Z$.
+\end{proof}
+
+Therefore, from Equation~\ref{eqn_with_Fa},
+\begin{equation*}
+\mathcal{F}(M,k) = O\inparen{M^k\log M\cdot m\cdot \log p + \frac{M^k\log
+    M}{\log m}\mathcal{M}_{\mathcal{R}}}.
+\end{equation*}
+
+\section{Algorithm and Analysis}
+\subsection{Integer Multiplication Algorithm}\label{intmult_section}
+
+We are given two integers $a,b< 2^N$ to multiply. We fix constants $k$
+and $c$  whose values are given in
+Section~\ref{complexity_section}. The algorithm is as follows:
+\begin{enumerate}
+\item Choose $M$ and $m$ as powers of two such that $M^k \approx
+  \frac{N}{\log^2N}$ and $m \approx \log N$. Find the least prime
+  $p\equiv 1\pmod{2M}$ (Lemma~\ref{prime_time}).
+\item Encode the integers $a$ and $b$ as $k$-variate polynomials
+  $a(X)$ and $b(X)$, respectively, over the ring $\mathcal{R} =
+  \Z[\alpha]/(p^c, \alpha^m + 1)$ (Section~\ref{encoding_section}).
+\item Compute the root $\rho(\alpha)$ (Section~\ref{root_section}).
+\item Use $\rho(\alpha)$ as the principal $2M$-th root of unity to
+  compute the Fourier transforms of the $k$-variate polynomials $a(X)$
+  and $b(X)$. Multiply component-wise and take the inverse Fourier
+  transform to obtain the product polynomial. (Sections
+  \ref{sec:inoutDFT} and \ref{fourier_analysis})
+\item Evaluate the product polynomial at appropriate powers of two to
+  recover the integer product and return it
+  (Section~\ref{encoding_section}).
+\end{enumerate}
+
+\subsection{Complexity Analysis}\label{complexity_section}
+
+The choice of parameters should ensure that the following constraints
+are satisfied:
+\begin{enumerate}
+\item $M^k = O\inparen{\frac{N}{\log^2N}}$ and $m = O(\log
+  N)$.
+\item $M^L = O(N^\varepsilon)$, where $L$ is the Linnik constant
+  (Theorem~\ref{linnik_theorem}) and $\varepsilon$ is any constant less
+  than $1$. Recall that this makes picking the prime by brute force
+  feasible (see Lemma~\ref{prime_time}).
+\item $p^c > 2M^k\cdot m\cdot 2^{2u}$ where $u = \frac{2N}{M^km}$. This
+  is to prevent overflows during modular arithmetic (see
+  Section~\ref{encoding_section}).
+\end{enumerate}
+\noindent
+It is straightforward to check that $k > L+1$ and $c > 5(k+1)$ satisfy
+the above constraints. Since $L\leq 5.2$, it is sufficient to choose
+$k = 7$ and $c = 42$.\\
+
+
+Let $T(N)$ denote the time complexity of multiplying two $N$ bit
+integers. This consists of:
+
+\begin{itemize}
+\item Time required to pick a suitable prime $p$,
+\item Computing the root $\rho(\alpha)$,
+\item Encoding the input integers as polynomials,
+\item Multiplying the encoded polynomials,
+\item Evaluating the product polynomial.
+\end{itemize}
+
+As argued before, the prime $p$ can be chosen in $o(N)$ time. To
+compute $\rho(\alpha)$, we need to lift a generator of
+$\mathbb{F}_p^{\times}$ to $\Z/p^c\Z$ followed by an interpolation. Since $c$
+is a constant and $p$ is a prime of $O(\log N)$ bits, the time
+required for Hensel Lifting and interpolation is $o(N)$.
+
+The encoding involves dividing bits into smaller blocks, and
+expressing the exponents of $q$ in base $M$
+(Section~\ref{encoding_section}) and all these take $O(N)$ time since
+$M$ is a power of $2$. Similarly, evaluation of the product polynomial
+takes linear time as well. Therefore, the time complexity is dominated
+by the time taken for polynomial multiplication.
+
+\subsubsection*{Time complexity of Polynomial Multiplication}
+
+From Equation~\ref{eqn_FFT_complexity}, the complexity of polynomial multiplication is given by,
+\[
+\mathcal{F}(2M,k) = O\inparen{M^k\log M\cdot m\cdot \log p + \frac{M^k\log
+    M}{\log m}\cdot \mathcal{M}_{\mathcal{R}}}.
+\]
+
+\begin{proposition}\cite{scho_complex}
+  If $\mathcal{M}_{\mathcal{R}}$ denotes the complexity of
+  multiplication in $\mathcal{R}$, then $\mathcal{M}_{\mathcal{R}} =
+  T\left(O(\log^2{N})\right)$ where $T(x)$ denotes the complexity of
+  multiplying two $x$-bit integers.
+\end{proposition}
+\begin{proof}
+  Elements of $\mathcal{R}$ can be viewed as polynomials in $\alpha$
+  over $\Z/p^c\Z$ with degree at most $m$. Given two such polynomials
+  $f(\alpha)$ and $g(\alpha)$, encode them as follows: Replace
+  $\alpha$ by $2^d$, transforming the polynomials $f(\alpha)$ and
+  $g(\alpha)$ to the integers $f(2^d)$ and $g(2^d)$ respectively.  The
+  parameter $d$ is chosen such that the coefficients of the product
+  $h(\alpha) = f(\alpha) g(\alpha)$ can be recovered from the product
+  $f(2^d)\cdot g(2^d)$. For this, it is sufficient to ensure that the
+  maximum coefficient of $h(\alpha)$ is less than $2^d$.  Since $f$
+  and $g$ are polynomials of degree $m$, we would want $2^d$ to be
+  greater than $m\cdot p^{2c}$, which can be ensured by choosing $d =
+  O\left(\log{N}\right)$. The integers $f(2^d)$ and $g(2^d)$ are
+  bounded by $2^{md}$, which is of $O(\log^2 N)$ bits. The product
+  $f(\alpha)\cdot g(\alpha)$ can be decoded from the integer product
+  $f(2^d)\cdot g(2^d)$ by splitting the bits into $(2m-1)$ blocks of
+  $d$ bits each (one for each coefficient of $\alpha^i$) to obtain a
+  polynomial in $\Z[\alpha]$ and reducing it modulo $p^c$ and
+  $\alpha^m + 1$. Reducing modulo $(\alpha^m + 1)$ can be performed in
+  $O(md) = O(\log^2N)$ time. Dividing by $p^c$, which has $O(\log N)$
+  bits, can be performed in the same time as multiplying $O(\log N)$
+  bit integers using standard techniques (see for example
+  \cite[Chapter 4]{Knuth}). Since $T(N) = \Omega(N)$, we have that
+  $\mathcal{M}_{\mathcal{R}} = T(O(\log^2 N)) + O(\log N \cdot
+  T(O(\log N))) = T(O(\log^2 N))$ bit operations.
+\end{proof}
+
+Therefore, the complexity of our integer multiplication algorithm
+$T(N)$ is given by,
+\begin{eqnarray*}
+T(N) & = & O(\mathcal{F}(2M, k)) = O\inparen{M^k\log M\cdot m\cdot \log p + \frac{M^k\log
+  M}{\log m} \cdot \mathcal{M}_{\mathcal{R}}}\\
+& = & O\inparen{N\log N + \frac{N}{\log N\cdot \log\log N} \cdot T(O(\log^2N))}
+\end{eqnarray*}
+
+\noindent Solving the above recurrence leads to the following theorem.
+
+\begin{theorem} \label{thm:mainthmx}
+Given two $N$ bit integers, their product can be computed using
+$N\cdot \log N\cdot 2^{O(\log^*N)}$ bit operations.
+\end{theorem}
+
+\subsubsection*{Performing on multi-tape turing machines}
+
+The upper-bound presented in Theorem \ref{thm:mainthmx} holds for
+multi-tape turing machines. The only part of the algorithm that
+warrants an explanation is regrouping of the terms in preparation for
+the inner and outer DFTs. For the inner DFT, we are given $\ket{f} =
+\sum_{a,b} f_{b,a}\ket{x_b + a}$ and we wish to write down $\ket{f_b}
+= \sum_{a} f_{b,a}\ket{a}$ for each $b\in B$. The following discussion
+essentially outlines how this can be performed on a multi-tape turing
+machine using $O(N\log m)$ bit operations. (Recall that the group $E =
+(\Z/2M\Z)^k$ and $A = (\Z/2m\Z)^k$ and both $M$ and $m$ are powers of
+$2$). \\
+
+We may assume that the coefficients are listed according to the
+natural lexicographic order of $(\Z/2M\Z)^k$. To ease the
+presentation, we first present the approach for $k=1$. It would be
+straightforward to generalize this to larger $k$ by repeated
+applications of this approach.
+
+
+Given as input is a sequence of coefficients $f_g$ for each $g\in
+\tilde{E} = \Z/2M\Z$ in the natural lexicographic order on one of the
+tapes of the turing machine. We can then ``shuffle'' the input tape
+using two passes to order the coefficients according to
+$\inbrace{0,M,1,M+1,\dots, M-1,2M-1}$ (by copying the first half with
+appropriate blanks, and copying the second half on the second
+pass). This results in regrouping the inputs as various cosets of
+$\Z/2\Z$. By considering two successive elements as a block and
+repeating the shuffling, we obtain various cosets of
+$Z/4\Z$. Repeating this process $\log(2m)$ times regroups the elements
+according to various cosets of $\Z/2m\Z$.\\
+
+Suppose that $E = (\Z/2M\Z)^k$ and that the coefficients are ordered
+according to the natural lexicographic order. By repeating the same
+shuffling process for $\log(2m)$ steps, the coefficients are regrouped
+according to the cosets of $\inbrace{0}^{k-1} \times (\Z/2m\Z)$ and
+hence there are $M/m$ many groups. By considering every $2m$
+successive coefficients as one block, each of the $M/m$ groups can
+be thought of as coefficients ordered according to the natural
+lexicographic order of $(\Z/2M\Z)^{k-1}$. By repeating this for
+$(k-1)$ more steps, we can reorder the coefficients according to the
+cosets of $(\Z/2m\Z^k)$.
+
+The procedure totally requires $k\log(2m)$ passes over the tapes and
+hence can be performed in $O(N\log m)$ time on a $3$-tape\footnote{an
+  input tape, an output tape, and a third tape for a counter} turing
+machine. With the above discussion, it can be easily seen that the
+upper-bound holds for multi-tape turing machines.
+
+\begin{theorem}
+Given two $N$ bit integers, their product can be computed using
+$N\cdot \log N\cdot 2^{O(\log^*N)}$ bit operations on a multi-tape turing machine.
+\end{theorem}
+
+
+\section{A Comparison with F\"{u}rer's Algorithm} \label{Qp_section}
+
+Our algorithm can be seen as a $p$-adic version of F\"{u}rer's integer
+multiplication algorithm, where the field $\C$ is replaced by $\Q_p$,
+the field of $p$-adic numbers (for a quick introduction, see Baker's
+online notes \cite{Baker}). Much like $\C$, where representing a
+general element (say in base $2$) takes infinitely many bits,
+representing an element in $\Q_p$ takes infinitely many $p$-adic
+digits. Since we cannot work with infinitely many digits, all
+arithmetic has to be done with finite precision. Modular arithmetic in
+the base ring $\Z[\alpha]/(p^c, \alpha^m + 1)$, can be viewed as
+arithmetic in the ring $\Q_p[\alpha]/(\alpha^m + 1)$ keeping a
+precision of $\varepsilon = p^{-c}$.
+
+Arithmetic with finite precision naturally introduces some errors in
+computation. However, the nature of $\Q_p$ makes the error analysis
+simpler. The field $\Q_p$ comes with a norm $\abs{\ \cdot\ }_p$ called
+the $p$-adic norm, which satisfies the stronger triangle inequality
+$\abs{x+y}_p \leq \max\inparen{\abs{x}_p, \abs{y}_p}$ \cite[Proposition
+  2.6]{Baker}. As a result, unlike in $\C$, the errors in computation
+do not compound.\\
+
+Recall that the efficiency of FFT crucially depends on a special
+principal $2M$-th root of unity in $\Q_p[\alpha]/(\alpha^m + 1)$. Such
+a root is constructed with the help of a primitive $2M$-th root of
+unity in $\Q_p$. The field $\Q_p$ has a primitive $2M$-th root of
+unity if and only if $2M$ divides $p-1$ \cite[Theorem
+  5.12]{Baker}. Also, if $2M$ divides $p-1$, a $2M$-th root can be
+obtained from a $(p-1)$-th root of unity by taking a suitable power. A
+primitive $(p-1)$-th root of unity in $\Q_p$ can be constructed, to
+sufficient precision, using Hensel Lifting starting from a generator
+of $\mathbb{F}_p^{\times}$.
+
+\section{Conclusion}\label{conclusions_section}
+
+As mentioned earlier, there has been two approaches to multiplying
+integers - one using arithmetic over complex numbers and the other
+using modular arithmetic. Using complex numbers, Sch\"{o}nhage and
+Strassen \cite{SS71} gave an $O(N \cdot \log N \cdot \log\log N\ldots
+2^{O(\log^* N)})$ algorithm. F\"{u}rer \cite{F07} improved this
+complexity to $N\cdot\log N \cdot2^{O(\log^*N)}$ using some special
+roots of unity. The other approach, that is modular arithmetic, can be
+seen as arithmetic in $\Q_p$ with certain precision. A direct
+adaptation of the Sch\"{o}nhage-Strassen's algorithm in the modular
+setting leads to an $O(N \cdot \log N \cdot \log\log N\ldots
+2^{O(\log^* N)})$ time algorithm. In this work, we show that by
+choosing an appropriate prime and a special root of unity, a running
+time of $N\cdot \log N \cdot 2^{O(\log^*N)}$ can be achieved through
+modular arithmetic as well. Therefore, in a way, we have unified the
+two paradigms. The important question that remains open is:
+\begin{itemize}
+\item Can $N$-bit integers be multiplied using $O(N \cdot \log N)$ bit operations?
+\end{itemize}
+
+\noindent Even an improvement of the complexity to $O(N \cdot \log N
+\cdot \log^{*}N)$ operations will be a significant step forward
+towards answering this question.
+
+\section*{Acknowledgements}
+
+We are greatly thankful to the anonymous reviewers for their detailed
+comments that have improved the presentation of the paper
+significantly.
+
+
+\bibliography{references}
+\end{document}

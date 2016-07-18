@@ -1,0 +1,57 @@
+%% AMS symbols
+\usepackage{amssymb}
+
+%% Geometry
+
+\newcommand{\An}[1][n]{\ensuremath{\mathbb{A}^{#1}}} % Affine space
+\newcommand{\Pn}[1][n]{\ensuremath{\mathbb{P}^{#1}}} % Projective space
+
+
+%% Some common rings in maths.
+
+\newcommand{\Complex}[0]{\ensuremath{\mathbb{C}}}
+\newcommand{\Real}[0]{\ensuremath{\mathbb{R}}}
+\newcommand{\Int}[0]{\ensuremath{\mathbb{Z}}}
+\newcommand{\PadicInt}[1][p]{\ensuremath{\mathbb{Z}_{#1}}}
+\newcommand{\PadicNum}[1][p]{\ensuremath{\mathbb{Q}_{#1}}}
+\newcommand{\GF}[1][p]{\ensuremath{\mathbb{F}_{#1}}}
+\newcommand{\Ideal}[1]{\ensuremath{\mathfrak{#1}}}
+
+
+%% Quantum stuff
+
+\newcommand{\ket}[1]{\ensuremath{\left\vert #1 \right\rangle}}
+\newcommand{\bra}[1]{\ensuremath{\left\langle #1 \right\vert}}
+\newcommand{\braket}[2]{\ensuremath{\left\langle #1 \vert #2 \right \rangle}}
+
+%% Some common groups in maths
+
+\newcommand{\GL}[2]{\ensuremath{\mathrm{GL_{#1}}\left(#2\right)}}
+\newcommand{\SL}[2]{\ensuremath{\mathrm{SL_{#1}}\left(#2\right)}}
+\newcommand{\PGL}[2]{\ensuremath{\mathrm{GL_{#1}}\left(#2\right)}}
+\newcommand{\PSL}[2]{\ensuremath{\mathrm{GL_{#1}}\left(#2\right)}}
+\newcommand{\Sym}[1]{\ensuremath{\mathrm{Sym}\left(#1\right)}}
+%% Absolute values
+
+\newcommand{\abs}[1]{\ensuremath{\left\vert#1\right\vert}}
+\newcommand{\absp}[2][p]{\abs{#2}_{#1}}
+
+%% Galois theory
+
+\newcommand{\Gal}[1]{\ensuremath{\mathrm{Gal}\left(#1\right)}}
+
+%% Algebraic complexity
+
+\newcommand{\matrixtensor}[3]{\ensuremath{\left\langle #1,#2,#3 \right\rangle}}
+
+%% Misc
+
+\newcommand{\Perm}[1]{\ensuremath{\mathrm{perm}\left(#1\right)}}
+\newcommand{\Det}[1]{\ensuremath{\mathrm{det}\left(#1\right)}}
+\newcommand{\sgn}[1]{\ensuremath{\mathrm{sgn}\left(#1\right)}}
+\newcommand{\transpose}[1]{\ensuremath{#1^{\mathrm{T}}}}
+\newcommand{\Aut}[1]{\ensuremath{\mathrm{Aut}\left(#1\right)}}
+\newcommand{\GI}[0]{\ensuremath{\mathrm{GI}}}
+\newcommand{\AUT}[1][]{\ensuremath{\mathrm{AUT}_{#1}}}
+\newcommand{\BCGI}[1]{\ensuremath{\mathrm{BCGI}_{#1}}}
+\newcommand{\PWS}[1]{\ensuremath{\mathrm{PWS}_{#1}}}

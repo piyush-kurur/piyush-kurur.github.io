@@ -1,0 +1,116 @@
+\documentclass{sig-alternate}
+
+\input{defines}
+
+\title{Can Quantum Search Accelerate Evolutionary Algorithms?}
+
+\author{Daniel Johannsen\\
+Max Planck Institute for Informatics\\
+Department of Algorithms and Complexity\\
+  Saarbr{\"u}cken, Germany\\
+  \email{daniel.johannsen@mpi-inf.mpg.de}\\
+\and Piyush P Kurur\thanks{Work done on a visit to the Max Planck Institute for Informatics (MPII) funded by MPII and Research I project (NRNM/CS/20030163)}
+\\
+Dept of Comp. Sci. and Engg\\
+Indian Institute of Technology Kanpur\\
+Kanpur UP, India 208016\\
+\email{ppk@cse.iitk.ac.in}
+ \and Johannes Lengler\\
+  Department of Mathematics\\
+  Saarland University\\
+  Saarbr{\"u}cken, Germany\\
+  \email{johannes.lengler@math.uni-sb.de}}
+
+
+\begin{document}
+\maketitle%
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+\category{F.2}{Theory of Computation}{Analysis of Algorithms and Problem Complexity}
+\terms{Theory, Algorithms}
+\keywords{Running time analysis, Quantum Algorithm, Theory}
+\begin{table*}
+\begin{center}
+\begin{tabular}{l|c|c|c}
+& \rls\,/\,\rls{}$^*$\,/\,\ooea\,/\,\ooea{}$^*$ & \qrls\,/\,\qooea & \qrls{}$^*$\,/\,\qooea{}$^*$ \\
+\hline
+\onemax & $\Theta(n\log n)$ & $\Theta(n)$ & $\Theta(n)$ \\
+\leadingones & $\Theta(n^2)$ & $\Theta(n^{\nicefrac{3}{2}})$ & $\Theta(n^2)$ \\
+\discrepancy & $\Theta(\sqrt{n})$  & $\Theta(\sqrt{n})$ & $\Theta(\sqrt{n})$ \\
+\end{tabular}
+\caption{\label{tabA}A comparison of the expected optimization times (query complexities) between \rsh{}s and \qrsh{}s on the pseudo-Boolean objective functions \onemax, \leadingones, and \discrepancy.}
+\end{center}
+\end{table*}
+
+%
+%%% - Introduction -
+%
+\section{Introduction}
+\label{sec:introduction}%
+\input{introduction}
+\splitpages
+
+%
+%%% - Quantum Algorithms
+%
+\section{Probability Amplification}
+\label{sec:quantum}%
+\input{quantum}
+\splitpages
+
+%
+%%% - Randiomized Search Heuristics}
+%
+\section{The Quantum Search Heuristic}%
+\label{sec:rsh}%
+\input{rsh}
+\splitpages
+
+%
+%%% - Results
+%
+\section{OneMax}
+\label{sec:onemax}%
+\input{onemax}
+
+
+\section{ Leadingones}
+\label{sec:leadingones}%
+\input{leadingones}
+
+\ignore{
+\begin{table*}[btp]
+\begin{center}
+\begin{tabular}{l|cc}
+& \rls{}$^*$/\ooea{}$^*$ & \qrls{}$^*$/\qooea{}$^*$ \\
+\hline
+\onemax & $\Theta(n\log n)$ & $\Theta(n)$ \\
+\leadingones & $\Theta(n^2)$ & $\Theta(n^2)$ \\
+\discrepancy & $\Theta(\sqrt{n})$ & $\Theta(\sqrt{n})$ \\
+\end{tabular}
+\caption{\label{tabB}A comparison of the expected optimization times  (query complexities) between \rls{}$^*$\,/\,\ooea{}$^*$ and \qrls{}$^*$\,/\,\qooea{}$^*$ on
+  the pseudo-Boolean objective functions \onemax, \leadingones, and
+  \discrepancy.}
+\end{center}
+\end{table*}
+}
+\section{Discrepancy}
+\label{sec:discrepancy}%
+\input{discrepancy}
+
+\newpage
+
+\section{Conclusion}
+\label{sec:conclusion}%
+\input{conclusion}
+\splitpages
+
+
+{
+%\footnotesize
+\bibliographystyle{abbrv}
+\bibliography{paper}
+}
+
+\end{document}

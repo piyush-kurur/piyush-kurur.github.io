@@ -1,0 +1,1203 @@
+%\documentclass{llncs}
+\documentclass{article}
+\usepackage{amsthm}
+
+\usepackage{algorithm2e}
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+
+
+\usepackage[all]{xy}
+\newcommand{\height}[1]{\mathrm{H}\left(#1\right)}
+\newcommand{\Norm}[1]{\mathrm{N}\left(#1\right)}
+\newcommand{\Log}[1]{\mathrm{Log}\left(#1\right)}
+\newcommand{\pell}{\ensuremath{\rm PELL'S~EQUATION}}
+\renewcommand{\O}{\mathcal{O}}
+\newcommand{\HNF}[1]{\ensuremath{\mathrm{HNF}(#1)}}
+\newcommand{\Ideal}[1]{\ensuremath{\mathfrak{#1}}}
+\newcommand{\Height}[1]{\ensuremath{\mathrm{H}(#1)}}
+\newcommand{\Q}[0]{\ensuremath{\mathbb{Q}}}
+\newcommand{\Cl}{{\rm Cl}}
+\newcommand{\FP}{{\rm FP}}
+\newcommand{\gap}{{\rm gap}}
+\newcommand{\numP}{{\rm \# P}}
+\newcommand{\NP}{{\rm NP}}
+\newcommand{\p}{{\rm P}}
+\newcommand{\AM}{{\rm AM}}
+\newcommand{\UP}{{\rm UP}}
+\newcommand{\FewP}{{\rm FewP}}
+\newcommand{\GapP}{{\rm GapP}}
+\newcommand{\coNP}{\mbox{{\rm coNP}}}
+\newcommand{\PH}{{\rm PH}}
+\newcommand{\PP}{{\rm PP}}
+\newcommand{\SPP}{{\rm SPP}}
+\newcommand{\AWPP}{{\rm AWPP}}
+
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{theorem*}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{subclaim}[theorem]{Subclaim}
+\theoremstyle{definition}\newtheorem{remark}[theorem]{Remark}
+
+
+\newcommand {\norm} [1] {\ensuremath {\left\Vert\,#1\,\right\Vert}}
+\newcommand {\abs} [1] {\ensuremath{\left\vert#1\right\vert}}
+
+
+\renewcommand{\vector}[1]{\ensuremath{\mathbf{#1}}}
+
+\title{On the Complexity of Computing Units in a Number Field}
+
+\author{V.~Arvind and Piyush P Kurur\\
+  Institute of Mathematical Sciences\\
+  C.I.T Campus,Chennai, India 600 113\\
+  {\tt \{arvind,ppk\}@imsc.res.in}% \date{}
+}
+
+\begin{document}
+\maketitle
+%%
+%% This is the junk I added to get the exact style of the proceedings version
+%%
+%%\setcounter{page}{72}
+%%\fancypagestyle{plain}{
+%%	\fancyhf{}
+%%	\renewcommand{\headrulewidth}{0pt}
+%%	\fancyfoot[L]{\scriptsize
+%%	D.A. Buell (Ed.): ANTS 2004, LNCS 3076, pp 72--86, 2004. \\
+%%	\copyright\ Springer-Verlag Berlin Heidelberg 2004}
+%%}
+%% \pagestyle{myheadings}
+%% \markboth{\qquad \normalfont{\footnotesize V. Arvind and P.P. Kurur} \hfill}
+%% {\hfill \normalfont{\footnotesize On the Complexity of Computing Units 
+%% in a Number Field
+%% \qquad}}
+%% \thispagestyle{plain}
+
+\begin{abstract}
+  Given an algebraic number field $K$, such that $[K:\mathbb{Q}]$ is
+  constant, we show that the problem of computing the units group
+  $\mathcal{O}^*_K$ is in the complexity class SPP. As a consequence,
+  we show that \emph{principal ideal testing} for an ideal in
+  $\mathcal{O}_K$ is in SPP. Furthermore, assuming the GRH, the class
+  number of $K$, and a presentation for the class group of $K$ can
+  also be computed in SPP. A corollary of our result is that solving
+  $\pell$, recently shown by Hallgren
+  \cite{hallgren:2002:polynomialtime} to have a quantum
+  polynomial-time algorithm, is also in SPP.
+\end{abstract}
+
+\section{Introduction}\label{one}
+
+The computation of units in a number field is a fundamental problem in
+computational number theory and is considered an important algorithmic
+task in the area. It has been the subject of considerable research in
+the last two decades and several algorithmic results as well some
+complexity-theoretic results have been pioneered. Much of this
+research (e.g.\ 
+\cite{thiel94class,buchmann89quadratic,buchmann88infra}) is based on
+ideas developed by Buchmann in
+\cite{buchmann87units,buchmann87period}.
+
+In the present paper we are interested in the following problems in
+computational number theory, from a structural complexity perspective.
+Let $K$ be a number field given by its minimal polynomial.
+
+\begin{itemize}\label{prob}
+\item[1.~] Computing a fundamental system of units that generates the units
+group $\mathcal{O}_K^*$ in $\mathcal{O}_K$.
+\item[2.~] Computing a presentation (i.e.\ a set of generators and
+    relators) for the class group $Cl(K)$ of $K$ and the class number
+    $h(K)$.
+  \item[3.~] Testing if a given ideal $A$ of $\O_K$ is a principal
+    ideal.
+\end{itemize}
+
+{From} a purely complexity theory perspective, earlier research on
+these problems was by McCurley \cite{mccurley89class}, and Buchmann
+and Williams \cite{buchmann89quadratic}. This was followed by the
+Thiel's work \cite{thiel94class} where it is shown that the problem of
+principal ideal testing is in NP. Furthermore, \emph{assuming the
+  Generalized Riemann Hypothesis,} it is shown in \cite{thiel94class}
+that principal ideal testing and verifying the class number are in
+$\NP\cap\coNP$.
+
+Our interest to further investigate the computational complexity of
+these problems is motivated by the recent exciting work of Hallgren
+\cite{hallgren:2002:polynomialtime} where it is shown that computing a
+solution to $\pell$ is in BQP (the class of problems that have
+polynomial-time quantum algorithms). Hallgren's main result is that
+given a \emph{quadratic} number field $K$, its regulator $R_K$ can be
+computed by a polynomial-time quantum algorithm. The regulator is the
+solution to $\pell$. For quadratic fields, Hallgren also indicates how
+principal ideal testing and computing the class group are problems in
+BQP. Hallgren's results, however, do not appear to generalize to
+number fields of larger degree. Thus, it remains an open problem if
+these problems are in BQP for number fields of degree more than two.
+
+How does the class BQP relate to standard complexity classes defined
+using classical Turing machines? Fortnow and Rogers
+\cite{fortnow98complexity} show that BQP is contained in the counting
+complexity class AWPP (definitions in Section~\ref{defs}). Thus, in a
+sense, we can think of BQP as a \emph{counting class}. Counting
+classes is an area of research in structural complexity theory
+motivated by Valiant's class $\numP$ (see e.g.\
+\cite{fenner91gapdefinable}).  Intuitively, counting complexity
+classes are defined by suitable restrictions on the number of
+accepting and rejecting paths in nondeterministic Turing machines. In
+the rest of this section we give formal definitions followed by a
+summary of our results.
+
+\subsection{\it SPP and other Counting Complexity Classes}\label{defs}
+
+Let $\Sigma=\{0,1\}$ be the finite alphabet. Let $\lg$ denote
+logarithm to base 2. Let FP denote the class of polynomial-time
+computable functions and NP denotes all languages accepted by
+polynomial-time nondeterministic Turing machines. Let $\mathbb{Z}$
+denote integers. A function $f:\Sigma^*\rightarrow\mathbb{Z}$ is said
+to be {\em gap-definable} if there is an NP machine $M$ (i.e.\ a
+nondeterministic polynomial time Turing machine $M$) such that, for
+each $x\in\Sigma^*$, $f(x)$ is the difference between the number of
+accepting paths and the number of rejecting paths of $M$ on input $x$.
+Let GapP denote the class of gap-definable
+functions~\cite{fenner91gapdefinable}. For each NP machine $M$ let
+$\gap_M$ denote the GapP function defined by it.
+
+A language $L$ is in UP if there is an NP machine $M$ accepting $L$
+such that $M$ has at most one accepting path on any input. The class
+UP was defined by Valiant and it captures the complexity of 1-way
+functions. The complexity class SPP is defined as follows. A language
+$L$ is in $\SPP$ if there is an NP machine $M$ such that $x\in L$
+implies $\gap_M(x)=1$ and $x\not\in L$ implies $\gap_M(x)=0$. In this
+case we say that $L$ is {\em accepted} by the machine $M$.  Note that
+the class SPP is essentially a GapP analogue of the class UP and
+$\UP\subseteq\SPP$.
+
+We say that $f$ is in $\GapP^A$, for oracle $A\in\Sigma^*$, if there
+is an $\NP^A$ machine $M^A$ such that, for each $x\in\Sigma^*$, $f(x)$
+is the difference between the number of accepting paths and the number
+of rejecting paths of $M^A$ on input $x$. For an oracle $A$, we can
+now define the class $\SPP^A$.
+
+The class PP is defined as follows: a language $L$ is in PP if there
+is an $f\in\GapP$ such that $x\in L$ if and only if $f(x)>0$.  PP is a
+hard counting class: by Toda's theorem we know that
+$\PH\subseteq\p^{\PP}$.  We say that a language $A\in\Sigma^*$ is {\em
+  low} for $\PP$ if $\PP^A=\PP$.  Characterizing the class of
+languages low for PP is an intriguing open question in structural
+complexity. 
+
+In \cite{fenner91gapdefinable} it is shown that every language in SPP
+is low for PP. Additionally, SPP has nice closure properties
+\cite{fenner91gapdefinable}: $\p^{\SPP}=\SPP^{\SPP}=\SPP$.  Another
+class that is low for PP \cite{kobler92turing} is BPP (the class of
+languages with polynomial-time randomized algorithms with error
+probability bounded by, say, $1/3$.) Subsequently, the complexity
+class AWPP was introduced\footnote{For the definition see
+  \cite{fenner93oracle}.} in \cite{fenner93oracle}.  The class AWPP
+generalizes both BPP and SPP, and it is shown that every language in
+$\AWPP$ is low for PP. To complete the picture relating these classes,
+Fortnow and Rogers in \cite{fortnow98complexity} show that BQP is
+contained in AWPP. It is interesting to note that $\NP\cap\coNP$ is
+\emph{not} known to be low for PP. Here is a diagram that shows the
+containments between the complexity classes discussed here.
+\[
+\xymatrix{
+  &\textrm{AWPP}& \\
+  \textrm{SPP} \ar@{-}[ur] & & \ar@{-}[ul]\textrm{BQP} \\
+  \textrm{UP}  \ar@{-}[u]  & & \ar@{-}[u] \textrm{BPP}\\
+  & \ar@{-}[ur] \textrm{P} \ar@{-}[ul] & }.
+\]
+
+Although no containment is known between BQP and SPP, it is
+interesting to compare these classes in terms of natural problems they
+contain. Important problems known to be in SPP are Graph Isomorphism
+and the hidden subgroup problem for permutation groups
+\cite{arvind2002graph}.  These problems have resisted efficient
+deterministic or randomized algorithms, but are considered potential
+candidates for quantum algorithms. On the other hand, $\FP^{\SPP}$
+contains Integer Factoring and Discrete Log that have polynomial-time
+quantum algorithms.\footnote{ In fact, these problems are even in
+  $\FP^{\UP}$.  Also, as $\p^{\SPP}=\SPP$, notice that the class
+  $\FP^{\SPP}$ is essentially SPP: for $f\in\FP^{\SPP}$ and input $x$,
+  the bits of $f(x)$ can be computed in SPP. A similar closure
+  property holds for BQP.}
+
+\subsection{\it The New Results and the Methods}
+
+We now state the main results of the paper.
+
+\begin{enumerate}
+\item[(a)] Given a number field $K$ (by its minimal polynomial as
+  input), the problem of computing a fundamental system of units is in
+  $\FP^{\SPP}$, assuming that $K$ is a constant degree extension of
+  $\mathbb{Q}$. As a consequence finding the regulator of $K$ upto
+  polynomially many bits of approximation is also in $\FP^{\SPP}$. As
+  a corollary the $\pell$ problem is in $\FP^{\SPP}$.
+  
+\item[(b)] Given a constant-degree number field $K$ and an ideal $A$
+  of the ring $\O_K$, testing if $A$ is a principal ideal is in
+  $\SPP$.
+  
+\item[(c)] Given a constant-degree number field $K$ (by its minimal
+  polynomial as input), the problem of computing the class group of
+  $K$ (by finding a generator-relator presentation for it) and finding
+  the class number of $K$ is in $\FP^{\SPP}$, assuming GRH.
+\end{enumerate}
+
+In particular, $\pell$ is also in $\FP^{\SPP}$. Thus, we add to the
+list of natural problems that are in both SPP and BQP. A brief outline
+of the methods used to show the above results is given below.
+
+Let $M$ be an oracle Turing machine. For a language $A$ in NP, we say
+that $M^A$ makes {\em UP-like queries} to $A$ if there is an NP
+machine $N$ accepting $A$ such that on all inputs $x$, $M^A(x)$ makes
+{\em only} such queries $y$ for which $N(y)$ has {\em at most} one
+accepting path.  Effectively, it is like $M$ having access to a UP
+oracle. We state a useful variant of a result from \cite{gi-book}.
+
+\begin{theorem}[\cite{gi-book}]\label{KST-theorem}
+  Let $M$ be a nondeterministic polynomial-time oracle machine with
+  oracle $A\in\NP$ such that $M^A$ makes UP-like queries to $A$ then
+  the function $h(x)=\gap_{M^{A}}(x)$ is in $\GapP$.
+\end{theorem} 
+
+Next, we recall an important property of the class SPP shown in
+\cite{fenner91gapdefinable}.
+
+\begin{theorem}[\cite{fenner91gapdefinable}]\label{SPP-self-low}
+  If $L$ is in $\SPP^A$ for some oracle $A\in\SPP$ then $L\in\SPP$.
+  I.e.\ $\SPP^{\SPP}=\SPP$.
+\end{theorem}
+
+The following lemma, which is a straightforward consequence of
+Theorem~\ref{KST-theorem} and of Theorem~\ref{SPP-self-low}, is in a
+form useful for this paper.
+
+\begin{lemma}\label{KST-cor}\mbox{}
+\begin{itemize}
+\item Suppose $L$ is in $\SPP^A$ accepted by the nondeterministic
+  polynomial-time oracle machine $M^A$ with oracle $A\in\NP$ (i.e.\ 
+  $x\in L$ implies that $\gap_{M^A}(x)=1$, and $x\not\in L$ implies
+  that $\gap_{M^A}(x)=0$), such that the machine $M^A$ makes UP-like
+  queries to $A$, then $L$ is in $\SPP$.
+\item Suppose a function $f:\Sigma^*\rightarrow\Sigma^*$ is in $\FP^A$
+  (i.e.\ $f$ is computed by a polynomial-time oracle transducer $M^A$)
+  where $A\in\NP$, such that the machine $M^A$ makes UP-like queries
+  to $A$, then $f$ is in $\FP^{\SPP}$.
+\end{itemize}
+\end{lemma}
+
+Lemma~\ref{KST-cor} is a crucial tool in obtaining the $\FP^{\SPP}$
+upper bounds. For computing a fundamental system of units in
+$\FP^{\SPP}$ we first show that a bound $B\in\mathbb{Q}$ can be
+computed in $\FP^{\SPP}$ such that the regulator $R_K$ of $K$ lies
+between $B$ and $2B$. Once such a bound is computed, we again apply an
+algorithm based on Lemma~\ref{KST-cor} to compute a \emph{canonical}
+fundamental system of units in $\FP^{\SPP}$.  This notion of canonical
+fundamental system of units is developed and explained in Sections
+\ref{two} and \ref{three}, where we show how to transform an arbitrary
+fundamental system of units to the canonical set.
+
+Once we have the $\FP^{\SPP}$ upper bound for computing fundamental
+units, we can design an $\SPP$ algorithm for principal ideal
+testing. If we assume the generalized Riemann hypothesis then, by a
+result of Bach \cite{bach90grh}, we can apply our $\SPP$ algorithm for
+principal ideal testing and give an $\FP^\SPP$ algorithm for computing
+the class group $Cl(K)$.
+
+\subsection{\it Comparison with previous results}
+
+As mentioned, Thiel \cite{thiel94class} has shown that principal ideal
+testing is in NP. Thiel also shows, assuming the GRH, that principal
+ideal testing and verifying class number are in $\NP\cap\coNP$. On the
+other hand, our results on principal ideal testing and computing a
+fundamental system of units are \emph{unconditional}, but applicable
+to only number fields of constant degree. The $\FP^{\SPP}$ upper bound
+for the class group problem depends on the GRH.
+
+No containment relation is known between SPP and $\NP\cap\coNP$ or BQP
+and $\NP\cap\coNP$. Furthermore, we remark here that $\NP\cap\coNP$ is
+not known to be low for PP.  Thus, the results of Thiel
+\cite{thiel94class} are incomparable to our results.
+
+An important computational aspect in all our results is the notion of
+\emph{compact representation} as explained by Thiel
+\cite{thiel94class}, based on Buchmann's earlier papers
+\cite{buchmann87units,buchmann87period}. We need compact
+representations to succinctly express units as well as the generating
+element of a principal ideal in $\O_K$.
+
+\section{Compact representation}\label{two}
+
+Let $K$ be a number field of degree $n$ and let $\cal{O}$ be the ring
+of integer of $K$. Let $D$ be the discriminant of $K$. For an element
+$\alpha \in K$ by $\Norm{\alpha}$ we mean the norm
+$\textrm{N}^K_\Q(\alpha)$. Without loss of generality we assume that
+the input to the algorithm is $\mathcal{O}$ presented as a
+$\mathbb{Z}$-module with basis $\omega_1, \ldots \omega_n$ and
+constants $c_{ijk}$ such that $\omega_i \omega_j = \sum_k c_{ijk}
+\omega_k$. For, computing the maximal order from a given order is
+reducible to the problem of finding the square free part of an integer
+which can be done in $\FP^\SPP$, as factoring integers is in
+$\FP^\SPP$. By size of $\cal{O}$ we mean $\sum size(c_{ijk})$. The
+constants $c_{ijk}$ will be the called the explicit data for $K$.
+
+Fractional ideals $\Ideal{a}$ of $\mathcal{O}$ will be presented by
+giving a $\mathbb{Z}$-basis for $\Ideal{a}$. Let $\alpha_i = \sum_j
+a_{ij} \omega_j$, $1 \leq i \leq n$, be a basis of $\Ideal{a}$ then by
+$\HNF{\Ideal{a}}$ we mean the Hermite normal form of the matrix
+$(a_{ij})$.  Once $\omega_i$'s are fixed, for every ideal $\Ideal{a}$,
+$\HNF{\Ideal{a}}$ is unique. Since the Hermite normal form of a matrix
+can be computed in polynomial time this gives a polynomial time
+algorithm for testing whether two ideals are equal.
+
+Let $\sigma_1,\ldots,\sigma_r$ be all the $r$ real embeddings and
+$\sigma_{r+1},\overline{\sigma}_{r+1},\ldots,
+\sigma_{r+s},\overline{\sigma}_{r+s}$ be all the $2s$ complex
+embeddings of $K$. Define the $r+s$ absolute values on $K$ as follows.
+\[
+\abs{\alpha}_{i} = \left\{
+  \begin{array}{cc}
+    \abs{\sigma_i(\alpha)} & \textrm{if } 1 \leq i \leq r \\
+    \abs{\sigma_i(\alpha)}^2 & \textrm{if } r+1 \leq i \leq r+s
+  \end{array}
+\right.
+\]
+
+For $\alpha \in K$, by height of $\alpha$, denoted by
+$\Height{\alpha}$, we mean $\textrm{max}\{ \abs{\alpha}_i: 1 \leq i
+\leq r+s\}$.
+\begin{lemma}\label{lem-bounds}
+Given $\mathcal{O}$, we have $\Height{\omega_i} \leq n
+2^{size(\mathcal{O})}$, and $\lg{D} \leq n(2\lg{n} +
+size(\mathcal{O}))$.
+\end{lemma}
+\begin{proof}
+  Let $l$ be such that for $1 \leq i \leq n$ $\Height{\omega_l} \geq
+  \Height{\omega_i}$.  Then we have
+  \[
+  \Height{\omega_l\omega_l} \leq \sum_k \abs{c_{llk}}
+  \Height{\omega_k} \leq n 2^{size(\mathcal{O})}\Height{\omega_l}.
+  \]
+  Hence $\Height{\omega_l} \leq n 2^{size(\mathcal{O})}$. Also since
+  $D = \sum_{g \in S_n} \prod_{i=1}^n \sigma_{g(i)}(\omega_i)$ we have
+  $D \leq n!.\Height{\omega_l}^n$.
+\end{proof}
+
+Fix a basis for $\mathcal{O}$. For any $\alpha\in \cal{O}$ there is a
+unique set of integers $a_1,\ldots,a_n$ such that $\alpha = \sum a_i
+\omega_i$.  By giving the vector of integers $a_i$'s the algebraic
+integer $\alpha$ is completely specified. Following
+\cite{thiel94class} this is the \emph{standard representation} of
+$\alpha$ which is unique for a fixed $\mathbb{Z}$-basis for $\cal{O}$.
+The size of $\alpha$ in standard representation is
+$size_s(\alpha)=\sum size(a_i)$.
+
+The following result from \cite{thiel94class} describes a
+\emph{compact representation} of algebraic integers.
+
+\begin{theorem}\label{thm-compact}
+  For $\alpha \in \cal{O}$ there exists $k \leq \lg (\lg(D) + (n-1)
+  \lg \height{\alpha}) + 2$ and $\gamma,\alpha_i\in \cal{O}$ and $d_i
+  \in \mathbb{Z}$, $1\leq i \leq k$, with $\height{\gamma} \leq
+  \Norm{\alpha}^{2/n}$, $\height{\alpha_i} \leq D^{\frac{3}{4}(m+2)}$
+  and $0 < d_i \leq \sqrt{D}$ such that
+  \[
+  \alpha = \gamma \prod_{i=1}^k \left(\frac{\alpha_i}{d_i}\right)^{2^{k-i}}.
+  \]
+  Moreover, for $1 \leq j \leq k$ the ideal $\prod_{i=1}^j
+  \left(\frac{\alpha_i}{d_i}\right)^{2^{k-i}}\cal{O}$ is a reduced
+  ideal.
+\end{theorem}
+
+A product of this form can be presented as a tuple $\langle k,
+\gamma,{\langle\alpha_i,d_i\rangle}_{i=1}^k\rangle$. For a given
+compact representation of $\alpha$ the size of the representation is
+the sum of the sizes of the integers $d_i$ and the sizes of algebraic
+integers $\gamma$ and $\alpha_i$'s in their standard representation.
+Compact representations are not unique for a given $\alpha$ even for a
+given $\mathbb{Z}$-basis. Let $size_c(\alpha)$ denotes the maximum of
+sizes of all compact representation of $\alpha$. Using
+Lemma~\ref{lem-bounds} and \cite[Corollary 15]{thiel94class} we have
+the following theorem on compact representations.
+
+\begin{theorem}{\rm\cite{thiel94class}}\label{thm-size-ub}
+\label{lem-compute-alphaO}
+  For nonzero $\alpha\in\cal{O}$
+  \begin{eqnarray*}
+    size_s(\alpha) &\leq & \left(n\lg \height{\alpha}\cdot size(\cal{O})\right)^{O(1)}.\\
+    size_c(\alpha) &\leq& \left(n^2\lg{}^2(n)\cdot size(\mathcal{O}).
+      \lg{(size(\mathcal{O}))}\cdot \Norm{\alpha}\cdot \lg{\lg{\Height{\alpha}}}
+    \right)^{O(1)}\\
+  \end{eqnarray*}
+  Furthermore, given the compact representation $\langle k,
+  \gamma,{\langle\alpha_i,d_i\rangle}_{i=1}^k\rangle$ of $\alpha$,
+  there is a polynomial time algorithm that computes the Hermite
+  Normal Form for the ideal $\alpha \cal{O}$.
+\end{theorem}
+
+Conversely the following proposition from \cite{thiel94class} gives a
+bound on the height of the algebraic number based on the size of their
+representation.
+
+\begin{proposition}\label{prop-size}
+  Let $\alpha$ be any algebraic integer of $K$, a number field of
+  discriminant $D$. Then we have:
+  \begin{enumerate}
+  \item For all $j$, $\height{\alpha} \leq n^2 2^{size_s(\alpha) +
+      size(\mathcal{O})}$.
+  \item For all $j$, $\ln \height{\alpha} \leq \ln \Norm{\alpha} +
+    n^3\lg{n}\cdot size_c(\alpha)\cdot size(\mathcal{O})\cdot 
+    2^{size_c{\alpha}}$.
+  \end{enumerate}
+\end{proposition}
+
+\section{Minimal bases for lattices}\label{three}
+
+For a set of linearly independent vectors
+$\vector{a}_1,\vector{a}_2,\ldots \vector{a}_n$ let
+$\vector{a}_1^*,\vector{a}_2^*,\ldots,\vector{a}_n^*$ denote the
+corresponding GSO (Gram-Schmidt) basis.  Given a lattice $\Lambda =
+\sum_{i=1}^n \mathbb{Z}\vector{b}_i$ in $\mathbb{R}^n$ with basis
+$\vector{b}_i = \sum_{j=1}^n b_{ij} \vector{e}_i$. Let $M =
+(\mu_{ij})$ be the matrix that transforms the GSO basis given by
+$\vector{b}^*_i$'s to the basis given by the $\vector{b}_i$'s.  We say
+that the basis is \emph{proper} if for every $i <j \leq n$ we have
+$-\frac{1}{2} \leq \mu_{ij}< \frac{1}{2}$. The following holds for any
+lattice.
+
+\begin{lemma}\label{proper-basis}
+  Given a lattice $\Lambda$ with  basis $\vector{a}_1,\vector{a}_2,\ldots,
+\vector{a}_n$, a new basis $\vector{b}_1,\vector{b}_2,\ldots\vector{b}_n$ can
+be computed in polynomial time such that $\vector{b}_i$'s form a proper basis
+and $\vector{b}_i^* = \vector{a}_i^*$ (i.e. the GSO basis of both vectors are
+the same).
+\end{lemma}
+\begin{proof}
+  Here is the algorithm.
+
+  \begin{algorithm}
+\vspace{-5mm}
+    \SetKw{KwDownTo}{downto}
+    $\vector{b}_1$ := $\vector{a}_1$\;
+    \lnl{for-loop}
+    \For{$i = 2$ \KwTo $n$}
+    {
+      Let $\vector{a}_i = \vector{a}_i^* +
+      \sum_{j=1}^{i-1} \mu_{ij} \vector{a}_j^*$\;
+      $\vector{b}_i$ := $\vector{a}_i$\;   
+      \lnl{inner-for-loop}
+      \For{$j= i-1$ \KwDownTo $1$}
+      {
+        \If{$\mu_{ij} \geq \frac{1}{2} \lor \mu_{ij} <  -\frac{1}{2}$}
+        {
+          Let $n$ be the nearest integer to $\mu_{ij}$\;
+          \lnl{update}
+          $\vector{b}_i$ := $\vector{b}_i - n \vector{b}_j$\;
+        }
+      }
+    }
+  \end{algorithm}
+  The invariant for the loop in step~\ref{for-loop} is $-\frac{1}{2}
+  \leq \mu_{kj} < \frac{1}{2}$ for all $1 \leq j < k \leq i-1$. If the
+  invariant is violated at $i$ for some $j$ then the loop in
+  step~\ref{inner-for-loop} fixes it. For a given $k$ note that
+  step~\ref{update} does not affect any of the $\mu_{ij}$ for $j > k$.
+  It is also clear that step~\ref{update} does not affect the GSO of
+  the basis.
+\end{proof}
+ 
+Given the vector space $W = U \oplus V$ such that $U$ and $V$ are
+orthogonal, for $\vector{w} \in W$, if $\vector{w} = \vector{u} +
+\vector{v}$, $\vector{u} \in U$ and $\vector{v} \in V$, then
+$\vector{w}/U$ denotes the vector $\vector{v}$ (i.e. the component of
+$\vector{w}$ orthogonal to the space $U$). For a lattice $\Lambda$,
+$\Lambda/V$ is the lattice $\{ \vector{v}/V : \vector{v} \in \Lambda
+\}$. If $\vector{b}_1,\vector{b}_2 \ldots \vector{b}_n$ forms a basis
+for $\Lambda$ then any vector of $\Lambda/V$ can be expressed as an
+integer linear combination of $\vector{b}_i/V$'s.
+
+Given a lattice $\Lambda$, a basis $\vector{b}_1,
+\vector{b}_2,\ldots,\vector{b}_n$ is called a \emph{minimal basis} if
+it is proper and it satisfies the following conditions:
+
+\begin{enumerate}
+\item $\vector{b}_1$ is a $\ell_1$-shortest vector in
+  $\Lambda$.
+  \item For all $i$, if $V_{i-1}$ is the span of the vectors
+    $\vector{b}_1, \vector{b}_2,\ldots,\vector{b}_{i-1}$ then
+    $\vector{b}_i/V_{i-1}$ is the vector of least $\ell_1$ norm in the
+    lattice $\Lambda/V_{i-1}$.
+\end{enumerate}
+
+To find a canonical basis for the lattice $\Lambda$ one can define a
+total order on the set of all minimal basis of $\Lambda$ and choose
+the least basis under that order. For two vectors $\vector{u} = \sum
+u_i \vector{e}_i$ and $\vector{v} = \sum v_i \vector{e}_i$,
+$\vector{u} \prec \vector{v}$ if $\norm{\vector{u}}_1 <
+\norm{\vector{v}}_1$ or if $\vector{\norm{u}_1 = \norm{v}_1}$ then
+there is an $1 \leq i \leq n$ such that $u_j =v_j$ for all $1 \leq j <
+i$ and $u_i < v_i$.
+
+Consider two minimal basis $A = \{ \vector{a}_i \}_{i=1}^n$ and $B =
+\{\vector{b}_i\}_{i=1}^n$ for the lattice $\Lambda$. Let $A^* = \{
+\vector{a}_i^*\}_{i=1}^n$ and $B^* = \{ \vector{b}_i^*\}_{i=1}^n$ be
+their GSO basis respectively. For two such minimal basis $A \prec B$
+if there is an $i$ such that for all $j < i $, $\vector{a}_j =
+\vector{b}_j$ and $\vector{a}_i^* \prec \vector{b}_i^*$.
+
+\begin{theorem}\label{total-order}
+  On the set of minimal bases, the relation $\prec$ forms a total
+  order.
+\end{theorem}
+\begin{proof}
+  Suppose $\prec$ does not form a total order then we have two minimal
+  basis $A$ and $B$ and an index $i$ such that $\vector{a}_j =
+  \vector{b}_j$ for all $j < i$ and $\vector{a}_i^* = \vector{b}_i^*$
+  yet $\vector{a}_i \neq \vector{b}_i$. Expressing $\vector{a}_i$ and
+  $\vector{b}_i$ in the respective GSO basis we have
+\[ 
+\vector{a}_i = \sum_{j=1}^{i} \alpha_j \vector{a}_j^*
+\hbox{~~~~~~}\vector{b}_i = \sum_{j=1}^i \beta_j \vector{b}_j^*.
+\]  
+  Let $k$ be the index such that for all $j > k$, $\alpha_j = \beta_j$
+  and $\alpha_k \neq \beta_k$ .  Clearly $k < i$. Since the basis $A$
+  and $B$ are proper we have $\alpha_j$ and $\beta_j$ lie in the
+  interval $\left[-\frac{1}{2},\frac{1}{2}\right)$. Consider the
+  vector $\vector{u} = \vector{a}_i - \vector{b}_i$. Since
+  $\vector{a}_j^* = \vector{b}_j^*$ for all $1 \leq j \leq i$ we have
+  $\vector{u} = (\alpha_k - \beta_k) \vector{a}_k^* +
+  \vector{u}^\prime$ where $\vector{u}^\prime$ lies in the vector
+  space $V_{k-1}$ that is spanned by $\{ \vector{a}_j \}_{j=1}^{k-1}$.
+  But then $\norm{\vector{u}/V_{k-1}}_1 = |\alpha_k - \beta_k|
+  \norm{\vector{a_k}^*}_1 < \norm{\vector{a_k}/V_{k-1}}_1$ which
+  contradicts the fact that $A$ and $B$ are minimal.
+\end{proof}
+Given an algorithm for finding the $\prec$-least vector of a lattice,
+Theorem~\ref{total-order} suggests the following algorithm for finding
+$\prec$-minimum basis for a lattice $\Lambda$.
+
+\begin{algorithm}
+\vspace{-5mm}
+  \caption{Computing $\prec$-minimal basis}\label{alg-prec-min}
+  \KwIn{A set of linearly independent vectors $\vector{b}_1,\vector{b}_2,
+    \ldots,\vector{b}_n$.}
+
+  \KwOut{The $\prec$-minimum basis for $\Lambda$.}
+
+  Let $\Lambda$ be the lattice $\mathbb{Z}[\vector{b}_1,\vector{b}_{2},
+  \ldots,\vector{b}_n]$\;
+
+  Find the $\prec$-least element $\vector{u}$ of the lattice $\Lambda$\;
+  
+  Let $\{ \vector{u}_k \}_{k=1}^n$ be a basis for $\Lambda$ such that
+  $\vector{u}_1 = \vector{u}$\;
+  
+  Let $\vector{u}_k^* = \vector{u}_k - \frac{\langle
+    \vector{u},\vector{u}_k \rangle}{\langle \vector{u},\vector{u}
+    \rangle} \vector{u}$ $1 < k \leq n$\;
+
+  Find the $\prec$-minimum  basis for the lattice $\Lambda^*$ generated by
+  $\{ \vector{u}_k^*\}_{k=2}^n$ recursively\;
+  
+  Let this basis be $\{\vector{b}_i^\prime = \sum_{j=2}^n x_{ij}
+  \vector{u}_j^*\}_{i=2}^n$\;
+  
+  Consider the basis $\{\vector{a}_i\}_{i=1}^n$ defined by
+  $\vector{a}_1 = \vector{u}$ and $\vector{a}_i = \sum_{j=2}^n x_{ij}
+  \vector{u}_j$, $2 \leq i \leq n$\;
+  
+  Converting this basis to a proper basis using
+  Lemma~\ref{proper-basis} completes that algorithm\;
+\end{algorithm}
+
+To complete this section we give an algorithm for finding the
+$\prec$-minimum element of a lattice $\Lambda$. We apply Lenstra's
+algorithm for integer linear programming \cite{lenstra83ilp} that runs in
+polynomial time if the number of variables is constant.
+
+\begin{lemma}\label{lem-prec-min-vector}
+  If $\Lambda \subset \mathbb{R}^n$ is a lattice of rank $r$ then
+  assuming $n$ is a constant there is a polynomial time algorithm for
+  finding the $\prec$-minimum element of $\Lambda$.
+\end{lemma}
+\begin{proof}
+  Let $\Lambda =
+  \mathbb{Z}[\vector{b}_1,\vector{b}_2,\ldots,\vector{b}_r]$ where the
+  basis $\vector{b}_i$'s are given by $\vector{b}_i = \sum b_{ij}
+  \vector{e}_j$. The algorithm goes in two steps. The first step is to
+  find a vector with least $\ell_1$ norm. In the subsequent steps this
+  solution is refined further till we get the $\prec$-minimum vector.
+  
+  To find a vector with least $\ell_1$ norm we have the following integer
+  programming problem in $r$ variables $x_1,x_2,\ldots , x_r$:
+  Minimize the expression $f(\vector{x}) = \sum_{i=1}^n |\sum_{j=1}^r
+  b_{ji} x_j |$ given $f(\vector{x}) > 0$. Although this is not an
+  integer linear programming problem one can use the algorithm of
+  Lenstra here as follows: For the $2^n$ different vector $\vector{c}
+  \in \{-1,1\}^n$, solve the following integer linear programming
+  problem and pick the best among those $2^n$ different solutions.
+  \[
+  \textrm{Minimize } \sum_{i=1}^r \biggl(\sum_{j=1}^n b_{ij} c_j\biggr) x_i,
+  \] 
+  under the constraints
+ \begin{equation}
+   \sum_{i=1}^r \biggl(\sum_{j=1}^n b_{ij} c_j\biggr) x_i  >  0 
+ \end{equation}
+\begin{equation}
+0  \leq  c_j  \sum_{i=1}^r b_{ij} x_i  \leq  B,\hbox{~~~~~} 1\leq j\leq n. 
+\end{equation}
+  
+  The first constraints expresses the fact that the solution should be
+  nonzero.  The second set of constraints express the fact that we are
+  choosing the right $c_i$'s.
+  
+  The $B$ in the equation is an upper bound on the $\ell_\infty$ of the
+  shortest vector. The $\ell_1$ norm of any particular vector in the
+  basis will be a suitable value for $B$.
+  
+  Having obtained a solution for the $\ell_1$-shortest vector say
+  $\vector{u}$ one has to refine the solution to get a $\prec$-minimum
+  solution.  Let $\vector{u}_j$ denote a $\ell_1$-shortest vector which
+  agrees with the $\prec$-minimum vector on all coordinates less than
+  or equal to $j$, then $\vector{u}_n$ is the desired solution. Let
+  $\vector{u}_0 = \vector{u}$.  Having got the vector $\vector{u}_j$
+  to compute $\vector{u}_{j+1}$ we minimize $\sum_{i=1}^r x_i b_{ij+1}$ under
+  the constraints $\norm{\sum_{i=1}^r x_i \vector{b}_i}_1 =
+  \norm{\vector{u}_j}_1$ and $\sum_{i=1}^r x_i b_{ik} = u_{jk}$ for $1
+  \leq k \leq j$. Here $u_{jk}$ denotes the component of
+  $\vector{u}_j$ in the direction $\vector{e}_k$. One can use the same
+  trick as before to convert this to an integer linear programming
+  problem and use Lenstra's algorithm. Since the dimension $n$ is
+  bounded, the running time is polynomial.
+\end{proof}
+
+Combining Lemma~\ref{lem-prec-min-vector} and
+algorithm~\ref{alg-prec-min} we have the following result.
+\begin{theorem}\label{thm-can-basis}
+  Given a lattice a basis $\{ \vector{b}_i \}_{i=1}^r$ of a rank $r$
+  lattice $\Lambda \subseteq \mathbb{R}^n$ there is a polynomial time
+  algorithm to compute the $\prec$-minimal basis of $\Lambda$ assuming
+  $n$ to be a constant
+\end{theorem}
+
+\section{Units of a number field}\label{four}
+
+Let $K$ be a number field of degree $n$ and let $\mathcal{O}$ be the
+set of algebraic integers of $K$. If $K$ has $r$ real embeddings and
+$2s$ complex embeddings then by Dirichlet's theorem (see, e.g.\ 
+\cite{cohen:1993}) there exists a set of $m = r + s - 1$ units
+$\{\varepsilon_i\}_{i=1}^m$, called a fundamental system of units, such
+that every unit of $\mathcal{O}$ can be expressed as $\zeta
+\varepsilon_1^{x_1} \ldots \varepsilon_m^{x_m}$, $x_i \in \mathbb{Z}$,
+where $\zeta$ is a root of unity in $K$. Consider the map
+$\textrm{Log}: K \mapsto \mathbb{R}^m$ defines as follows:
+\[
+\Log{\alpha} = \langle \ln |\alpha|_1,\ln |\alpha|_2,\ldots,\ln
+|\alpha|_m \rangle
+\]
+
+{From} Dirichlet's theorem it follows that the set
+$\Log{\mathcal{O}^*}$ is a lattice in $\mathbb{R}^m$ with basis
+$\Log{\varepsilon_i}_{i=1}^m$. Often it is necessary to work with
+vectors in this lattice whose coordinates are in general irrationals.
+We will use rational approximations of these vectors instead.
+
+An important algorithmic task that will be useful in the $\FP^{\SPP}$
+algorithm is to compute a canonical fundamental system of units from a
+given fundamental system of units $U = \{ \varepsilon_i \}_{i=1}^m$. In
+this section we give a polynomial time algorithm for the above task
+assuming that the degree $[K:\mathbb{Q}]$ is constant. The next
+theorem is a re-statement of \cite[Lemma 16]{thiel94class} using the
+bound in Lemma~\ref{lem-bounds}.
+
+\begin{theorem}{\rm\cite{thiel94class}}\label{thm-small-compact}
+  There exists a fundamental system of units $\{\varepsilon_i\}_{i=1}^m$
+  for $\cal{O}$ such that $size_c(\varepsilon_i) =
+  (n.size(\mathcal{O}))^{O(1)}$ for all $1 \leq i \leq m$.
+\end{theorem}
+
+Consider the fundamental system of  units $\{ \eta_i \}_{i=1}^m$ that
+corresponds to $\prec$-minimal basis of the lattice
+$\Log{\mathcal{O}^*}$. We have the following observation.
+
+\begin{lemma}
+  For all $ 1 \leq i \leq m$, $size_c(\eta_i) =
+  (n.size(\mathcal{O}))^{O(1)}$.
+\end{lemma}
+\begin{proof}
+  The basis $\vector{b}_i = \Log{\eta_i}$ is the $\prec$-minimal basis
+  of $\Lambda = \Log{\mathcal{O}^*}$. Let $\vector{b}_i^*$ denote the
+  corresponding GSO basis and let $V_i =
+  \mathrm{Span}\{\vector{b}_i\}_{i=1}^m$.  Let $\{ \varepsilon_i
+  \}_{i=1}^m$ be any fundamental system of units satisfying the condition
+  in Theorem~\ref{thm-small-compact} then $\vector{a}_i =
+  \Log{\varepsilon_i}$ spans the lattice $\Lambda$. Without loss of
+  generality we may assume that $\vector{a}_i \not \in V_i$. Since
+  $\vector{b}_i$'s form the $\prec$-minimal basis of $\Lambda$ we have
+  $\norm{\vector{b}_i^*}_\infty \leq \norm{\vector{b}_i^*}_1 \leq
+  \norm{\vector{a}_i/V_{i-1}}_1 \leq m \norm{\vector{a}_i}_\infty$.
+  Hence we have $\norm{\vector{b}_i}_\infty \leq \norm{\vector{b}_i^*
+  }_\infty + \frac{1}{2} \sum_{j=1}^{i-1} \norm{\vector{b}_j^*} \leq
+  m.A.(i-1)/2$, where $A$ is an upper bound on
+  $\norm{\vector{a}_i}_\infty$. {From} Theorem~\ref{thm-small-compact}
+  and Proposition~\ref{prop-size} we have $A \leq (n\cdot
+  size(\mathcal{O}) + 2^{size_c(\varepsilon_i)})^{O(1)}$ where $i$ is
+  such that $\Log{\varepsilon_i}$ has the largest $\ell_\infty$ norm.
+  Hence for every $i$ we have $\ln \height{\eta_i} \leq (n\cdot
+  size(\mathcal{O}) + 2^{size_c(\varepsilon_i)})^{O(1)}$. Together
+  with Theorem~\ref{thm-size-ub} we have the result.
+\end{proof}
+
+We now describe how a canonical fundamental system of units can be
+computed given an arbitrary fundamental system of units. The following
+theorem, based on a remark in \cite{thiel94class}, will be useful.
+
+\begin{theorem}{\rm\cite{thiel94class}}\label{thm-compute-compact}
+  Assuming that $[K:\mathbb{Q}]$ is constant, there is a polynomial
+  time algorithm that takes as input a principal ideal
+  $\Ideal{a}=\alpha\O$ by its Hermite Normal Form and a good rational
+  approximation for $\Log{\alpha}$, and outputs a compact
+  representation for $\zeta\alpha$ where $\zeta$ is a root of unity in
+  $K$.
+\end{theorem}
+
+\begin{remark}
+The point to note in the above theorem is that only $\Log{\alpha}$ is
+given (as a rational approximation) and not the compact representation
+of $\alpha$. Also notice that $\Log{\alpha}$ is unique only upto
+multiplication by roots of unity in $K$. The theorem promises that one
+such element $\zeta\alpha$, which depends only on
+$\textrm{HNF}(\Ideal{a})$ and $\Log{\alpha}$, is computable in
+polynomial time.
+\end{remark}
+
+\begin{theorem}\label{thm-canonical-units}
+  Assuming $[K:\mathbb{Q}]$ is a constant, there is a polynomial time
+  deterministic algorithm that takes as input a fundamental system of
+  units (as compact representations) and outputs another fundamental
+  system of units $\{ \eta_i \}_{i=1}^m$ (as compact representations)
+  corresponding to the $\prec$-minimal basis for $\Log{\cal{O}^*}$.
+  Furthermore, $\{ \eta_i \}_{i=1}^m$ is canonical in the sense that
+  it does not depend on the input fundamental system of units.
+\end{theorem}
+\begin{proof}
+  Given a fundamental system of units $\{ \varepsilon_i\}_{i=1}^m$
+  compute $\{ \Log{\varepsilon_i}\}_{i=1}^m$ to the desired
+  approximation. Compute the $\prec$-minimal basis for the lattice
+  generated by $\{ \Log{\varepsilon_i}\}_{i=1}^m$ using algorithm in
+  Theorem~\ref{thm-can-basis}. Let it be $\{\vector{b}_i\}_{i=1}^m$.
+  Use algorithm in Theorem~\ref{thm-compute-compact} to compute
+  compact representations of units $\{ \eta_i\}_{i=1}^m$ corresponding
+  to the vectors $\{ \vector{b}_i\}_{i=1}^m$.  Since the basis
+  $\{\vector{b}_i\}_{i=1}^m$ is unique (upto approximation) and since
+  all the algorithms involved are polynomial time deterministic
+  algorithm the output generated is independent of the fundamental
+  system of units that was given as input.
+\end{proof}
+
+Given any set of units $\{ \varepsilon_i \}$, we now analyze the
+approximation of $\Log{\varepsilon_i}$ required in order to accurately
+compute the canonical fundamental system of units.
+
+Let $\{ \eta_i \}$ the canonical fundamental system of units and let
+$\vector{a}_i = \Log{\eta_i}$. Let $\vector{b}_i =
+\Log{\varepsilon_i}$.  Consider the matrices $A = (a_{ij})$ and $B =
+(b_{ij})$ (recall that for a vector $\vector{v}$, $v_i$ denotes its
+$i^{\mathrm{th}}$ component). Since $\vector{a}_i$'s and
+$\vector{b}_i$'s span the same lattice $\Lambda =
+\Log{\mathcal{O}^*}$, there is a unimodular transformation $U \in
+\mathrm{SL}_m(\mathbb{Z})$ such that $A = UB$. Note that the
+determinant of $B$ is the regulator which is at least $0.2$ and hence
+it can be shown that each entries of $U$ is of size bounded by a
+polynomial in the sized of entries in $A$ and $B$. Let $B_q$ denote
+the $q$ bit approximations of $B$ and let $A_q = U B_q$. We have
+\[
+\norm{A_q - A}_\infty = \norm{U(B_q - B)}_\infty \leq m
+\norm{U}_\infty 2^{-q}.
+\]
+If we take $q$ large enough so that $\norm{A_q - A}_\infty$ is
+small enough for us to recover back the compact representation of
+$\eta_i$'s we are through. It is easy to see that a $q$ that is
+bounded by a polynomial in the sizes of entries of $A$ and $B$ is
+sufficient for this purpose.
+
+\begin{lemma}
+  In the algorithm of Theorem~\ref{thm-canonical-units}, it
+  suffices to approximate $\Log{\varepsilon_i}$ to an error of
+  $2^{-q}$ where $q \leq (\lg(\norm{A}_\infty)
+  \lg(\norm{B}_\infty))^{O(1)}$.
+\end{lemma}
+
+
+\section{ Computing Units is in $\FP^{\SPP}$}\label{five}
+
+In this section we give an $\FP^{\SPP}$ algorithm for computing a
+fundamental system of units for a number field $K$.  The algorithm is
+in two stages. In the first stage it computes a number $B$ such that
+the regulator $R_K$ lies in the range $[B,2B)$. Notice that, having
+computed such a bound $B$, we can test in deterministic polynomial
+time if an arbitrary set of $m$ algebraic numbers is a fundamental
+system of units. Given this value of $B$, in the second stage the
+$\FP^{\SPP}$ algorithm computes a fundamental system of units of
+$K$. The first stage is described in the following lemma.
+\begin{lemma}\label{stage-one}
+  Given a number field $K$, there is an $\FP^{\SPP}$ algorithm to
+  compute a constant $B$ such that the regulator $R_K$ of $K$, lies in
+  the interval $[B,2B)$.
+\end{lemma}
+\begin{proof}
+  We give a polynomial time algorithm that makes UP-like queries to an
+  NP oracle. Consider the following NP language:
+  \[
+  A = \{ \langle x,\mathcal{O}_K \rangle \mid
+  \textrm{there is a subgroup of index } y \textrm{ in } \O_K^*~:~
+  x \leq y R_K < 2x \}.
+  \]
+We consider the following nondeterministic procedure that accepts $A$.
+
+%\pagebreak
+
+\begin{algorithm}
+    \KwIn{A rational $x$ and basis for the ring of integers,
+      $\cal{O}$ of a number field $K$}
+    
+    \KwOut{``Yes'' if there is a subgroup of $\O^*$ of index $y$ such
+      that $x \leq y R_K < 2x$; ``No'' otherwise.}
+    
+    \lnl{guess-units} Guess the polynomial sized compact
+    representations of $m$ units of $\cal{O}$ say
+    $\{\varepsilon\}_{i=1}^m$\;
+    
+    Compute rational approximations of
+    $\{\Log{\varepsilon_i}\}_{i=1}^m$ and check if they form a
+    linearly independent set. If not reject\;
+    
+    Compute the volume of the parallelepiped formed by the
+    $\{\Log{\varepsilon_i}\}_{i=1}^m$ and check if it lies in the
+    interval $[x, 2x)$. If not reject\;
+    
+    \lnl{min-units} Use the algorithm in Theorem~\ref{thm-canonical-units}
+    to compute a canonical fundamental system of units say $\eta_i$'s\;
+    
+    Check the whether the compact representations obtained in step
+    \ref{min-units} is same as the guessed compact representations. If
+    yes accept else reject\;
+\vspace{-5mm}
+\end{algorithm}
+
+We now explain Step~\ref{guess-units}. First guess $m$ (polynomial
+sized) compact representations of $m$ algebraic integers $\{ \alpha_i
+\}_{i=1}^m$. Applying Theorem~\ref{lem-compute-alphaO} it is possible
+to compute $\alpha_i \O$ and check whether $\alpha_i\O =\O$ in
+polynomial time.
+
+In the above NP machine if $x$ is such that $x \leq R_K < 2x$ then
+there will be only one accepting path. This is because any set of $m$
+units that was guessed in step~\ref{guess-units} will indeed be a
+fundamental system of units. For each of these accepting paths,
+step~\ref{min-units} will give a unique compact representation of a
+fundamental system of units--- those units that in the Log map gives
+the $\prec$-minimum basis of $\Log{\mathcal{O}^*}$.  Hence the only
+path that will accept is that which guessed that unique compact
+representation of units corresponding to the $\prec$-minimal basis of
+$\Log{\mathcal{O}^*}$.
+    
+It is known that the regulator of any number field is at least $0.2$
+\cite{cohen:1993}. We now describe the procedure that computes the
+required bound $B$:
+
+\begin{algorithm}
+\vspace{-5mm}
+  \SetKw{KwTrue}{true}
+  \KwIn{A $\mathbb{Z}$-basis for the ring of integers, $\cal{O}$, of a
+    number field $K$}
+
+  \KwOut{A rational $B$ such that $B \leq R_K < 2 B$}
+  
+  $B$ := $0.2$\;
+  
+  \While{\KwTrue}
+  {
+    \lIf{$\langle B,{\mathcal{O}_K}\rangle \in A$}{ \KwRet{B}\;}
+    $B$ := $2B$\;
+  }
+\end{algorithm}
+
+Since this procedure makes UP-like queries to the NP language $A$ we
+can convert it into a $\FP^{\SPP}$ algorithm by Lemma~\ref{KST-cor}.
+\end{proof}
+
+\begin{lemma}\label{stage-two}
+  Given a constant $B$ such that $B \leq R_K < 2B$, a fundamental
+  system of units can be computed in $\FP^{\SPP}$.
+\end{lemma}
+\begin{proof}
+  First, consider the following nondeterministic polynomial time
+  machine $M$. The machine $M$ first guesses a set of $m$ algebraic
+  integers in their compact representation and then verifies in
+  polynomial time that the guessed algebraic integers indeed form a
+  fundamental system of units by first checking whether they are
+  indeed units (check if $\alpha \cal{O} = \cal{O}$) and then
+  calculating the volume of the parallelepiped (in the Log map) formed
+  by the vectors corresponding to the guessed units, by a determinant
+  computation. If this volume does not lie between $B$ and $2B$, the
+  machine $M$ rejects on this computation path. Otherwise, applying
+  Theorem~\ref{thm-canonical-units} along with the guessed fundamental
+  system of units as input, the machine $M$ now computes a canonical
+  fundamental system of units and checks if it coincides with the
+  guessed fundamental system of units. If they do coincide the machine
+  $M$ accepts along this computation path. It is clear from the above
+  description that the nondeterministic machine $M$ has a unique
+  accepting path. Applying Lemma~\ref{KST-cor}, we can now design from
+  $M$ an $\FP^{\SPP}$ algorithm that will compute a fundamental system
+  of units, if it is additionally given $B$ such that $B \leq R_K <
+  2B$.
+\end{proof}
+    
+Now, combining Lemmas~\ref{stage-one} and \ref{stage-two} we
+immediately obtain the following.
+
+\begin{theorem}\label{thm-units-compute}
+  There is a $\FP^{\SPP}$ algorithm to compute a fundamental system of
+  units of the ring of integers of a number field $K$ assuming that
+  the degree $[K:\mathbb{Q}]$ is a constant.
+\end{theorem}
+
+
+\section{Principle Ideal Testing is in SPP}\label{six}
+
+Given a number field $K$ and a $\mathbb{Z}$-basis for its ring of
+integer $\cal O$, the \emph{principal ideal testing} problem (denoted
+by PrI) problem is to check if an $\Ideal{a}$ of $\O$ is a principal
+ideal. We show that this problem is in SPP.
+
+\begin{theorem}\label{pri-test}
+  Given a number field $K$ with ring of integers $\cal O$ and the
+  $\mathbb{Z}$ basis of a ideal $\Ideal{a}$, checking whether
+  $\Ideal{a}$ is principal is in $\SPP$, assuming $[K : \mathbb{Q}]$
+  is a constant.
+\end{theorem}
+\begin{proof}
+  Without loss of generality we can assume that $\Ideal{a}$ is an
+  integral ideal. First compute a fundamental system of units $\{
+  \varepsilon_i \}_{i=1}^m$ of $\cal O$ using the algorithm in
+  Theorem~\ref{thm-units-compute}. Guess the compact representation of
+  an algebraic integer $\alpha$. Check if $\alpha O = \Ideal{a}$ if
+  not reject.  Check if $\Log{\alpha}$ lies in the fundamental
+  parallelepiped $\{ \vector{x} \in \mathbb{R}^m : \vector{x} = \sum
+  \alpha_i \Log{\varepsilon_i} , \alpha_i \in [0,1] \}$. If not
+  reject. Next, apply Theorem~\ref{thm-compute-compact} to obtain a
+  compact representation of $\alpha'$ from $\Log{\alpha}$ and
+  $\Ideal{a}$, such that $\Log{\alpha}=\Log{\alpha'}$. If the compact
+  representations of $\alpha$ and $\alpha'$ coincide we accept on
+  that computation path and reject otherwise. The correctness of the
+  easily follows from Theorem~\ref{thm-compute-compact} and the fact
+  that for every $\alpha\in\O$ there is a unique associate in the
+  fundamental parallelepiped.
+\end{proof}
+
+\subsection{\it Computing the Class Number}
+
+Finally, we show that if we assume the generalized Riemann hypothesis
+(GRH) then finding the class number and a presentation for the class
+group are in $\FP^{\SPP}$. It is shown by Bach \cite{bach90grh} that
+if the GRH is true then the class group of any number field $K$ is
+generated by the ideal classes of all non-inert prime ideals of norm
+less $L = 12 \ln^2{|D|}$. Let $\mathfrak{p}_1,\ldots,\mathfrak{p}_N$
+be the (polynomially many) ideal classes of all non-inert prime ideals
+of norm less $L = 12 \ln^2{|D|}$. We can compute these ideals
+$\mathfrak{p}_i$ in polynomial time as explained, for example in
+\cite[Section 6.2.5]{cohen:1993} or \cite{buchmann:lenstra}.
+
+Our goal is to compute the class number and a generator-relator
+presentation of the class group of $K$.  Let $G_i$ denote the subgroup
+of $Cl(K)$ generated by $\{\mathfrak{p}_1,\ldots,\mathfrak{p}_i\}$ and
+let $G_0 = \{ id \}$. For each $i$ let $t_i$ be the least positive
+integer such that $\mathfrak{p}_i^{t_i} \in G_{i-1}$. Let $s_{ij}$, $1
+\leq i \leq N$ and $1 \leq j < i$ be integers such that $0 \leq s_{ij}
+< t_j$ and such that $\mathfrak{p}_i^{t_i} \sim \prod_j^{i-1}
+\mathfrak{p}_j^{s_{ij}}$. The set of relators defined by
+\[
+R = \left\{ \mathfrak{p}_i^{t_i} = \prod_{j=1}^{i-1} \mathfrak{p}_j^{s_{ij}} :
+1 \leq i \leq N \right\}
+\]
+together with the generator set $\{
+\mathfrak{p}_1,\ldots,\mathfrak{p}_N \}$ gives a generator-relator
+presentation of $Cl(K)$. Furthermore, notice that the $s_{ij}$'s are
+unique in the range $0 \leq s_{ij} < t_j$. Also, $t_1$ is the order of
+the ideal class of $\mathfrak{p}_1$ in $Cl(K)$. We will describe an
+$\FP^{\SPP}$ procedure for computing the set $R$ inductively as
+follows.
+
+Assume that the set of relators
+\[
+R_i = \left\{ \mathfrak{p}_j^{t_j} = \prod_{k=1}^{j-1}
+\mathfrak{p}_k^{s_{jk}}: 1 \leq j \leq i \right\}
+\]
+is already computed (where $R_0=\emptyset$). It suffices to give an
+$\FP^\SPP$ procedure for computing $R_{i+1}$. To this end, we define
+an $\NP^\SPP$ language $A$ as follows: $A$ consists of the set of
+tuples $\left\langle
+  x,y,\{\mathfrak{a}_j\}_{j=1}^i,
+\{(m_j,n_j)\}_{j=1}^{i-1}\right\rangle$
+such that there is a $x \leq t < y$ and $m_j \leq s_j < n_j$ such that
+$\mathfrak{a}_i^t \sim \prod_{j=1}^{i-1} \mathfrak{a}_j^{s_j}$, where
+$\mathfrak{a}_j$'s are ideals in $\mathcal{O}_K$ given by their HNFs.
+It is easy to see that the language $A$ is in $\NP^\SPP$: guess $t$
+and the $s_j$'s and verify the class group identity by applying the
+SPP algorithm for principal ideal testing in Theorem~\ref{pri-test}.
+
+The following code is a polynomial-time oracle computation (with
+oracle $A$) that computes $R_{i+1}$ from $R_i$.
+
+\begin{algorithm}
+\vspace{-5mm}
+  \SetKw{KwTrue}{true}
+  Let $T := 1$\;
+  \While{ \KwTrue }
+  {
+    
+    \lIf{ $\langle T, 2T , \{ \mathfrak{p}_j \}_{j=1}^{i+1}, 
+\{(1,t_j)\}_{j=1}^i \rangle \in A$ }
+    { break }\lElse{ $T:= 2T$}
+  }
+ Do a binary search for $t_{i+1}$ in the range $[T,2T)$ using $A$ as oracle.\;
+Next, do a binary search to compute the $s_j$'s.
+(* These $s_j$'s are actually the $s_{i+1j}$ in the definition of $R$. *)
+\vspace{-5mm}
+\end{algorithm}
+It is easy to see that in the above algorithm only UP-like queries
+are made to $A$. More precisely, the queries will be of the
+form $\left\langle
+  x,y,\{\mathfrak{p}_j\}_{j=1}^i,\{(m_j,n_j)\}_{j=1}^{i-1}\right\rangle$,
+with parameters such that the $\NP^{\SPP}$ machine for $A$ will have
+at most one accepting path. The queries are UP-like as $R_i$ is a set
+of relators for $G_i$. Now, using closure properties of SPP and
+Lemma~\ref{KST-cor} we can transform the above algorithm to an
+$\FP^\SPP$ procedure that inductively computes the generator-relator
+presentation of the class group $Cl(K)$. Observe that the class number
+is given by $\prod_{i=1}^N t_i$. Hence we have the following theorem.
+
+\begin{theorem}
+  Assuming the GRH, the class number and a generator-relator
+  presentation for the class group of a constant-degree number field
+  can be computed in $\FP^{\SPP}$.
+\end{theorem}
+
+\paragraph{Acknowledgment.} We thank the referees for their useful comments.
+
+\begin{thebibliography}{10}
+
+\bibitem{arvind2002graph}
+V.~Arvind and P.~P. Kurur.
+\newblock Graph {Isomorphism} is in {SPP}.
+\newblock In {\em $43^{\mathrm{rd}}$ Annual Symposium of Foundations of
+  Computer Science}, pages 743--750. IEEE, November 2002.
+
+\bibitem{bach90grh}
+E.~Bach.
+\newblock Explicit bounds for primality testing and related problems.
+\newblock {\em Mathematics of Computation}, 55:355--380, 1990.
+
+\bibitem{buchmann87units}
+J.~Buchmann.
+\newblock On computation of units and class number by a generalization of
+  {Lagrange's} algorithm.
+\newblock {\em Journal of Number Theory}, 26:8--30, 1987.
+
+\bibitem{buchmann87period}
+J.~Buchmann.
+\newblock On the period length of the generalized {Lagrange} algorithm.
+\newblock {\em Journal of Number Theory}, 26:31--37, 1987.
+
+\bibitem{buchmann:lenstra}
+J.~Buchmann and H.~W. {Lenstra~Jr}.
+\newblock Computing maximal orders and decomposing primes in number fields.
+\newblock preprint.
+
+\bibitem{buchmann88infra}
+J.~Buchmann and H.~C. Williams.
+\newblock On the infrastructure of the principal ideal class of an algebraic
+  number field of unit rank one.
+\newblock {\em Mathematics of Computation}, 50:569--579, 1988.
+
+\bibitem{buchmann89quadratic}
+J.~Buchmann and H.~C. Williams.
+\newblock On the existence of a short proof for the value of the class number
+  and\ regulator of a real quadratic field.
+\newblock {\em Number Theory and Applications}, 265:327--345, 1989.
+
+\bibitem{cohen:1993}
+H.~Cohen.
+\newblock {\em A Course in Computational Algebraic Number Theory}.
+\newblock Springer-Verlag, Berlin, 1993.
+
+\bibitem{fenner93oracle}
+S.~Fenner, L.~Fortnow, S.~A. Kurtz, and L.~Li.
+\newblock An oracle builder's toolkit.
+\newblock In {\em {SCT}: Annual Conference on Structure in Complexity Theory},
+  pages 120--131, 1993.
+
+\bibitem{fenner91gapdefinable}
+S.~A. Fenner, L.~Fortnow, and S.~A. Kurtz.
+\newblock Gap-definable counting classes.
+\newblock In {\em Structure in Complexity Theory Conference}, pages 30--42,
+  1991.
+
+\bibitem{fortnow98complexity}
+L.~Fortnow and J.~D. Rogers.
+\newblock Complexity limitations on quantum computation.
+\newblock In {\em {IEEE} Conference on Computational Complexity}, pages
+  202--209, 1998.
+
+\bibitem{hallgren:2002:polynomialtime}
+S.~Hallgren.
+\newblock Polynomial-time quantum algorithms for pell's equation and the
+  principal ideal problem.
+\newblock In {\em Proceedings of the $34^{th}$ ACM Symposium on Theory of
+  Computing}, pages 653--658. IEEE, 2002.
+
+\bibitem{lenstra83ilp}
+H.~W. {Lenstra~Jr}.
+\newblock Integer programming with a fixed number of variables.
+\newblock {\em Mathematics of Operations Research}, 8:538--548, 1983.
+
+\bibitem{kobler92turing}
+J.~Kobler, U.~Schoning, S.~Toda, and J.~Toran.
+\newblock Turing machines with few accepting computations and low sets for
+  {PP}.
+\newblock {\em Journal of Computer and System Sciences}, 44(2):272--286, 1992.
+
+\bibitem{gi-book}
+J.~K{\"o}bler, U.~Sch{\"o}ning, and J.~Tor{\'a}n.
+\newblock {\em The Graph Isomorphism Problem: Its Structural Complexity}.
+\newblock Birkhauser, 1993.
+
+\bibitem{mccurley89class}
+K.~S. McCurley.
+\newblock Cryptographic key distribution and computation in class groups.
+\newblock In {\em NATO Advanced Science Institute Series C}, volume 256, pages
+  459--479. Kluwer, Dordrecht, 1989.
+
+\bibitem{thiel94class}
+C.~Thiel.
+\newblock Under the assumption of the {Generalized Riemann Hyothesis} verifying
+  the class number belongs to $\textrm{NP}\cap \textrm{co-NP}$.
+\newblock In {\em Algorithmic Number Theory, First International Symposium,
+  ANTS-I}, volume 877 of {\em Lecture Notes in Computer Science}, pages
+  234--247. Springer, 1994.
+
+\end{thebibliography}
+     
+    
+
+\end{document}

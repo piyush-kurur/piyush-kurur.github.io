@@ -1,0 +1,44 @@
+\documentclass{article}
+\usepackage{amsthm}
+\usepackage{amssymb}
+
+\newcommand{\ket}[1]{\ensuremath{\left\vert #1 \right \rangle}}
+\newcommand{\weight}[1]{\ensuremath{\mathrm{w}\left(#1\right)}}
+
+\begin{document}
+
+\section*{Change in mutation operator}
+
+Let $\Sigma=\{0,1\}$. Consider an $n$ length string $\mathbf{x} \in
+\Sigma^n$. A flip in positions $\mathbf{a} \in \Sigma^n$ is defined
+using the operator 
+
+\[
+U_{\mathbf{a}} \ket{\mathbf{x}} = \ket{\mathbf{x} + \mathbf{a}}
+\]
+
+In the quantum setting there is a possibility of applying the phase
+flip as well which is defined using the operator $V_\mathbf{b}$ as
+
+\[
+V_\mathbf{b} \ket{\mathbf{x}} =
+(-1)^{\mathbf{b}^{\mathrm{T}}\mathbf{x}} \ket{\mathbf{x}}.
+\]
+
+In general for $\mathbf{a}$ and $\mathbf{b}$ in $\Sigma^n$, let
+$W_{\mathbf{a},\mathbf{b}}$ denote the operator
+$U_\mathbf{a}V_\mathbf{b}$, then candidate solutions $\ket{x}$ can be
+mutated by applying any of the operators $W_{\mathbf{a},\mathbf{b}}$.
+
+The parameter of interest here is the joint weight defined as
+
+\[
+\weight{\mathbf{a},\mathbf{b}} = \# \{ i | (a_i,b_i) \neq (0,0) \}.
+\]
+
+Local search and EA on an average make only one mutation per
+step. This can be modeled by making transformation
+$W_{\mathbf{a},\mathbf{b}}$ where the average joint weight
+$\weight{\mathbf{a},\mathbf{b}}$.
+
+\end{document}

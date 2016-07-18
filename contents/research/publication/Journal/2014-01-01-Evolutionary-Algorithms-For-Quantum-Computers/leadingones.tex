@@ -1,0 +1,116 @@
+The pseudo-Boolean function~\leadingones counts the number of one-bits
+preceding the first zero-bit in a bit-string~$\mathbf{x}\in\{0,1\}^n$,
+that is, let
+
+\begin{equation}
+\leadingones(\mathbf{x}):=\sum_{k=1}^n\prod_{i=1}^k x_i\,.
+\end{equation}
+
+
+The following theorem can be deduced from~\cite{DJWoneone}.
+
+\begin{theorem}
+  The expected optimization times of the (1+1)~EA, the (1+1)~EA$^*$,
+  RLS, and RLS$^*$ for maximizing \leadingones are in~$\Theta(n^2)$.
+\end{theorem}
+
+For the progressive selection rule, quantum acceleration does not yield
+a substantial speed-up. In contrast, for the conservative selection
+rule the expected optimization time decreases considerably. However,
+it does not decrease quadratically.
+
+\begin{theorem}
+  The expected optimization times of the (1+1)~QEA$^*$ and of QLS$^*$
+  for maximizing \leadingones are in~$\Theta(n^{3/2})$.  The expected
+  optimization times of the (1+1)~QEA or QLS for maximizing
+  \leadingones are in~$\Theta(n^{2})$.
+\end{theorem}
+
+\begin{proof}
+  We start with the conservative selection strategy. Let us first
+  consider QLS$^*$. For any non-optimal search point~$\xvec$, the
+  mutation step yields a better search point if and only if the first
+  zero-bit is flipped. So the progress probability is $p_{\xvec} =
+  1/n$. For the (1+1)~QEA$^*$ let $\xvec$ be any non-optimal search
+  point. Assume that $x_k$ is the first zero-bit in~$\xvec$. Then
+  mutation step yields a better search point if and only if $x_k$ is
+  flipped, and all preceding bits are unchanged. Therefore, the
+  progress probability is
+  \[
+  p_{\xvec} = \frac{1}{n}\Big(1-\frac{1}{n}\Big)^{i_{t-1}-1}
+  \]
+  Thus, since~$(1-1/n)^{n-1}\ge\euler^{-1}$ and~$0\le i_{t-1}\le n$,
+  \[
+  \frac{1}{\euler\,n}\le p_t\le\frac{1}{n}\,.
+  \]
+  
+  So for both QLS$^*$ and the (1+1)~QEA$^*$, we have shown that
+  $1/(\euler\,n)\le p_t\le 1/n$.  Therefore, by
+  Lemma~\ref{lem:boundedq},
+  \[
+  \frac{1}{\sqrt{\euler\,n}}\EXP[T]\le \TQSH \le \frac{1}{\sqrt{n}}\EXP[T],
+  \]
+  and in particular
+  \[
+  \EXP[\TQSH] = \Theta(n^{-1/2}\EXP[T]) = \Theta(n^{3/2}).
+  \]
+
+  Now consider the progressive selection strategy. The upper bound is
+  trivial, as the QSH is always asymptotically at least as fast as
+  the corresponding RSH.
+
+  For the lower bound, we partition the search space into two sets 
+  \[
+  S_1 := \left\{\xvec \mid \leadingones(\xvec) < n/2 \right\},
+  \]
+  \[
+  S_2 := \left\{\xvec \mid \leadingones(\xvec) \geq n/2 \right\}.
+  \]
+
+  Let $N(\xvec)$ be the random variable that assigns to each run the
+  number of occurrences of $\xvec$ in the trajectory. For
+  $i\in\{1,2\}$, let
+  \[
+  \TRSH^{(i)} = \sum_{\mathbf{x}\in\mathcal{S}_i} \EXP[N(\xvec )]
+  \cdot \left(p_{\mathbf{x}}\right)^{-1}
+  \]
+  and 
+  \[
+  \TQSH^{(i)} = \sum_{\mathbf{x}\in\mathcal{S}_i} \EXP[N(\xvec )]
+  \cdot \left(p'_{\mathbf{x}}\right)^{-1},
+  \]
+  be the estimated optimization time that RLS, or the (1+1)~EA, or
+  QLS, or the (1+1)~QEA spends in region $S_i$
+  (cf. Lemma~\ref{lem:regions}).  From~\cite{DJWoneone} it can be
+  deduced that $\TRSH^{(1)} \in \Theta(n^2)$ for both RLS and the
+  (1+1)~EA.
+
+  Let $\xvec$ be any search point in $S_1$. We want to bound the
+  progress probability $p_{\xvec}$. First consider QLS. The
+  progressive selection strategy will accept any search point of equal
+  fitness, except $\xvec$ itself. Thus if the mutation operator flips
+  any bit in the second half of $\xvec$, then the offspring is
+  accepted. Therefore,
+  \[
+  p_{\xvec} \geq 1/2.
+  \]
+
+  Now we turn to the (1+1)~QEA. If the mutation operator flips exactly
+  one bit in the second half, and no bit in the first half, then the
+  offspring will be accepted, as it does not equal $\xvec$ but has at
+  least the same fitness. (There are many other ways to produce
+  offsprings that are accepted, but this particular way will suffice.)
+
+  Hence, the progress probability is at least
+  \[
+  p_{\xvec} \ge
+  \frac{n}{2}\cdot\frac{1}{n}\cdot\Big(1-\frac{1}{n}\Big)^{n-1}\ge
+  \frac{1}{2e}\,.
+  \]
+  In both cases, we have $p_{\xvec} \geq 1/(2e)$, and therefore by
+  Lemma~\ref{lem:boundedq},
+  \[
+  \TQSH \ge \frac{1}{\sqrt{2e}} \EXP[T] = \Theta(n^2),
+  \]
+  which proves the lower bound.
+\end{proof}

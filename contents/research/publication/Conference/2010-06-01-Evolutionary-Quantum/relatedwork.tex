@@ -1,0 +1,30 @@
+
+
+\section{Related Work}
+
+Quantum algorithms have drawn much attention and there are many problems for which specialized algorithms have been designed, such as searching \cite{Grover96} \cite{BoyerBHT98}, Element Distinctness \cite{Santha08}, Minimum-Finding \cite{DurrH96} and many others (e.g., \cite{DurrHHM04} \cite{BerzinaDFLS04}, \cite{Zhangthesis06}).
+
+Evolutionary Algorithms (EA) aim not to look specifically into a certain problem, but rather provide some wide-applicable algorithms which may be used if it is not possible to analyze the problem thoroughly - either because the problem complexity is too high, or because the algorithm designer can not spend much time and resources into investigating the problem.
+
+Quantum Evolutionary Algorithms (QEA) have the same objective, but are algorithms that run on a quantum computer. They are not to be confused with Quantum-Inspired Evolutionary Algorithms (QIEA), which use ideas from quantum computing, but are algorithms that run on a classical machine.
+
+It is difficult to test QEAs in practice, because quantum computers do not exist apart from proof-of-concept machines. It is possible to run QEAs by simulating a quantum computer on a classical machine (e.g., \cite{SpectorBBS99}), but this approach is cumbersome since such simulations have exponential running time.
+
+Santha and Szegedy have shown \cite{SanthaS09} that quantum and classical query complexities of local search are polynomially related. Moreover, Magniez et al. have shown \cite{MagniezNRS09} that the speed-up in terms of hitting times is exactly quadratic for a large class of algorithms (``quantum random walks'' in the sense of \cite{Szegedy04} - note that there are different notions of quantum random walks, cf. \cite{MagniezNRS07} for an overview).
+
+For some classes of local search problems, more specific and superior algorithms are available: In particular for search spaces with transition probabilities that are symmetric \cite{Szegedy04}, or ergodic \cite{MagniezNRS07}.
+
+In our paper, we do not prove lower bounds. Conjectures of Aaronson \cite{Aaronson06} imply that the EA-algorithms considered in our paper are asymptotically optimal.  He has shown his conjecture for hypercubes, and Zhang \cite{Zhang06} has generalized the result to product graphs.
+
+
+%\cite{MagniezNRS09}, \cite{Aaronson06}, \cite{DurrHHM04},
+%\cite{DurrH96}, \cite{DurrHHM06}, \cite{HoyerNS02}, \cite{SanthaS04},
+%\cite{MagniezNRS07}, \cite{Santha08}, \cite{SanthaS09},
+%\cite{SpectorBBS99}, \cite{Zhang06}, \cite{LiR07}, \cite{ZhouZHW05},
+%\cite{NarayananM96}, \cite{HanK02}, \cite{LiLR07}, \cite{XiaoYLYZ08},
+%\cite{ZhangZPW08}, \cite{AraujoNM08}, \cite{MahdabiJA08},
+%\cite{ZhangGW08}, \cite{LiSGS09}, \cite{WangWF09}, \cite{XingJBLQW09},
+%\cite{ZhangS06}, \cite{Ambainis06}, \cite{Ambainis08},
+%\cite{AmbainisSW09}, \cite{AmbainisCGT09}, \cite{HoyerNS01}
+
+

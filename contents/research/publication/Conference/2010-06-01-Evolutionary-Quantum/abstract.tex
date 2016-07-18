@@ -1,0 +1,17 @@
+%In his seminal work Grover \cite{Grover96} showed that we need
+%only $\Theta(\sqrt{N})$ instead of $\Theta(N)$ queries in the black-box-model to find a
+%unique element in a space of size $N$. Recently,
+%Aaronson \cite{Aaronson06} showed that the speedup of quantum
+%algorithms over randomized algorithms to find a local optimum on the
+%hypercube is of quadratic order as well. The quantum algorithm that
+%achieves this theoretically optimal speedup is a local search
+%heuristic where the single improvements are performed by applying
+%Grover's algorithm.
+
+In this article, we formulate for the first time the notion of a quantum evolutionary algorithm. In fact we define a quantum analogue for any elitist (1+1) randomized search heuristic. The quantum evolutionary algorithm, which we call \emph{(1+1) quantum evolutionary algorithm} (QEA), is the quantum version of the classical (1+1) evolutionary algorithm (EA), and runs only on a quantum computer. It uses Grover search~\cite{Grover96} to accelerate the search for improved offsprings.
+
+To understand the speedup of the (1+1)~QEA over the (1+1)~EA, we study the three well known pseudo-Boolean optimization problems \textsc{OneMax}, \textsc{LeadingOnes}, and \textsc{Discrepancy}. We show that although there is a speedup in the case of \textsc{OneMax} and \textsc{LeadingOnes} in the quantum setting, the speedup is less than quadratic. For \textsc{Discrepancy}, we show that the speedup is at best constant. 
+
+The reason for this inconsistency is due to the difference in the probability of making a successful mutation. On the one hand, if the probability of making a successful mutation is large then quantum acceleration does not help much. On the other hand, if the probabilities of making a successful mutation is small then quantum enhancement indeed helps.
+
+

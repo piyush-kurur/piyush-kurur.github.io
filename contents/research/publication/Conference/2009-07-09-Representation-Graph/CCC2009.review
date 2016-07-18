@@ -1,0 +1,78 @@
+Dear Sagarmoy Dutta and Piyush P Kurur,
+
+Below please find the reviewer comments on your paper
+
+  "Representing groups on graphs"
+
+That was submitted to CC 2009. Thank you again for submitting
+your work to CC 2009.
+
+Sincerely,
+
+Johan Håstad
+The program chair
+************************************************************************
+
+Motivated by a relation to the classical Graph Isomorphism problem the authors
+initiate a study of a new problem called Group Representability. The problem
+is as follows: given a group G and a graph X one has to decide if the there is
+a non-trivial homomorphism from G to Aut(X). The authors show that for the
+restricted case of solvable groups Group Respresentability is equivalent to
+Graph Isomorphism.
+
+The authors also discuss the case of general (non-solvable) groups G, and
+suggest that in that generality the problem should not be in P. This part
+however is not very convincing. (The authors do not exhibit a reduction to any
+problem that has been studied earlier.)
+
+The paper is concise and clearly written. 
+
+An immediate question that comes up when reading the paper is:
+What is known about the complexity of computing Aut(X) given a graph X?
+
+Overall, I think this is a borderline paper for the CCC.
+
+========================================================================
+
+This paper defines and studies the following problem: given a
+group G and a graph X, determine whether there is a
+homomorphism from G to Aut(X). They prove that when G is
+abelian or even solvable, this problem is equivalent to graph
+isomorphism. This isn't surprising (or that hard -- although a
+bit of work is required in the second case).
+
+The problem for general G, and even for X being a tree, is
+shown to be equivalent to determining whether there's a
+non-trivial homomorphism from G to S_n. Most effort in the
+paper is spent proving the forward direction of this
+equivalence (that the problem for an arbitrary tree can be
+solved using queries to the latter problem). This is viewed as
+interesting/suprising because the latter problem does not seem
+to have a polynomial time algorithm, while graph isomorphism on
+trees does...
+
+Overall this paper is interesting, but not strongly motivated.
+I really don't know what to make of the third result, which is
+the bulk of the paper. Despite some similarities between the
+problems, I'm not sure why I should expect tree isomorphism and
+representability on trees to have similar complexities.
+
+========================================================================
+
+This paper defines a new problem termed "group representability": given a
+group G and a graph X decide whether there is a nontrivial group homomorphism
+G->Aut(X). The complexity of this problem is studied for various families of G
+and X: for abelian/solvable G the problem is equivalent to graph isomorphism
+while for a tree X it is equivalent to permutation representability.
+
+The connection with graph isomorphism is interesting. The reductions are
+simple but nontrivial. Unfortunately, there was not enough enthusiasm among
+the reviewers for the problem.
+
+Some remarks to improve the write-up:
+- Lemma 4.4: swap "if" and "then" in the statement.
+- Pf of Lemma 5.3, line 5: "...which is a not...", remove "a".
+- Pf of Lemma 5.5, line 6: "...T_\Delta a singleton vertex...", add "is".
+- ...line 4: "...since computing the a...", remove "the".
+- defn 5.7, line 3: GXH should be GXA.
+- pf of thm 5.12, line 4: "...form G...", make it "from".

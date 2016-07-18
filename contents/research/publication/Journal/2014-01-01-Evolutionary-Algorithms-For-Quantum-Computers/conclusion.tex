@@ -1,0 +1,54 @@
+In this paper, we have presented an approach to evolutionary
+algorithms on a quantum computer where we keep the mutation and
+selection process from the classical setting and use quantum
+probability amplification (Grover search) in order to find an improved
+offspring more quickly. We show that this does not affect the distinct
+samples that the algorithm produced on its way to an optimal solution,
+the quantum amplification only speed it up.  Furthermore our approach
+is universal, i.e., it works for any mutation operator. We also give
+methods to estimate the optimization using parameters of the classical
+heuristic.
+
+One important property of our heuristic is that it can at most give a
+quadratic improvement over the corresponding classical heuristic. This
+is similar to other general settings like unordered
+search~\cite{BennetBBGV1997,Zalka99} or query complexity of local
+search on a graph~\cite{Aaronson06}, in which it is proven or
+conjectured that quantum computers can give at most a quadratic
+speedup. The analyzed examples \onemax, \leadingones, \discrepancy,
+\needle, and \jumpm show that a substantial speedup is possible (as
+for \leadingones) but is not guaranteed (as for \discrepancy). The
+harder it is to improve the objective function, the better will
+quantum acceleration work. 
+
+
+We have also seen that it is important to choose the selection
+strategy carefully, since not only the runtime in the classical
+setting but also the speedup due to quantum acceleration depends on
+the choice of the selection strategy.  The reason for the different
+results is that by allowing equality of the objective functions we
+increase the number of valid successor states and thus we increase the
+probability to find such a state. But quantum enhancement is more
+powerful if these probabilities are small, as is illustrated by
+Lemma~\ref{lem:boundedq}. However, we believe there are ways to keep
+quantum enhancement powerful and still allow the algorithm to move to
+a successor state with unchanged objective value. We hope to discuss
+these issues in further work.
+
+%This has a surprising consequence. In order to be able to move on
+%fitness plateaus, in the Step 2.b) of a \rsh the condition
+%``$f(\mathbf{y}_t) > f(\mathbf{x}_t)$'' is often replaced by the
+%condition ``$f(\mathbf{y}_t) \ge f(\mathbf{x}_t)$
+%and~$\mathbf{y}_t\neq\mathbf{x}_t$''. We denote this variant by
+%\rsh{}$^*$. In the examples we analyze, this does not make much
+%difference for the classical case. However, for the quantum
+%algorithms, the results differ substantially. Due to lack of space,
+%we summarized the results in Table~\ref{tabA} and omit the proofs,
+%which are very similar to those we carried out.
+
+To conclude, we demonstrated a wide range of different behaviors of
+the progressive and conservative versions of the (1+1)~QEA and QLS on
+a number of well-studied basic pseudo-Boolean functions. In the line
+of this research, the next step would be to analyze the effects of
+quantum acceleration on classical problems in combinatorial
+optimization.

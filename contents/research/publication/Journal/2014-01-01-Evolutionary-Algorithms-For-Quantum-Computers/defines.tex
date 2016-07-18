@@ -1,0 +1,87 @@
+%\usepackage[obey]{fixacm}
+
+\usepackage[T1]{fontenc}
+\usepackage{color,graphicx}
+\usepackage{amsmath,amsthm,amssymb,amsfonts}
+\usepackage{nicefrac}
+\usepackage{ifthen}
+\usepackage{enumerate}
+\usepackage{xspace}
+\usepackage{url}\urlstyle{rm}
+%\usepackage{algorithmic}
+%\usepackage{longtable}
+%\usepackage{algorithm}
+%\usepackage[colorlinks]{hyperref}
+\definecolor{linkblue}{rgb}{0.2,0.2,0.8}
+\definecolor{ppkgreen}{rgb}{0,0.7,0.4}
+
+
+% Comments, Margins, etc
+\newcommand{\ignore}[1]{}
+%\newcommand{\comment}[1]{}
+%\newcommand{\comment}[1]{\mbox{}\smash{\makebox[0pt]{\raisebox{1.2ex}{$\blacktriangledown$}}}\marginpar{\raggedright\scriptsize{\makebox[0pt][r]{{$\blacktriangledown\,$}}#1}}}
+%\newcommand{\daniel}[1]{\comment{\textcolor{blue}{#1}}}
+%\newcommand{\johannes}[1]{\comment{\textcolor{red}{#1}}}
+%\newcommand{\piyush}[1]{\comment{\textcolor{ppkgreen}{#1}}}
+
+%hyphenations
+\hyphenation{dis-cre-pan-cy}
+
+% Theorem environment
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+% Mathematic abbreviations
+\newcommand{\Oh}{\ensuremath{{O}}} %% Big-Oh-Notation
+\newcommand{\oh}{\ensuremath{{o}}} %% Small-oh-Notation
+\newcommand{\EXP}{\ensuremath{\operatorname{E}}}
+\newcommand{\euler}{\ensuremath{\mathrm{e}}\xspace}
+
+% Pseudo-Boolean functions
+\newcommand{\onemax}{\textsc{OneMax}\xspace}
+\newcommand{\binval}{\textsc{BinaryValue}\xspace}
+\newcommand{\needle}{\textsc{Needle}\xspace}
+\newcommand{\tinytrap}{\textsc{TinyTrap}\xspace}
+\newcommand{\leadingones}{\textsc{LeadingOnes}\xspace}
+\newcommand{\discrepancy}{\textsc{Discrepancy}\xspace}
+\newcommand{\alternation}{\textsc{Alternation}\xspace}
+\newcommand{\plateau}{\textsc{Plateau}\xspace}
+\newcommand{\jump}{\textsc{Jump}\xspace}
+\newcommand{\jumpm}{\textsc{Jump}\ensuremath{{_m}}\xspace}
+
+% search heuristic subscripts
+\newcommand{\RSH}{\text{\tiny\rm RSH}}
+\newcommand{\QSH}{\text{\tiny\rm QSH}}
+\newcommand{\RLS}{\text{\tiny\rm RLS}}
+\newcommand{\QLS}{\text{\tiny\rm QLS}}
+\newcommand{\EA}{\text{\tiny\rm EA}}
+\newcommand{\QEA}{\text{\tiny\rm QEA}}
+\newcommand{\sRLS}{\text{\tiny\rm RLS$^*$}}
+\newcommand{\sQLS}{\text{\tiny\rm QLS$^*$}}
+\newcommand{\sEA}{\text{\tiny\rm EA$^*$}}
+\newcommand{\sQEA}{\text{\tiny\rm QEA$^*$}}
+
+% lower and uppler bound constant for quantum amplification
+\newcommand{\lb}{\ensuremath{c}\xspace}
+\newcommand{\ub}{\ensuremath{C}\xspace}
+
+%other shortcuts
+\newcommand{\bmid}{\,\big|\,}
+\newcommand{\ket}[1]{\ensuremath{\left\vert #1 \right\rangle}}
+\newcommand{\bra}[1]{\ensuremath{\left\langle #1 \right\vert}}
+\newcommand{\bracket}[2]{\ensuremath{\left\langle #1 \vert #2 \right\rangle}}
+\newcommand{\abs}[1]{\ensuremath{\left\vert #1 \right\vert}}
+\newcommand{\ham}[1]{\ensuremath{\vert #1\vert_1}}
+\newcommand{\mut}{\ensuremath{\textsc{mut}}\xspace}
+
+\newcommand{\xvec}[1][]{\ensuremath{\ifthenelse{\equal{#1}{}}{\mathbf{x}}{\mathbf{x}^{\left(#1\right)}}}}     
+\newcommand{\yvec}[1][]{\ensuremath{\ifthenelse{\equal{#1}{}}{\mathbf{y}}{\mathbf{y}^{\left(#1\right)}}}}     
+\newcommand{\zvec}[1][]{\ensuremath{\ifthenelse{\equal{#1}{}}{\mathbf{z}}{\mathbf{z}^{\left(#1\right)}}}}     

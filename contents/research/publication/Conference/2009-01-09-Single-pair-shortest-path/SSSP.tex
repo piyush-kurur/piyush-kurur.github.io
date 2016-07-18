@@ -1,0 +1,1136 @@
+% http://www.sigevo.org/foga-2009/submissions.html, Deadline 10.09.2008, 10-12pages
+
+\newif\ifACM
+
+% just remove next line for article format !!!!!
+\ACMtrue
+
+\ifACM
+    \documentclass{sig-alternate}
+    \usepackage[obey]{fixacm}
+    \newcommand{\NOTE}[1]{}
+            % \marginpar doesn't properly work with ACM style !!
+    \bibliographystyle{abbrv}
+\else 
+    \documentclass[11pt,a4paper,oneside]{article}
+    \usepackage{a4}
+%    \usepackage{amsthm}
+%    \theoremstyle{plain}
+    \newcommand{\NOTE}[1]{\marginpar{\setstretch{0.43}\textcolor{red}{\bf\tiny #1}}}
+    \usepackage[numbers,sort&compress,longnamesfirst,sectionbib]{natbib}             % for nicer citations
+    \bibliographystyle{myabbrvnat}            % \marginpar doesn't work in math environment !!
+    \usepackage[american]{babel}
+    \setlength{\textwidth}{14cm}
+    \setlength{\textheight}{22cm}
+    \oddsidemargin21pt
+    \evensidemargin21pt
+    \topmargin10pt
+\fi
+
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
+
+%\renewcommand{\rmdefault}{phv} % Arial
+%\renewcommand{\sfdefault}{phv} % Arial
+
+\usepackage{amsmath, amssymb}
+\usepackage[all]{xy}
+\usepackage[usenames]{color}
+\usepackage{psfrag}
+%\usepackage{graphics}
+%\usepackage{graphicx}
+%\usepackage{epsfig}
+\usepackage[latin1]{inputenc}
+%\usepackage{setspace}                  % for change of line spacing
+\usepackage{xspace}
+
+%\usepackage[labelfont=bf,font=small,indention=0.3cm,margin=0cm]{caption}  % for hanging captions
+
+%Codebox
+\newlength{\mpwidth}
+\setlength{\mpwidth}{2\linewidth}
+\addtolength{\mpwidth}{-6.5cm}
+\usepackage{pstricks}
+\usepackage{clrscode} % Typeset algorithms like in ``Introduction to Algorithms'', see http://www.cs.dartmouth.edu/~thc/clrscode/
+\newcommand{\code}[1]{{
+  \begin{center}%
+    \psframebox[linecolor=black,boxsep=true,framesep=3mm,framearc=.1]{%linecolor=black,boxsep=true,framesep=3mm,framearc=.1
+      \begin{minipage}{\mpwidth}\vspace{-2ex}
+        \begin{codebox}%
+        #1      
+        \end{codebox}%
+      \end{minipage}%
+    }%
+  \end{center}%
+}}% Repeat Forever for clrscode
+\newcommand{\RepeatForever}{\textbf{repeat forever}\>\>\addtocounter{indent}{1}}
+\newcommand{\Forever}{\kill\addtocounter{indent}{-1}\liprint\>\>\textbf{forever}\hspace*{-0.7em}\'}
+
+
+\hyphenation{mono-ton-icity}
+
+
+\newcommand{\ee}{\varepsilon\xspace}
+\newcommand{\ie}{i.\,e.\xspace}
+
+\newcommand{\pn}{\text{penalty}}
+
+\newcommand{\Wlog}{W.\,l.\,o.\,g.\xspace}
+\renewcommand{\Wlog}{Without loss of generality\xspace}
+\newcommand{\wrt}{w.\,r.\,t.\xspace}
+\newcommand{\wlo}{w.\,l.\,o.\,g.\xspace}
+\renewcommand{\wlo}{without loss of generality\xspace}
+\newcommand{\st}{s.\,t.\xspace}
+\newcommand{\eg}{e.\,g.\xspace}
+\newcommand{\uar}{u.\,a.\,r.\xspace}
+\newcommand{\aas}{a.\,a.\,s.\xspace}
+
+\newcommand{\IGNOREME}[1]{}
+\newcommand{\MISSING}{\textcolor{red}{\bf\huge Missing!!!}}
+\newcommand{\TODO}[1]{\textcolor{red}{\bf\huge\textsc To do:} #1}
+
+
+%\numberwithin{equation}{book}% [if desired]
+\newtheorem{thm}{Theorem}  %[chapter]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{ass}{Assumption}
+\newtheorem{pro}{Proposition}
+\newtheorem{con}{Conjecture}
+%\theoremstyle{definition}
+\newtheorem{defi}{Definition}
+
+
+\newcommand{\thmref}[1]{Theorem~\ref{thm:#1}}
+\newcommand{\lemref}[1]{Lemma~\ref{lem:#1}}
+\newcommand{\lemrefs}[2]{Lemmas~\ref{lem:#1} and~\ref{lem:#2}}
+\newcommand{\lemrefss}[3]{Lemmas~\ref{lem:#1},~\ref{lem:#2}, and~\ref{lem:#3}}
+\newcommand{\corref}[1]{Corollary~\ref{cor:#1}}
+\newcommand{\defref}[1]{Definition~\ref{def:#1}}
+\newcommand{\defrefs}[2]{Definitions~\ref{def:#1} and~\ref{def:#2}}
+\newcommand{\assref}[1]{Assumption~\eqref{ass:#1}}
+\newcommand{\conref}[1]{Conjecture~\ref{con:#1}}
+\newcommand{\figref}[1]{Figure~\ref{fig:#1}}
+\newcommand{\figrefs}[2]{Figures~\ref{fig:#1} and~\ref{fig:#2}}
+\newcommand{\tabref}[1]{Table~\ref{tab:#1}}
+\newcommand{\secref}[1]{Section~\ref{sec:#1}}
+\newcommand{\secrefs}[2]{Sections~\ref{sec:#1} and~\ref{sec:#2}}
+\newcommand{\charef}[1]{Chapter~\ref{cha:#1}}
+\newcommand{\eq}[1]{equation~\eqref{eq:#1}}
+\newcommand{\eqs}[2]{equations~\eqref{eq:#1} and~\eqref{eq:#2}}
+\newcommand{\eqss}[3]{equations~\eqref{eq:#1},~\eqref{eq:#2}, and~\eqref{eq:#3}}
+\newcommand{\Eqs}[2]{Equations~\eqref{eq:#1} and~\eqref{eq:#2}}
+%\newcommand{\pred}[1]{\ensuremath{\mathrm{pred}\left(#1\right)}}
+%\renewcommand{\Pr}[1]{\textup{\textbf{Pr}}\left[#1\right]}
+\newcommand{\Ex}[1]{\textup{\textbf{E}}\left[#1\right]}
+
+
+\def\argmax{\operatornamewithlimits{argmax}}
+\def\argmin{\operatornamewithlimits{argmin}}
+\def\mod{\operatorname{mod}}
+
+\def\avgdeg{\operatorname{avgdeg}}
+\def\polylog{\operatorname{polylog}}
+\def\diam{\operatorname{diam}}
+\def\dist{\operatorname{dist}}
+\def\touch{\operatorname{touch}}
+
+
+\DeclareSymbolFont{AMSb}{U}{msb}{m}{n}
+\newcommand{\N}{{\mathbb{N}}}
+\newcommand{\Q}{{\mathbb{Q}}}
+\newcommand{\Z}{{\mathbb{Z}}}
+\newcommand{\R}{{\mathbb{R}}}
+\newcommand{\setmid}{\,|\,}
+\newcommand{\RT}{{\ensuremath{\mathcal{R}}}}
+\newcommand{\G}{{\ensuremath{\mathcal{G}}}}
+
+\newcommand{\oneoneea}{(1+1)~EA\xspace}
+
+
+%%  Benjamins Makros
+
+\newcommand{\nospell}[1]{#1}
+\newcommand{\ignore}[1]{}
+
+\newcommand{\sref}[1]{Section~\ref{#1}}
+\newcommand{\tref}[1]{Theorem~\ref{#1}}
+\newcommand{\lref}[1]{Lemma~\ref{#1}} 
+\newcommand{\cref}[1]{Corollary~\ref{#1}} 
+\newcommand{\fref}[1]{Figure~\ref{#1}}
+%\renewcommand{\O}{\ensuremath{{O}}} %% Big-Oh-Notation
+%\renewcommand{\o}{\ensuremath{{o}}} %% Small-oh-Notation
+\newcommand{\Oh}{\ensuremath{\mathcal{O}}}
+\newcommand{\Hm}[1][m]{\ensuremath{{\mathcal H}_#1}} %% Harmonic number
+\newcommand{\Po}{\ensuremath{\mathop{\rm Pois}}}
+\newcommand{\E}{{\mathbb{E}}}   % expected value
+\newcommand{\I}{\ensuremath{I}}
+%\newcommand{\I}{\ensuremath{\mathcal I}}
+
+% Various abbreviations
+\newcommand{\ea}{\mbox{$(1+1)$-EA}}
+\newcommand{\Gnl}{\ensuremath{G_{n,\ell}}}
+\newcommand{\tr}{\textit{tr}}
+\newcommand{\rgw}[1][G]{\ensuremath{\ell_{#1}}}
+\newcommand{\merk}[1]{{\textcolor{red}{\bf #1}}}
+
+% --------------------------------------------------------------------------------
+% redefinition of proof environment similar to amsthm package
+% -> allows use of \qedhere!!
+\makeatletter
+\DeclareRobustCommand{\qed}{\ifmmode\mathqed\else\leavevmode\unskip\penalty9999\hbox{}\nobreak\hfill\quad\hbox{\qedsymbol}\fi}
+\let\QED@stack\@empty
+\let\qed@elt\relax
+\newcommand{\pushQED}[1]{\toks@{\qed@elt{#1}}\@temptokena\expandafter{\QED@stack}\xdef\QED@stack{\the\toks@\the\@temptokena}}
+\newcommand{\popQED}{\begingroup\let\qed@elt\popQED@elt \QED@stack\relax\relax\endgroup}
+\def\popQED@elt#1#2\relax{#1\gdef\QED@stack{#2}}
+\newcommand{\qedhere}{\begingroup \let\mathqed\math@qedhere\let\qed@elt\setQED@elt \QED@stack\relax\relax \endgroup}
+\newif\ifmeasuring@
+\newif\iffirstchoice@ \firstchoice@true
+\def\setQED@elt#1#2\relax{\ifmeasuring@\else \iffirstchoice@ \gdef\QED@stack{\qed@elt{}#2}\fi\fi#1}
+\newcommand{\mathqed}{\quad\hbox{\qedsymbol}}
+\def\linebox@qed{\hfil\hbox{\qedsymbol}\hfilneg}
+\def\math@qedhere{\@ifundefined{\@currenvir @qed}{\qed@warning\quad\hbox{\qedsymbol}}{\@xp\aftergroup\csname\@currenvir @qed\endcsname}}
+\def\displaymath@qed{\relax\ifmmode\ifinner\aftergroup\linebox@qed\else\eqno\let\eqno\relax \let\leqno\relax \let\veqno\relax\hbox{\qedsymbol}\fi\else\aftergroup\linebox@qed\fi}
+\@xp\let\csname equation*@qed\endcsname\displaymath@qed
+\def\equation@qed{
+  \iftagsleft@\hbox{\phantom{\quad\qedsymbol}}\gdef\alt@tag{\rlap{\hbox to\displaywidth{\hfil\qedsymbol}}\global\let\alt@tag\@empty}
+  \else\gdef\alt@tag{\global\let\alt@tag\@empty\vtop{\ialign{\hfil####\cr\tagform@\theequation\cr\qedsymbol\cr}}\setbox\z@}
+  \fi
+}
+\def\qed@tag{\global\tag@true \nonumber&\omit\setboxz@h {\strut@ \qedsymbol}\tagsleft@false\place@tag@gather\kern-\tabskip\ifst@rred \else \global\@eqnswtrue \fi \global\advance\row@\@ne \cr}
+\def\split@qed{\def\endsplit{\crcr\egroup \egroup \ctagsplit@false \rendsplit@\aftergroup\align@qed}}
+\def\align@qed{\ifmeasuring@ \tag*{\qedsymbol}\else \let\math@cr@@@\qed@tag\fi}
+\@xp\let\csname align*@qed\endcsname\align@qed
+\@xp\let\csname gather*@qed\endcsname\align@qed
+\def\@tempb#1 v#2.#3\@nil{#2}
+\ifnum\@xp\@xp\@xp\@tempb\csname ver@amsmath.sty\endcsname v0.0\@nil<\tw@\def\@tempa{TT}\else\def\@tempa{TF}\fi
+\if\@tempa\renewcommand{\math@qedhere}{\quad\hbox{\qedsymbol}}\fi
+\newcommand{\openbox}{\leavevmode\hbox to.77778em{\hfil\vrule\vbox to.675em{\hrule width.6em\vfil\hrule}\vrule\hfil}}
+\DeclareRobustCommand{\textsquare}{\begingroup\usefont{U}{msa}{m}{n}\thr@@\endgroup}
+\providecommand{\qedsymbol}{\openbox}
+\renewenvironment{proof}[1][\proofname]{\par\pushQED{\qed}\normalfont\topsep6\p@\@plus6\p@\relax\trivlist\item[\hskip\labelsep\itshape #1\@addpunct{.}]\ignorespaces}{\popQED\endtrivlist\@endpefalse}
+\providecommand{\proofname}{Proof}
+\makeatother
+% --------------------------------------------------------------------------------
+
+
+\allowdisplaybreaks[2]   % allow linebreaks even in muli-line equations
+
+%\pagestyle{headings}
+%\pagenumbering{arabic}
+
+\sloppy                % suppresses words extending past right-hand margin
+
+\title{Computing Single Source Shortest Paths\\
+       using Single-Objective Fitness
+       Functions\titlenote{Work supported by the Collaborative Research Program of the Research I Foundation, IIT Kanpur.
+       Tobias Friedrich's work was also partially supported by a postdoctoral fellowship
+       from the German Academic Exchange Service (DAAD).}}
+
+
+
+\date{}
+
+
+\numberofauthors{6}
+
+\author{
+\alignauthor Surender Baswana\\
+    \affaddr{Department of Computer Science and Engineering}\\
+    \affaddr{IIT Kanpur}\\
+    \affaddr{208016 Kanpur, India}\\
+% 2nd. author
+\alignauthor Somenath Biswas\\
+    \affaddr{Department of Computer Science and Engineering}\\
+    \affaddr{IIT Kanpur}\\
+    \affaddr{208016 Kanpur, India}\\
+% 3rd. author
+\alignauthor Benjamin Doerr\\
+    \affaddr{Max-Planck-Institut f\"ur Informatik}\\
+    \affaddr{Campus E1 4}\\
+    \affaddr{66123 Saarbr\"ucken, Germany}
+\and  % use '\and' if you need 'another row' of author names
+% 4th. author
+\alignauthor Tobias Friedrich\titlenote{Tobias Friedrich's
+work was partially supported by a postdoctoral fellowship
+from the German Academic Exchange Service (DAAD).}\\
+    \affaddr{International Computer Science Institute}\\
+    \affaddr{1947 Center St., Suite 600}\\
+    \affaddr{94704 Berkeley, CA, USA}
+% 5th. author
+\alignauthor Piyush P. Kurur\\
+    \affaddr{Department of Computer Science and Engineering}\\
+    \affaddr{IIT Kanpur}\\
+    \affaddr{208016 Kanpur, India}\\
+% 6th. author
+\alignauthor Frank Neumann\\
+    \affaddr{Max-Planck-Institut f\"ur Informatik}\\
+    \affaddr{Campus E1 4}\\
+    \affaddr{66123 Saarbr\"ucken, Germany}
+}
+
+\author{
+\alignauthor
+    Surender Baswana$^\dagger$\\[1em]
+    Tobias Friedrich$^\S$
+\alignauthor    
+    Somenath Biswas$^\dagger$\\[1em]
+    Piyush P. Kurur$^\dagger$
+\alignauthor
+    Benjamin Doerr$^\ddagger$\\[1em]
+    Frank  Neumann$^\ddagger$ \and
+\alignauthor
+    \affaddr{$^\dagger$ Department of Computer Science and Engineering}\\
+    \affaddr{Indian Institute of Technology Kanpur}\\
+    \affaddr{208016 Kanpur, India}\\
+\alignauthor
+    \affaddr{$^\ddagger$ Max-Planck-Institut f\"ur Informatik}\\
+    \affaddr{Campus E1 4}\\
+    \affaddr{66123 Saarbr\"ucken, Germany}
+\alignauthor
+    \affaddr{$^\S$ International Computer Science Institute}\\
+    \affaddr{1947 Center St., Suite 600}\\
+    \affaddr{94704 Berkeley, CA, USA}
+}
+
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+\begin{document}
+
+\conferenceinfo{FOGA'09,} {January 9--11, 2009, Orlando, Florida, USA.} 
+\CopyrightYear{2009}
+\crdata{978-1-60558-414-0/09/01} 
+
+%\toappear{To appear in the Tenth ACM Foundations of Genetic Algorithms (FOGA~X),
+%          January 2009, Orlando, Florida, USA.}
+
+\maketitle
+
+\begin{abstract}
+    Runtime analysis of evolutionary algorithms has become an
+    important part in the theoretical analysis of randomized search
+    heuristics. 
+    %After initial investigations on pseudo-Boolean
+    %functions, combinatorial optimization problems are now being
+    %studied. 
+    The first combinatorial problem where rigorous runtime
+    results have been achieved is the well-known single source
+    shortest path (SSSP) problem. Scharnow, Tinnefeld and Wegener 
+    [PPSN 2002, J.~Math.~Model.~Alg. 2004]
+    proposed a multi-objective approach which solves the problem in
+    expected polynomial time. They also suggest a 
+    related single-objective fitness function. However, it was left open whether this does solve the problem efficiently, and, in a broader context, whether multi-objective fitness functions for problems like the SSSP yield more efficient evolutionary algorithms.
+    In this paper, we show
+    that the single objective approach yields an efficient
+    \oneoneea with runtime bounds very close to those of the
+    multi-objective approach.
+\end{abstract}
+
+\category{F.2}{Theory of Computation}{Analysis of Algorithms and Problem Complexity}
+\terms{Theory, Algorithms, Performance}
+
+
+
+
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+
+
+\section{Introduction}
+\label{sec:intro}
+
+Evolutionary algorithms (EAs) have been successfully applied to a wide range of 
+combinatorial optimization problems. Understanding the success of these 
+randomized search heuristics by rigorous analyses has gained increasing interest 
+in recent years. One approach to analyze evolutionary algorithms is by means of 
+carrying out a rigorous runtime analysis. The line of research has been started 
+by analyzing the behavior of EAs on simple pseudo-Boolean functions 
+\cite{Mue1992,Rudsel1996,djwea02}. Later on, some of the best known 
+combinatorial optimization problems have been investigated 
+\cite{matchea03,NeumannWegenerTCS,witt05}. 
+
+The first problem of this kind where 
+rigorous runtime results have been achieved is the well-known single source 
+shortest path (SSSP) problem \cite{spea04}. Computing shortest paths in a given 
+graph is one of the fundamental problems in computer science and still an 
+important field of research \cite{SandersS06,Basetal07,KnoppSSSW07}. In the area 
+of randomized search heuristics related problems such as vehicle routing 
+\cite{El-FallahiPC08} and routing problems in networks 
+\cite{DorigoStuetzleACOBook,KimC07} have been tackled. Therefore, it seems to be 
+important to understand the basic SSSP problem from a theoretical point of view 
+to gain new insights that will help practitioners solving related problems arising in 
+applications.
+
+In \cite{spea04}, the authors examined a simple EA together with a
+multi-objective fitness function which makes the EA mimic Dijkstra's algorithm for the 
+SSSP problem~\cite{Dijkstra1959}. Its optimization time (that is, the number of fitness evaluations used) is $\Oh(n^3)$, where $n$ is the number of vertices of the input graph. Additionally, they have given a
+single-objective approach which they suppose to be efficient. However, the authors state that they were not able to analyze their approach with respect to the runtime 
+behavior. In this paper, we point out that the multi-objective fitness function 
+is not necessary. We 
+consider the proposed single-objective approach  and show how it solves the SSSP 
+problem in expected polynomial time. 
+
+In the case that a simple randomized local search procedure is used, it is not 
+too hard to prove that such an approach again follows the ideas of Dijkstra's 
+algorithm. This follows from the fact that the new solution is constructed in 
+the 1-neighborhood of the previous one.   Simple EAs may construct 
+solutions that are further away from the current search point. For the SSSP, 
+this may result in that shortest paths for certain vertices can get lost in 
+exchange for other short paths. This is a crucial difference to what happens in 
+Dijkstra's algorithm. 
+
+\begin{figure*}
+    \code{
+    \Procname{\proc{\ea\ for SSSP}}
+    \zi  \bf{Initialization:}
+    \li  $\mathbf{u}\gets (u_{1},\ldots,u_{n-1})$, \\
+    \> $u_{i}\in V\setminus \{v_i\}$ chosen uniformly at random.
+    \li  \Repeat
+    \zi    \bf{Mutation:}
+    \li      Pick $S$ according to $\Po(\lambda=1)$
+    \li      $\mathbf{u}^0 \gets \mathbf{u}$
+    \li      \For $k=1$ to  $S+1$
+    \li      \Do
+    \li        Choose $i\in\{1, \ldots, n-1\}$  uniformly at random. 
+    \li        Choose $v_j\in V \setminus \{v_i\}$ uniformly at random.
+    \li        Generate $\mathbf{u}^k$ from $\mathbf{u}^{k-1}$ by setting 
+    $u_i$ to $v_j$.
+    \End
+    \zi \bf{Selection:}
+    \li      \If $f_{\mathbf{u}^{S+1}}\leq f_\mathbf{u}$
+    \li       \Then $\mathbf{u} \gets \mathbf{u}^{S+1}$
+             \End
+    \li    \Forever
+}
+  \caption{\label{alg:ea}The \ea\ with single-objective fitness function $f$ for the SSSP problem.}
+\end{figure*}
+
+In fact, it has been shown recently (for a different problem though) that this 
+more general search behavior can increase the optimization time from polynomial 
+for randomized local search to exponential for EAs, even under conditions that 
+look highly favorable for the EA~\cite{Doerr2:2008:gecco}. In this light, the 
+work of~\cite{spea04} raises the question whether such a phenomenon also occurs 
+for the SSSP problem. 
+
+We answer this question and prove that the more flexible mutation 
+allowed in EAs still leads to a polynomial optimization time, more precisely,
+to an expected optimization time of $\Oh(n^3 \log(n + w_{\max}))$, where $w_{\max}$ is the largest of the (integral) edge weight. Our analysis uses 
+new structural insights of the SSSP problem which point out how randomized 
+search heuristics may achieve progress for this kind of problem even if they may 
+not follow the ideas of Dijkstra. These positive results are later on 
+complemented with lower bounds for the examined algorithms which show that our 
+analyses are almost tight. 
+
+We should note that the results in~\cite{spea04} have 
+recently been improved in~\cite{ssspcec07}. In addition to $n$ denoting the number of vertices of the input graph, let $\ell$ denote the maximum number of edges of a shortest path. Then~\cite{ssspcec07} shows that the optimization time of the multi-objective EA proposed in~\cite{spea04} is $\Oh(n^2 \max\{\log(n), \ell\})$ with high probability. The methods of~\cite{spea04} would only yield an  optimization time of $\Oh(n^2 \ell \log(n))$ in expectation.
+Hence the improvements are both a stronger bound on the expected optimization time
+for graphs having small diameter and a sharper concentration bound for the optimization time in general graphs. However, no progress was made on whether the SSSP can 
+be approached via single-objective methods
+
+The outline of the paper is as follows. In Section~\ref{sec:algo}, we present 
+the single-objective approach that will be analyzed throughout this paper. 
+Section~\ref{sec:upper} shows that the single-objective approach solves the 
+SSSP in expected polynomial time and Section~\ref{sec:lower} gives almost 
+matching lower bounds. Finally, we finish with some concluding remarks.
+
+ 
+
+
+
+
+
+
+
+
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+
+\section{Algorithm}
+\label{sec:algo}
+
+We consider the well-known single source shortest paths problem
+(SSSP).  Given a directed graph $G=(V,E)$ with $V= \{v_0, \ldots,
+v_{n-1}\}$ and $E = \{e_1, \ldots, e_m\}$. Additionally, a weight
+function $w\colon E \rightarrow \N$ is given which assigns integer
+distance values to the edges.  Let $w_{\max} = \max_{e \in E} w(e)$.
+We may extend $w$ to all $(u,v)$, $u \not = v$, by setting $w((u,v)) = \infty$ iff
+$(u,v) \notin E$. Given a distinguished vertex $s \in V$, say $s = v_0$, the 
+single source shortest path problem is to compute for  each vertex $v_i$,
+$1\leq i \leq n-1$, a shortest path from $s$ to $v_i$. \Wlog,
+we assume that such a path exists for each $v_i$. It is both a well known fact 
+and easy to see that a set of such shortest paths always forms a tree,
+which is therefore called a \emph{shortest path tree}. 
+
+We examine the \oneoneea for the SSSP problem (see
+Figure~\ref{alg:ea}) already investigated in \cite{spea04}.  The
+search space consists of all candidate solutions $\mathbf{u} = (u_1,
+\ldots, u_{n-1}) \in \{v_0, \ldots, v_{n-1}\}^{n-1}$ where $u_i \neq v_i$.
+The goal of the algorithm is to find a $\mathbf{u} =
+(u_1,\ldots,u_{n-1})$ such that the edges $(u_i, v_i)$ form a shortest path tree $T$
+rooted at $s$ (that is, for each vertex $v_i$, $1 \leq i \leq n -1$, $u_i$ is
+the predecessor of $v_i$ in the shortest path from $s$ to $v_i$ contained in $T$). 
+
+The initial solution is chosen
+uniformly at random from the search space.  In each iteration one
+single offspring is produced by mutation. The mutation consists of
+changing the predecessor of some $S+1$ vertices uniformly at random,
+where the value of $S$ is chosen according to the Poisson distribution with
+parameter $\lambda=1$. This distribution is as proposed in~\cite{spea04}.
+
+ 
+There are many 
+invalid solutions, \ie, search points that do not represent trees.
+Assigning a cost of $\infty$ to such solutions, it is   
+hard for a randomized search heuristic to obtain a valid solution. Due to this a 
+multi-objective fitness function has been investigated for this problem and
+an upper bound of $\Oh(n^3)$ on the expected optimization time has been proven. 
+Additionally, a single-objective fitness function has been given
+which leads the algorithm towards valid solutions. 
+Instead of using the value $\infty$ for solutions that do not
+represent trees each vertex that is not connected to the source is penalized. Using penalty values 
+is a common approach for handling constraints (see \eg \cite{Michalewicz95}) and 
+leads the algorithm towards feasible solutions. 
+
+In \cite{spea04} the authors state that they are not able to analyze this approach.
+Our goal is to show that this single-objective approach indeed works and
+finds an optimal solution in expected polynomial time. 
+
+Now we describe the single objective function that is investigated
+in the rest of this paper. Consider a candidate solution
+$\mathbf{u}=(u_1,\ldots,u_{n-1})$ where $u_i$ is supposed to be the
+immediate predecessor of the vertex $v_i$. Associated with $\bf{u}$
+consider the subgraph $T_{\bf{u}}$ of the input graph $G$ consisting
+of those pairs $(u_j,v_j)$ which are edges in $G$. For a vertex $v$, if
+there is a path in $T_{\bf{u}}$ from the source $s$ to $v$ it has to
+be unique. Let $\gamma_v$ denote the unique path in such
+cases. Whenever such unique path $\gamma_v$ exists for a vertex $v$ we
+define its cost $f_{\bf{u}}(v)$ to be the sum of the weights of the
+edges in $\gamma_v$. On the other hand if $v$ is unreachable from $s$
+in $T_{\mathbf{u}}$, then the cost $f_{\mathbf{u}}(v)$ is set to
+$d_{\mathrm{penalty}} := n \cdot w_{\mathrm{max}}$.  The
+fitness $f_{\mathbf{u}}$ of a candidate solution ${\bf u}$ is given by
+\[
+ f_{\mathbf{u}} := \sum_{i=1}^{n-1} f_{\mathbf{u}}(v_i).
+\] 
+
+In our analysis of the runtime behavior of the algorithm, we bound the number of 
+evaluations of the fitness function required to reach an optimal solution. The 
+expected optimization time refers to the expectation of this value. The 
+difficulty in analyzing the stated approach lies in the occurrence of mutation 
+steps that change more than one predecessor. In this case, shortest paths found 
+during the run of the algorithm may get lost. Assuming that in each mutation 
+step just one vertex changes its predecessor it is easy to prove an upper bound 
+of $\Oh(n^3)$ as for the multi-objective approach given in \cite{spea04} by 
+following the ideas of Dijkstra's algorithm.
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+
+\section{Upper Bound}
+\label{sec:upper}
+\newcommand{\node}[0]{\bullet}
+
+\newcommand{\beginn}{\mathit{begin}}
+\newcommand{\final}{\mathit{final}}
+
+We now prove an upper bound on the running time of the \oneoneea.
+As mentioned before we will assume that the
+input graph is a complete graph. We start the algorithm with each vertex
+picking one of the edges incident on it at random. It then proceeds in
+stages where in each stage it decides to \emph{mutate} $k+1$ vertices,
+$k$ picked according to the Poisson distribution of mean $1$,
+accepting the mutation if and only if it does not lead to an increase in the
+objective function.
+
+Let $\mathbf{u}_i$ denote the candidate solution after $i$ mutations.
+Recall the definition of the objective function $f_{\mathbf{u}_i}$.
+For ease of notation let $f_i(v)$ denote the cost
+$f_{\mathbf{u}_i}(v)$ associated with the vertex $v$ and let $f_i$
+denote the fitness $f_{\mathbf{u}_i}$ of the candidate solution
+$\mathbf{u}_i$. Similarly let $T_i$ denote the subgraph
+$T_{\mathbf{u}_i}$ of valid edges (i.e. edges of the input graph $G$)
+present in the candidate solution $\mathbf{u}_i$.
+
+The key idea behind our upper bound is the following: We prove that in
+each mutation the value of the objective function reduces at least by
+a factor of $1-\Omega(n^{-3})$ with high probability. Thus in
+time $\Oh(n^3)$ the value of the objective function
+reduces by a multiplicative factor of at most $c<1$.
+The value of the objective function is less than $n \cdot d_\mathrm{penalty}$
+initially. Assuming the edge weights are integers, after
+$\Oh\left(n^3 \cdot (\log{n} +
+\log{d_{\mathrm{penalty}}})\right)$ mutations the algorithm will find
+the shortest distance tree with high probability.
+Note, that this approach is similar to the expected multiplicative weight decrease for the analysis of the \oneoneea and the minimum spanning tree problem \cite{NeumannWegenerTCS}. The difference of our approach to this one is that we do not give a set of operations that turn the current solution into an optimal one. Instead of this we give a set of operations that lead to a solution whose distance to an optimal one is by a factor of $(1 - 1/n)$ smaller than the distance of the current solution to an optimal one.
+
+We now define two parameters called delay and gap which we use to
+analyze the rate at which the objective function decreases. Let $T$ be
+the shortest path tree in the graph (if there are more than one pick
+one and fix it for the rest of the section). Let $\delta(s,v)$ denote
+the distance of $v$ from $s$ in $T$. The \emph{delay} of the vertex
+$v$ after $i$ mutations is defined to be $d_i(v) = f_i(v) - \delta(s,
+v)$. By \emph{gap} $g_i$ of the candidate solution after $i$ mutations
+we mean $g_i = f_i - \sum_v \delta(s,v)$. Notice that $g_i = \sum_v
+d_i(v)$.  When the gap drops to $0$ we have the desired shortest
+distance tree. Thus gap measures how far the fitness function is
+currently from the final optimal value $\sum_v \delta(s,v)$.
+
+
+%% A \emph{mutation} corresponds to a vertex changing its outgoing
+%% (destination) edge. During each iteration, a random number of
+%% mutations occur concurrently, and the number of these mutations is a
+%% Poisson random variable with expected value 2.  Furthermore, a vertex
+%% performing mutation changes its destination is also uniformly
+%% random. After these mutations, if the fitness function reduces, then
+%% these changes are accepted, and otherwise they are discarded. The
+%% algorithm continues in this fashion and terminates when
+%% $L(v)=\delta(s,v)$ for all vertices and hence $f=\sum_v
+%% \delta(s,v)$. Our aim is to provide an upper bound on the expected
+%% number of iterations of this algorithm.
+%% At the start of the algorithm the gap $g_0$ is at most $n^2
+%% w_{\mathrm{max}}$. 
+
+%% Overview of our analysis is the following : we shall show that during each 
+%% iteration Gap reduces, on an average, by a factor of $1/n^3$. We shall then
+%% use it to get an $\Oh(n^3 \ln g_o)$ bound on the number of iterations of 
+%% the \oneoneea.
+
+\begin{lem}\label{single-iteration-analysis}
+  Let $g_i$ denote the gap after $i$ mutations then the conditional
+  expectation $\E[g_{i+1}\mid  g_i = g]$ is given by.
+  \[
+  \E[g_{i+1}\mid g_i=g] \le g\left(1-\frac{1}{3\cdot n^3}\right)
+  \]
+\end{lem}
+\begin{proof}  
+  Let the current gap $g_i$ be $g$.  Since the total delay $\sum_{v}
+  d_i(v)$ is $g$, there is at least one vertex $v$ such that its delay
+  $d_i(v)$ is at least $\frac{g}{n}$.  Let $T$ be the shortest path
+  tree in the graph that we have fixed for our analysis. Let $\gamma =
+  \langle s = v_0,\ldots,v_\ell = v \rangle$ be the path from $s$ to
+  $v$ in $T$.  Denote by $E(\gamma)$ the set of its edges. For an edge $e = (v_k,v_{k+1}) \in E(\gamma)$ let $D(e) =
+  d_i(v_{k+1}) - d_i(v_k)$ be the difference of the delays of the end
+  points of $e$. Since $d_i(s) = 0$ we have
+  
+  \begin{align}
+    D(\gamma) &:= \sum_{e \in E(\gamma)} D(e)\notag\\
+            &= d_i(v_\ell) - d_i(v_{\ell -1}) + \ldots + d_i(v_1) - d_i(v_0) \notag\\
+        &= d_i(v_\ell) - d_i(v_0) \notag\\
+        &\geq \frac{g}{n}.
+        \label{eq:gap:telescope}
+  \end{align}
+  
+  \begin{figure}
+    \begin{center}
+    \scalebox{.45}{\input{figure-2.pstex_t}}
+    \end{center}
+    \caption{How a good edge enters the solution.}
+    \label{fig-enter-good}
+  \end{figure}
+
+
+  We define an edge $e$ in $\gamma$ to be \emph{positive} if the
+  difference of the delays of its end points, $D(e)$, is positive.
+  Let $E^{+}(\gamma)$ denote the set of positive edges in $\gamma$. Then
+
+  \begin{equation}
+    D(E^{+}(\gamma)) := \sum_{e \in E^{+}(\gamma)} D(e) \geq \sum_{e \in
+    E(\gamma)} D(e) \geq \frac{g}{n}
+    \label{sum-of-positive-edges}
+  \end{equation}
+
+
+  Consider any positive edge $e = (x,y)$ in the path $\gamma$. We
+  claim that $x$ has to be connected to the source $s$ in the graph
+  $T_i$. Otherwise the value of the fitness function $f_i(x) =
+  d_{\mathrm{penalty}}$. Since $f_i(y) \leq d_{\mathrm{penalty}}$, it
+  follows that $D(e) = d(y) - d(x) \leq 0$ and hence $e$ is not
+  positive.
+
+  Having proved that $x$ is reachable from $s$ we prove that the edge
+  $e$ is not present in the current candidate solution. Otherwise $e$
+  will be present in the graph $T_i$ and since the vertex $x$ is
+  reachable from $s$ in $T_i$, so will be $y$. Let $\gamma'$ be the
+  path from $s$ to $x$ in $T_i$.  Then the path to the vertex $y$ from
+  the source $s$ in $T_i$ is the path $\gamma'$ followed by the edge
+  $e$ (see Figure~\ref{fig-enter-good}).
+
+  Notice that since the edge $e$ is present in the shortest path tree
+  $T$ we have $\delta(s,y) = \delta(s,x) + w(e)$. As a result the
+  delay of $y$ is given by $d_i(y) = f_i(x) + w(e) - (\delta(s,x) +
+  w(e)) = d_i(x)$ and hence $D(e) = d_i(y) - d_i(x) = 0$. This
+  contradicts the fact that the edge $e$ is positive and hence it is
+  not present in the graph $T_i$.
+  
+  Let $M_i$ be the event that in the $i$th mutation only one vertex is
+  mutated. The events $M_i$'s are mutually independent. In the $i$th mutation step $k_i + 1$ vertices are mutated, where $k_i$ follows a
+  Poisson distribution with mean $1$. Therefore, we have $\mathrm{P}[M_i] =
+  \frac{1}{e} \geq \frac{1}{3}$. Consider any positive edge $e =
+  (x,y)$. Given that the event $M_{i+1}$ has occurred the probability
+  that the vertex $y$ switches its predecessor to $x$ is at least
+  $1/n^2$. If such a switch occurs the gap reduces by an
+  amount equal to $D(e)$.
+  This is because, as noted in the previous paragraph, $x$ is reachable
+  from $s$ in the current solution, and the edge $e$ between $x$ and $y$
+  is in the shortest path tree $T$, the delay of $y$ will become the
+  same as that of $x$ as $e$ comes into the solution.
+  Therefore given $M_{i+1}$ the expected
+  decrease in gap, ${\scriptstyle\Delta} g$, is given by
+  \[
+  \E[{\scriptstyle \Delta} g \mid  g_i = g, M_{i+1}] \geq \sum_{e \in
+  E^{+}(\gamma)}\frac{1}{n^2} D(e) \geq \frac{1}{n^3}g.
+  \]
+
+  Since the $\mathrm{P}[M_{i+1}] \geq \frac{1}{3}$, the expected
+  decrease in gap is at least $\frac{1}{3\cdot n^3}g$. Hence the
+  expected gap after the $(i+1)$-st mutation will be less than or equal
+  to $(1-\frac{1}{3\cdot n^3})g$ provided the gap after $i$ mutations
+  is $g$.
+\end{proof}
+
+\noindent
+
+As a corollary of  Lemma \ref{single-iteration-analysis} we have:
+
+\begin{cor}
+  %Let $G_i$ be the random variable for denote the gap at the end of $i$th iteration. Then
+  \[ 
+  \E[g_{i+j}\mid g_i=g] \le g \left( 1-\frac{1}{3 \cdot n^3}\right)^j.
+  \]
+  \label{multiple-iteration-analysis}
+\end{cor}
+
+
+
+\begin{thm}
+  The expected optimization time of the \oneoneea on the shortest path
+  problem with integer edge weights is $\Oh\left(n^3 \cdot (\log n + \log
+  {w_\mathrm{max}})\right)$, where $w_\mathrm{max}$ is the maximum of the
+  weights of all edges in the graph.
+\end{thm}
+\begin{proof}
+  Recall that the gap $g_0$ at the beginning of the algorithm is at
+  most $n \cdot d_{\mathrm{penalty}}$ and we have set
+  $d_\mathrm{penalty}$ to be $n \cdot w_{\mathrm{max}}$.
+  % We will prove that after $\Oh(n^3\cdot \log{g_0})$ mutations the
+  % candidate solution will be a shortest path tree with at least
+  % $\Omega(1)$ probability.
+  We partition the sequence of iterations into epochs. Each epoch
+  consists of a sequence of $6 n^3$ iterations in the
+  algorithm. Consider any such epoch.
+%
+%Let $g$ and $g'$ be the gap in the beginning and at the end of the epoch 
+%respectively.
+%
+It follows from Corollary \ref{multiple-iteration-analysis} that
+conditioned on the event that the epoch begins with gap $g_{\beginn}=g$,
+the expected value of the gap $g_{\final}$ after the epoch is given by
+\[ 
+\E[g_{\final}\mid g_{\beginn}=g] 
+\leq g\left(1-\frac{1}{3n^3}\right)^{6n^3} 
+\leq \frac{g}{e^2}.
+\]
+Using Markov's Inequality it follows that
+\[ 
+\Pr\left[g_{\final} \ge \frac{g_{\beginn}}{e}\right] \leq 1/e
+\]
+ 
+We call an epoch \emph{good} if the gap at the end of the epoch is
+less than $1/e$ times the gap in the beginning of the epoch. It
+follows that an epoch is good with probability at least
+$1-1/e$. Furthermore, each epoch is good or bad independent of other
+epochs (owing to the independence of mutations in each iteration).
+Thus it follows that $\lceil\ln g_0\rceil$ good epochs suffice to reduce the gap below $1$.
+Since each epoch
+consists of $6n^3$ iterations, the expected number of iterations in
+the \oneoneea is $\Oh(n^3 \log g_0)$.
+\end{proof}
+
+
+
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+
+\section{Lower Bound}
+\label{sec:lower}
+
+\newcommand{\bu}{\mathbf{u}}
+
+In this section we show a lower bound matching the upper bound presented in the previous section up to the logarithmic factor.
+More precisely, for any $n\in\N$ we define a graph $G_n$ on $n$ vertices for which the algorithm has an optimization time of at least $\Omega(n^3)$ with high probability.
+
+\begin{figure}
+  \centering
+  \includegraphics[bb=170pt 102pt 315pt 640pt,angle=-90,width=.45\textwidth,clip]{graph.eps}
+  %\input{comet3.pstex_t}
+  \caption{\label{fig:graph}The worst case graph. The edges at the bottom form the shortest path tree.
+           All edges not drawn have weight $w_{\max}$.}
+\end{figure}%
+
+The worst case graph $G_n$ is a weighted complete graph $(V,E)$ with
+$V=\{v_0,\ldots,v_{n-1}\}$, $E=V\times V\setminus\{(v,v) \mid v\in V\}$,
+and edge weights $w(v_i,v_j), i,j\in[0..n-1], i \neq j$ defined by
+\[
+    w(v_i,v_j) := \left\{\begin{array}{ll}
+        2,       & \quad \text{if }0\leq i,j<n,\ j=i+1,\\
+        2j+1,    & \quad \text{if }i=0,\ 2\leq j<n, \\
+        w_{\max},& \quad \text{otherwise.}
+      \end{array}\right.
+\]
+
+We choose $w_{\max}=4n$.
+This implies that $(v_0,v_1,v_2,\ldots,v_{n-2},v_{n-1})$ is the unique shortest path tree starting
+from $s=v_0$.  \fref{fig:graph} illustrates the graph.  We prove the following theorem.
+
+\begin{thm}\label{t:lowl}
+  The optimization time of the \ea\ on $G_n$ is $\Omega(n^3)$
+  with probability $1-e^{-\Omega(n)}$.
+\end{thm}
+
+To prove this lower bound, we need the following Chernoff-type inequalities.
+\begin{thm}\label{t:problow}
+  Let $X_i, i\in[1..n]$, be independent random variables\quad $X:=\sum_{i=1}^n X_i$. Let $0<p<1$ and $\delta>0$.
+  \begin{itemize}
+  \item[a)] If $\Pr[X_i=1]=p$ and $\Pr[X_i=0]=1-p$ for all $i \in [1..n]$, then
+    \begin{align*}
+    \Pr[X \le (1-\delta) \E[X]] &\le \exp\left(-\frac{\delta^2 \E[X]}{2}\right),\\
+    \Pr[X \ge (1+\delta) \E[X]] &\le \exp\left(-\frac{\min\{\delta,\delta^2\} \E[X]}{3}\right).
+    \end{align*}
+%    This is a classical Chernoff bounds (cf. \cite{astpm}).
+%  \item[b)] If the $X_i$ are geometrically distributed with parameter $q$ and $\delta>0$, then
+%    \[
+%    \Pr[X \ge (1+\delta) \E[X]] \le 
+%    \]\[
+%    \left(1+\frac{\delta \E[X] q}{n}\right)^n
+%    \exp\left(-\delta \E[X] q\right).
+%    \]
+%    This bound can be found in \cite{hni510}.
+   \item[b)] If the $X_i$ are geometrically distributed random variables with $\Pr[X_i= j] = (1-p)^{j-1}p$ for all $j\in\N$, then
+     \[
+     \Pr[X \ge (1+\delta)\E[X]]  \le \exp\left(-\frac{\delta^2}{2}\frac{(n-1)}{1+\delta}\right).
+%     \Pr[X \ge 3 \delta n w] \le \exp\left(-(\delta-1)n\right)
+     \]
+  \end{itemize}
+\end{thm}
+\begin{proof}
+% W.l.o.g. we can assume that the $X_i$ are as large and the probabilities as small as possible while still satisfying $\Pr[X_i\ge j]\le (1-p)p^{j-1}$. Thus, we have $\Pr[X_i=j]=(1-p)p^{j-1}$ for all $j \in \N$.
+Part a) is a classical Chernoff bound, cf. \cite{astpm}.
+To prove part b), let $Y_1, Y_2, \ldots$ be an infinite sequence of independent, identically distributed biased coin tosses (binary random variables) such that $Y_i$ is one with probability $\Pr[Y_i=1]=p$ and zero with probability $\Pr[Y_i=0]=1-p$.
+Note that the random variable ``smallest $j$ such that $Y_j = 1$'' has the same distribution as each $X_i$.
+In consequence, $X$ has the same distribution as ``smallest $j$ such that exactly $n$ of the variables $Y_1, \ldots, Y_j$ are one''.
+% The idea also occures in "Optimal Cover Time for a Graph-Based Coupon Collector Process" by Nedialko B. Dimitrov and C. Greg Plaxton according to Thomas Sauerwald
+In particular, $\Pr[X \ge j] = \Pr[\sum_{i = 1}^{j-1} Y_i \le n-1]$ for all $j \in \N$.
+This manipulation reduces our problem to the analysis of independent Bernoulli trials and will enable us to use the classical Chernoff bounds.
+
+The expected value of each $X_i$ is $\E[X_i]=\frac{1}{p}$, thus $\E[X]=\frac{n}{p}$.
+Let $Y:=\sum_{i=1}^{\lceil(1+\delta)\E[X]-1\rceil}Y_i$.
+By the above,
+\[
+\Pr[X\geq (1+\delta)\E[X]] = \Pr[Y\leq n-1].
+\]
+The expected value of $Y$ is bounded by
+\[\E[Y]  =  \lceil(1+\delta)\E[X]-1\rceil p  \geq  (1+\delta) n - p  >  (1+\delta) (n-1).\]
+Now let $\delta':=1-\frac{n-1}{\E[Y]}$.
+Then  $0<\delta'\le 1$ and $\Pr[Y\leq n-1] = \Pr[Y \leq (1-\delta')\E[Y]]$.
+Hence we can apply the classical Chernoff bound from part a) to get
+\begin{align*}
+&\Pr[X\geq (1+\delta)\E[X]]\\
+&=  \Pr[Y \leq (1-\delta')\E[Y]] \\
+& \leq  \exp \left(-\frac{1}{2}\E[Y]\left(1-\frac{n-1}{\E[Y]}\right)^2\right)\\
+& \leq  \exp \left(-\frac{1}{2}\E[Y]\left(1-\frac{1}{1+\delta}\right)^2\right)\\
+& \leq  \exp \left(-\frac{1}{2}(n-1)(1+\delta)\left(\frac{\delta}{1+\delta}\right)^2\right).\hfill\qedhere
+\end{align*}
+\end{proof}
+
+As the last preparation to prove \tref{t:lowl}, we show the following lemma.
+We use $\bu$ to denote an individual.  The predecessor of a vertex $v$ is
+then called $\bu(v)$.
+
+\begin{lem}
+  \label{l:step}
+    Let $\bu$ be an individual, $v \neq s$ be a vertex and $y \in V\setminus\{v, \bu(v)\}$.
+    Let $\bu'$ be the outcome of applying a mutation step (without selection) to $\bu$.
+    Then $\Pr\mbox{$[\bu'(v) = y]$} \leq 2e (n-1)^{-2}$. 
+  
+    Let $v_{i_1}, \ldots, v_{i_k} \in V \setminus \{s\}$ pairwise different and 
+    $y_1, \ldots, y_k \in V$ such that $y_j \notin \{v_{i_j}, \bu(v_{i_j})\}$ for all 
+    $j \in [1..k]$. Then $\Pr[\forall j \in [1..k]\colon \bu'(v_{i_j}) = y_j] \le 2e(n-
+1)^{-k-1}$.
+\end{lem}
+\begin{proof}
+  To have $\bu'(v) \neq \bu(v)$, at least one of the $S+1$ elementary mutations 
+  performed in the mutation step has to regard the vertex $v$ (``first event''),
+  and to have $\bu'(v) = y$, the last one of these elementary mutations
+  has to change $\bu(v)$ to~$y$ (``second event''). The probability of the first event is at most
+  \begin{eqnarray*}
+    \sum_{S=0}^\infty \frac{1}{S!} \frac{S+1}{n-1}
+    & = & 1/(n-1) \left(\sum_{S=1}^\infty\frac{S}{S!} +  \sum_{S=0}^\infty\frac{1}{S!}\right) \\
+    & = & 1/(n-1) \left(\sum_{S=1}^\infty\frac{1}{(S-1)!} + e\right) \\
+    & = & 2e/(n-1).
+  \end{eqnarray*}
+  Conditional on the first event, the second happens with probability exactly 
+  \mbox{$1/(n-1)$}. 
+  
+  For the second claim, note that the above shows that $\Pr[\bu'(v_{i_1}) = y_1] \le 2e (n-1)^{-2}$. Even assuming that  $v_{i_j}$, $j \le 2$, is touched by the mutation, the probability that the last change of its predecessor is to $y_j$, is exactly $(n-1)^{-1}$, and this event is independent of all other random decisions.
+\end{proof}
+
+Clearly, the second part of the lemma is not best possible---the probability
+should be of order $n^{-2k}$---but sufficient for our purposes.
+We can now prove \tref{t:lowl}.
+\begin{proof}[Proof of \tref{t:lowl}]
+  As we are only interested in asymptotic bounds, implicit we assume that $n$ is sufficiently
+  large. Also, we will not try to find the best possible constants.
+  To prove the claim, we analyze how long it takes until the individual $\bu$ for 
+  the first time is the path $P:=(s=v_0,v_1,\ldots,v_{n-1})$. To this aim, 
+  we analyze how the length $L = L(\bu)$ of the longest subpath of $P$ starting 
+  in $s$ that is contained in $\bu$ grows. Note that, contrary to the
+  multi-objective setting, this length $L$ may decrease. We shall adopt the proof of~\cite{ssspcec07} for 
+  the multi-objective setting to deal with this issue. In particular, we denote 
+  by $L_t$ the maximum length $\ell$ such that the path $(v_0, \ldots, v_\ell)$ 
+  was contained in the individual at some time $t' \le t$. 
+  
+  We first convince ourselves that for all times $t$ and all $i > L_t+1$, we have 
+  %\NOTE{only holds for ``sufficiently large n''}
+  $\Pr[\bu(v_i) = v_{i-1}] \le \nu := 2e^2/(2e^2 + 1) \approx 0.936$. This is clearly true for $t = 0$, since the 
+  initial individual satisfies $\Pr[\bu(v_i) = v] = 1 /(n-1)$ for all $v \neq v_i$. 
+  
+  Assume that the claim is correct for some $t \ge 0$. Let $i > L_t+1$. Fix a 
+  mutation chosen by the algorithm. We may assume $i > L_{t+1}+1$ (otherwise 
+  there is nothing to show). Denote by $\bu'$ the individual resulting from 
+  this iteration, that is, from applying the mutation to $\bu$ in case this does 
+  not worsen the fitness. With the help of \lref{l:step} we compute
+  \begin{align*}
+  &\Pr[\bu'(v_i) = v_{i-1}]\\
+  &= \Pr[\bu'(v_i) = v_{i-1} \mid \bu(v_i)=v_{i-1}]\Pr[\bu(v_i)=v_{i-1}] \\
+  &\quad + \Pr[\bu'(v_i) = v_{i-1} \mid \bu(v_i) \neq v_{i-1}]\Pr[\bu(v_i) \neq v_{i-1}]\\
+  &\le (1 - (1/e)(n-1)^{-2}) \Pr[\bu(v_i)=v_{i-1}] \\
+  &\quad + 2e (n-1)^{-2}\, (1 - \Pr[\bu(v_i)=v_{i-1}]) \\
+  &\le \nu (1 - (1/e)(n-1)^{-2} - 2e (n-1)^{-2}) + 2e (n-1)^{-2}\\
+  &= \nu.
+  \end{align*}
+  
+  Note that the above holds independent of the values of $\bu(v)$, $v \in V 
+  \setminus \{s, v_i\}$ (of course, still assuming $i > L_t +1$). For this 
+  reason, the claim $\Pr[\bu(v_i) = v_{i-1}] \le \nu$ also holds 
+  if we condition on arbitrary values for these $\bu(v)$. In consequence, for any 
+  $k \ge 1$, $i_1, \ldots, i_k$ pairwise distinct element of $[L_t+1..n-1]$,  we have
+  \begin{align*}
+  &\Pr[\forall j \in [k]\colon \bu'(v_{i_j}) = v_{i_j-1}]\\
+  &= \Pr[\bu'(v_{i_1}) = v_{i_1-1}]\\
+  &\quad \Pr[\bu'(v_{i_2}) = v_{i_2-1} \mid \bu'(v_{i_1}) = v_{i_1-1}] \ldots \\
+  &\quad \Pr[\bu'(v_{i_k}) = v_{i_k-1} \mid \bu'(v_{i_1}) = v_{i_1-1},  \ldots, \\
+  &\qquad\qquad\bu'(v_{i_{k-1}}) = v_{i_{k-1}-1}]\\
+  &\le (2e/(2e+1))^k.
+  \end{align*}
+  
+  We start our analysis of the growth of $L_t$ by noting that with high probability $L_0$ is constant.
+  More precisely, the probability that in the initial individual some vertex $v_i \in \{v_1, 
+  \ldots, v_{n-1}\}$ is already linked to $v_{i-1}$, is exactly $\frac{1}{n-1}$ independent of all other values of $\bu$. 
+  Hence the probability that $L_0 \ge k$, is $(n-1)^{-k}$ for all $k \in \N$.
+
+  We now analyze the growth $D_t := L_t - L_{t-1}$ of the path in iteration $t$. 
+  For $D_t$ to be positive, the mutation has to change $\bu(v_{L_t+1})$ to 
+  $v_{L_t}$. By \lref{l:step}, this happens with probability at most $2e(n-1)^{-2}$. 
+  $D_t$ can be larger than one due to two effects: (i) the mutation can change 
+  $\bu(v_j)$ to $v_{j-1}$ for further vertices on the path, and (ii), some 
+  vertices $v_j$ not touched at all by the mutation can already be connected to 
+  $v_{j-1}$. Again by \lref{l:step}, the probability of an event of type (i) is at most 
+  $2e(n-1)^{-2}$ independently of all other random decisions now or in the past. 
+  By the above reasoning, the probability of an event of type (ii), \ie, that 
+  certain $k$ vertices not touched by the mutation in this iteration were 
+  already connected with their natural predecessor, is at most $\nu^k$. 
+  
+  Hence $\Pr[D_t \ge k] \le \frac{2e}{(n-1)^2} ( 2e(n-1)^{-2} + \nu )^{k-1}
+                         \le  2en^{-2}\,(0.95)^{k-1}$                         
+  for $n$ sufficiently large.
+  For all $t$, $D_t$ is dominated by a random variable $\overline D$ with 
+  distribution $\Pr[\overline D = k] = 2en^{-2}\,(0.95)^{k-1} 0.05$ and
+  $\Pr[\overline D = 0] = 1 - 2en^{-2}$ as this implies
+  $\Pr[\overline D \ge k] = 2en^{-2}\,(0.95)^{k-1}$. 
+  Similarly, we see that $L_0-1$ is dominated by a random variable with 
+  distribution $\overline D$. Hence $L_t -1 = L_0 -1 + \sum_{k = 1}^t D_k$ is 
+  dominated by the sum of $t$ independent random variables with distribution $\overline D$.
+  
+  The probability that after $t=(2e)(1/80)(n-2)n^2$ steps the optimal solution 
+  is found is $\Pr[L_t = n-1]$. This is at most $\Pr[\sum_{i=1}^{t} X_i \geq n-
+  2]$ by the above considerations, where the $X_i$ are independent random 
+  variables with distribution $\overline D$. Denote by $x$ the number of $X_i$ 
+  that are positive. Then $\E[x] = 2en^{-2}t = (1/80)(n-2)$ and thus $\Pr[x > 
+  4en^{-2}t] \le \exp(-\E(x)/12) = \exp(-(n-2)/960)$. We compute
+  \begin{align*}
+    &\Pr[L_t = n-1]\\
+    &\le\Pr\left[\sum_{i=1}^{t} X_i \geq n-2\right] \\
+    &\le \Pr\left[\sum_{i=1}^{t} X_i \geq n-2 \mid x \le (1/40)(n-2)\right]\\
+    &\quad + \Pr[x > 2 \cdot 2en^{-2}t] \\
+    &\le \Pr\left[\sum_{i=1}^{t} X_i \geq n-2 \mid x = (1/40)(n-2)\right]\\
+    &\quad + \exp(-(n-2)/960).
+  \end{align*}
+  For all $i$, define the random variable $Y_i = (X_i \mid X_i \ge 1)$. Then 
+  $Y_i$ has the geometric distribution $\Pr[Y_i = k] = \Pr[X_i = k] / \Pr[X_i 
+  \ge 1] = (0.95)^{k-1} \, 0.05$ and $\E[Y_i] = 20$. Hence by 
+  Theorem~\ref{t:problow}, we have
+  \begin{eqnarray*}
+  \lefteqn{\Pr\left[\sum_{i=1}^{t} X_i \geq n-2 \mid x = (1/40)(n-2)\right]}\\
+  &=& \Pr\left[\sum_{i = 1}^{(1/40)(n-2)} Y_i \geq n-2\right] \\
+  &\le& \Pr\left[\sum_{i = 1}^{(1/40)(n-2)} Y_i \geq 2 \cdot 20 \cdot (1/40)(n-2)\right] \\
+  &\le& \exp(-((1/40)(n-2)-1)/4).
+  \end{eqnarray*}
+  This shows that 
+  \begin{align*}
+    &\Pr[ L_t = n-1]\\
+    &\le \exp(-((1/40)(n-2)-1)/4) + \exp(-(n-2)/960) \\
+    &= \exp(-\Omega(n)).
+    \qedhere
+  \end{align*}
+\end{proof}
+
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+\section{Conclusion}
+\label{sec:disc}
+
+The single source shortest path problem is one of the fundamental problems in 
+computer science and the first combinatorial optimization problem for which a 
+rigorous runtime analysis of evolutionary algorithms has been carried out. We 
+have shown that a multi-objective approach is not necessary to solve this 
+problem efficiently by evolutionary algorithms and analyzed the single-objective 
+one given in \cite{spea04}. The upper bound obtained is similar to the multi-
+objective result. Additionally, our analyses give new insights how evolutionary 
+algorithms may achieve progress towards an optimal solution even if the proof 
+ideas can not follow the run of Dijkstra's algorithm.
+
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+%\def\newblock{\hskip .11em plus .33em minus .07em}
+\begin{thebibliography}{10}
+
+\bibitem{astpm}
+N.~Alon and J.~H. Spencer.
+\newblock {\em The Probabilistic Method}.
+\newblock Wiley, 2nd edition, 2000.
+
+\bibitem{Basetal07}
+H.~Bast, S.~Funke, P.~Sanders, and D.~Schultes.
+\newblock Fast routing in road networks with transit nodes.
+\newblock {\em Science}, 316(5824):566, 2007.
+
+\bibitem{Dijkstra1959}
+E.~W. Dijkstra.
+\newblock A note on two problems in connexion with graphs.
+\newblock In {\em Numerische Mathematik}, volume~1, pages 269--271.
+  Mathematisch Centrum, Amsterdam, The Netherlands, 1959.
+
+\bibitem{ssspcec07}
+B.~Doerr, E.~Happ, and C.~Klein.
+\newblock A tight bound for the {(1+1)-EA} on the single source shortest path
+  problem.
+\newblock In {\em Proc.\ of the IEEE Congress on Evolutionary Computation (CEC
+  2007)}, pages 1890--1895, 2007.
+
+\bibitem{Doerr2:2008:gecco}
+B.~Doerr, T.~Jansen, and C.~Klein.
+\newblock Comparing global and local mutations on bit strings.
+\newblock In {\em Proc.\ of the 10th annual conference on Genetic and
+  evolutionary computation (GECCO~'08)}, pages 929--936, 2008.
+
+\bibitem{DorigoStuetzleACOBook}
+M.~Dorigo and T.~St{\"u}tzle.
+\newblock {\em Ant Colony Optimization}.
+\newblock MIT Press, 2004.
+
+\bibitem{djwea02}
+S.~Droste, T.~Jansen, and I.~Wegener.
+\newblock On the analysis of the (1+1) evolutionary algorithm.
+\newblock {\em Theoretical Computer Science}, 276(1--2):51--81, 2002.
+
+\bibitem{El-FallahiPC08}
+A.~El-Fallahi, C.~Prins, and R.~W. Calvo.
+\newblock A memetic algorithm and a tabu search for the multi-compartment
+  vehicle routing problem.
+\newblock {\em Computers {\&} OR}, 35(5):1725--1741, 2008.
+
+\bibitem{matchea03}
+O.~Giel and I.~Wegener.
+\newblock Evolutionary algorithms and the maximum matching problem.
+\newblock In {\em Proc.\ of the 20th Annual Symposium on Theoretical Aspects of
+  Computer Science (STACS~'03)}, pages 415--426, 2003.
+
+\bibitem{KimC07}
+S.~J. Kim and M.~K. Choi.
+\newblock Evolutionary algorithms for route selection and rate allocation in
+  multirate multicast networks.
+\newblock {\em Appl. Intell.}, 26(3):197--215, 2007.
+
+\bibitem{KnoppSSSW07}
+S.~Knopp, P.~Sanders, D.~Schultes, F.~Schulz, and D.~Wagner.
+\newblock Computing many-to-many shortest paths using highway hierarchies.
+\newblock In {\em Proc.\ of the 9th Workshop on Algorithm Engineering and
+  Experiments (ALENEX~'07)}, 2007.
+
+\bibitem{Michalewicz95}
+Z.~Michalewicz.
+\newblock A survey of constraint handling techniques in evolutionary
+  computation methods.
+\newblock In {\em Evolutionary Programming}, pages 135--155, 1995.
+
+\bibitem{Mue1992}
+H.~M{\"u}hlenbein.
+\newblock How genetic algorithms really work: mutation and hillclimbing.
+\newblock In {\em Proc.\ 2nd International Conference Parallel Problem Solving
+  from Nature (PPSN II)}, pages 15--26, 1992.
+
+\bibitem{NeumannWegenerTCS}
+F.~Neumann and I.~Wegener.
+\newblock Randomized local search, evolutionary algorithms, and the minimum
+  spanning tree problem.
+\newblock {\em Theoretical Computer Science}, 378(1):32--40, 2007.
+
+
+\bibitem{Rudsel1996}
+G.~Rudolph.
+\newblock How mutation and selection solve long path problems in polynomial
+  expected time.
+\newblock {\em Evolutionary Computation}, 4(2):195--205, 1996.
+
+\vfill\eject 
+
+
+\bibitem{SandersS06}
+P.~Sanders and D.~Schultes.
+\newblock Engineering highway hierarchies.
+\newblock In {\em Proc. of the 14th Annual European Symposium on Algorithms
+  (ESA~'06)}, pages 804--816, 2006.
+
+\bibitem{spea04}
+J.~Scharnow, K.~Tinnefeld, and I.~Wegener.
+\newblock The analysis of evolutionary algorithms on sorting and shortest paths
+  problems.
+\newblock {\em Journal of Mathematical Modelling and Algorithms},
+  3(4):349--366, 2004.
+\newblock (Conference version appeared in Proc.\ 7th International Conference
+  Parallel Problem Solving from Nature 2002 (PPSN VII)).
+
+\bibitem{witt05}
+C.~Witt.
+\newblock Worst-case and average-case approximations by simple randomized
+  search heuristics.
+\newblock In {\em Proc.\ of the 22nd Annual Symposium on Theoretical Aspects of
+  Computer Science (STACS~'05)}, pages 44--56, 2005.
+
+\end{thebibliography}
+
+\end{document}

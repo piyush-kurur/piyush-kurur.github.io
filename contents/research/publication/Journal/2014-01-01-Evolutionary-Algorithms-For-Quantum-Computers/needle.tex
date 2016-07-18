@@ -1,0 +1,70 @@
+The pseudo-Boolean function~\needle has a unique optimum, and is constant elsewhere. For $\mathbf{x}\in\{0,1\}^n$,
+
+\begin{equation}
+\needle(\mathbf{x}):=\begin{cases}
+1, & \text{if } \mathbf{x} = (0,\ldots,0)\\
+0, & \text{else.}\end{cases}
+\end{equation}
+
+\begin{theorem}\label{thm:needleclassic}
+The expected optimization time of RLS for maximizing \needle is in~$\tilde{\Theta}(2^n)$, where $\tilde{\Theta}$ describes the asymptotic behavior up to polynomial factors (being more precise than in Table~\ref{tabA}).
+
+The expected optimization time of the (1+1)~EA for maximizing \needle is in~$\tilde{O}(e^{2n})$ and in $\Omega(2^{n})$.
+
+Asymptotically almost surely, RLS$^*$ will never find the maximum of \needle.
+
+The expected optimization time of the (1+1)~EA$^*$ for maximizing \needle is in~$\tilde{\Theta}((n/2)^{n})$.
+
+\end{theorem}
+\begin{proof}
+The statement for RLS$^*$ is clear because the algorithm only finds the optimum if the starting point is either the optimum itself or adjacent to the optimum. The probability that this happens is exponentially small.
+
+For RLS, see \cite{aldous83}. For the (1+1)~EA$^*$ and the upper bound of the progressive (1+1)~EA, see \cite{djwea02}. The lower bound of the (1+1)~EA$^*$ is trivial, because every search point has the same expected hitting time. Since after time $2^{n-1}$, at most half of the points are hit, the expected hitting time is at least $1/2 \cdot 2^{n-1} \in \Omega(2^n)$ 
+\end{proof}
+
+
+We show that the quantum versions perform equally bad on the \needle function. Only the $(1+1)~QEA$ is slightly better than the $(1+1)~EA$.
+\begin{theorem}
+The expected optimization time of QLS for maximizing \needle is in~$\tilde{\Theta}(2^n)$.
+
+The expected optimization time of the (1+1)~QEA for maximizing \needle is in~$\tilde{\Theta}(f(n))$, where $f(n)$ is the optimization time of the (1+1)~EA for maximizing \needle.
+
+Asymptotically almost surely, QLS$^*$ will never find the maximum of \needle.
+
+The expected optimization time of the (1+1)~QEA$^*$ for maximizing \needle is in~$\tilde{\Theta}((e^{\sqrt{n}}/2^n)n^{n/2})$.
+
+\end{theorem}
+
+\begin{proof}
+First let us look at the progressive algorithms. Since all points except the optimum are of equal fitness, the algorithms accept every sample point as a new search point. Hence, the progress probability is constant, and the theorem follows from Lemma~\ref{lem:boundedq}.
+
+The statement for QLS$^*$ follows immediately from the statement for RLS$^*$ in Theorem~\ref{thm:needleclassic} since both algorithms have exactly the same probability to terminate by Theorem~\ref{thm:probamp}.
+
+So let us look at the (1+1)~QEA$^*$. The algorithm will visit at most two search points $\mathbf{x}_0$ and $\mathbf{x}_1$, with $\mathbf{x}_0$ drawn uniformly at random, and $\mathbf{x}_1 = (0,\ldots,0)$ the optimum. Assume that the Hamming distance between $\mathbf{x}_0$ and $(0,\ldots,0)$ is $d$. Then the algorithm needs $\Theta(n^{d/2})$ queries. On the other hand, there are exactly $\binom{n}{d}$ search points with Hamming distance $d$ of $(0,\ldots,0)$. Hence, the probability that the distance equals $d$ is $\frac{1}{2^n}\binom{n}{d}$. So the expected estimated running time is
+
+\[
+\TQSH=\sum_{0 \le d\le n}\frac{1}{2^n}\binom{n}{d}n^{d/2}\,.
+\]
+
+Let us call $S_d := \frac{1}{2^n}\binom{n}{d}n^{d/2}$. In order to find out the maximal term, we consider the quotient
+
+\[
+\frac{S_{d+1}}{S_d} = \frac{(n-d)\sqrt{n}}{d+1}.
+\]
+
+Elementary transformation shows that this quotient is bigger than 1 if and only if
+
+\[
+d \le \frac{n\sqrt{n}-1}{\sqrt{n}+1} = n-\sqrt{n}+1-\frac{2}{\sqrt{n}+1}.
+\]
+
+So the largest term in the sum is attained for $d_0 := \lfloor n-\sqrt{n}+1-\frac{2}{\sqrt{n}+1} \rfloor +1$. Since we only have polynomially many terms, the sum is dominated up to a polynomial factor by its largest term 
+\begin{align*}
+S_{d_0} & \in & \tilde{\Theta}\left(\frac{1}{2^n}\binom{n}{n-\sqrt{n}}n^{(n-\sqrt{n})/2}\right) \\
+& = & \tilde{\Theta}\left(\frac{1}{2^n}e^{\sqrt{n}}n^{\sqrt{n}/2}n^{(n-\sqrt{n})/2}\right) \\
+& = & \tilde{\Theta}\left(\frac{e^{\sqrt{n}}}{2^n}n^{n/2}\right),
+\end{align*}
+
+where we have used Stirling's formula to estimate $\binom{n}{n-\sqrt{n}} = \tilde{\Theta}(e^{\sqrt{n}}n^{1/2\sqrt{n}})$.
+
+\end{proof}

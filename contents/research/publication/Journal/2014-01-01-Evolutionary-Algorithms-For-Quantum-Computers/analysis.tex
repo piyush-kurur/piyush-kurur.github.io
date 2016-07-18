@@ -1,0 +1,236 @@
+Recall that a randomized search heuristic can be seen as a Markov
+chain with transition probabilities $p(\xvec,\yvec)$ as defined
+before. The situation for the associated quantum variant is slightly
+complicated. At each sampling step, the quantum search heuristic has a
+constant probability of sampling a new solution because the
+probabilities have been quantum mechanically amplified. In that sense
+the progress probability of a QSH is constant. However, if the
+current solution is $\xvec$ then to make the one sampling step would
+cost the algorithm a total of $\sqrt{\frac{1}{p_{\xvec}}}$ queries
+where $p_{\xvec}$ is the progress probability of the corresponding
+classical heuristic at $\xvec$. Nevertheless we can still model the
+quantum variant as Markov chain by scaling the probability by a factor
+of $\sqrt{\frac{1}{p_{\xvec}}}$. In fact, with respect to the expected
+optimization time, the QSH behaves as if it were a RSH with this
+adapted transition probabilities.
+
+
+
+\begin{definition}
+Let~$\mathcal{S}$ be a search space and~$P$ a transition matrix. Then the \emph{scaled} transition matrix~$P'$ over~$\mathcal{S}$ is defined by
+\begin{equation*}
+p'(\mathbf{x},\mathbf{y})=\begin{cases}
+1-(p_{\mathbf{x}})^{1/2} & \text{if }\mathbf{x}=\mathbf{y},\\
+(p_{\mathbf{x}})^{-1/2}p(\mathbf{x},\mathbf{y}) & \text{otherwise}
+\end{cases}
+\end{equation*}
+for all~$\mathbf{x}\in\mathcal{S}$ where $p_{\mathbf{x}}=1-p(\mathbf{x},\mathbf{x})$ is the progress probability at point~$\mathbf{x}$.
+\end{definition}
+
+Note that this is indeed a probability distribution, since
+\[
+\sum_{\mathbf{y}\in\mathcal{S}}p'(\mathbf{x},\mathbf{y})=1-(p_{\mathbf{x}})^{1/2}+\frac{\sum_{\mathbf{y}\in\mathcal{S}\setminus\{\mathbf{x}\}}p(\mathbf{x},\mathbf{y})}{(p_{\mathbf{x}})^{1/2}}=1-(p_{\mathbf{x}})^{-1/2}+\frac{p_{\mathbf{x}}}{(p_{\mathbf{x}})^{1/2}}=1.
+\]
+Furthermore, it is easy to check that the trajectories of the two sequences defined by a transition matrix~$P$ and the associated scaled transition matrix~$P'$ are identically distributed.% (up to any point in time~$s\in\NSet$ or random stopping time~$T$).
+
+
+
+With this definition at hand, we can link the expected optimization time of a QSH to a RSH with scaled transition probabilities.
+
+\begin{theorem}
+\label{thm:scaling}
+Let~$\mathcal{S}$ be a search space, $P$ a transition matrix over~$\mathcal{S}$, and~$P'$ the scaled transition matrix over~$\mathcal{S}$ corresponding to~$P$. Suppose~$T$ is the optimization time of a QSH associated to~$P$ and~$T'$ is the optimization time of a RSH associated to~$P'$ such that the initial search points of the QSH and the RSH are equally distributed. Then
+\[
+\EXP[T']= \TQSH,
+\]
+and in particular
+\[
+\EXP[T]= \Theta(\EXP[T']).
+\]
+\end{theorem}
+
+\begin{proof}
+  Let $p'_{\mathbf{x}} = 1-p'(\mathbf{x},\mathbf{x})$ be the progress
+  probability at $\mathbf{x}$ of the scaled Markov chain. Then
+  $p'_{\mathbf{x}} = (p_{\mathbf{x}})^{1/2}$. Let $O_k$ denote the set
+  of open trajectories in $\mathcal{S}$. By Lemma
+  \ref{lemma:TRSHexpand} we have
+  \begin{eqnarray*}
+    E[T] & = & \sum_{k=0}^{\infty} \sum_{\yvec\in O_k}  P(\yvec)\cdot \left(p'_{\yvec[k]}\right)^{-1} \\
+    & = & \sum_{k=0}^{\infty} \sum_{\yvec\in O_k} P(\yvec)\cdot \left(p_{\yvec[k]}\right)^{-1/2} \\
+    & = & \TQSH
+\end{eqnarray*}
+
+\end{proof}
+
+This theorem allows us to use classical analysis techniques for
+RSHs in the runtime analysis of QSHs.  The next corollary gives
+a description of the estimated running time which is useful for the
+analysis if we can estimate how likely it is that the algorithm hits
+each search point.
+
+\begin{lemma}\label{lem:TRSH}
+  Let~$\mathcal{S}$ be a search space with objective function $f\colon
+  \SCal\to\mathbb{R}$ and mutation operator \MutOp. For
+  $\xvec\in\mathcal{S}$, let $N(\xvec)$ be the random variable that
+  assigns to each run of the corresponding RSH or QSH the number of
+  occurrences of $\xvec$ in the trajectory of the run. Then,
+  \[
+  \TRSH = \sum_{\xvec \in \mathcal{S} \text{ non-optimal}}
+           \EXP[N(\xvec)] \cdot p_{\xvec}^{-1},
+  \]
+  and
+  \[
+  \TQSH  = \sum_{\xvec\in\mathcal{S} \text{ non-optimal}} \EXP[N(\xvec)] 
+  \cdot p_{\xvec}^{-\nicefrac{1}{2}},
+  \]
+  where $p_x$ is the progress probability of the associated randomized
+  search heuristic.
+\end{lemma}
+
+
+Note that for the conservative selection rule, the fitness is strictly
+monotonically increasing along the trajectory. Therefore, the random
+variable $N(\mathbf{x})$ takes only values in $\{0,1\}$, and its
+expectation is just the probability that $\mathbf{x}$ occurs in the
+trajectory.
+
+\begin{proof}[Proof of Lemma \ref{lem:TRSH}]
+
+For $\mathbf{x}\in\mathcal{S}$ non-optimal, let $N_k(\mathbf{x})$ be
+the random variable that assigns to each run of the algorithm the
+value $1$ if the $k$-th entry of the trajectory is $\mathbf{x}$, and
+$0$ otherwise. In particular, it is $0$ if the length of the
+trajectory is less than $k$. Then~$N(\mathbf{x}) = \sum\limits_{k \in
+  \NSet} N_k(\mathbf{x})$.
+
+On the other hand, $N_k(\mathbf{x})$ equals $1$ if and only if the
+trajectory of the run has length at least $k$, and if it starts with a
+sub-trajectory of length $k$ whose last point is
+$\mathbf{x}$. Therefore,
+\[
+E[N_k(\mathbf{x})] = \sum_{\yvec} P(\yvec),
+\]
+where the sum runs over all trajectories $\yvec$ of length $k$ such
+that $\yvec[k] = \mathbf{x}$.
+
+Summing over all k tells us that the expected time we spend in a
+non-optimal point $\mathbf{x}$ equals $E[N(\xvec)] \cdot
+p_{\xvec}^{-1}$ or $E[N(\xvec)] \cdot p_{\xvec}^{-\nicefrac{1}{2}}$
+for the RSH or the QSH, respectively. The lemma follows from
+Lemma~\ref{lemma:TRSHexpand}.
+\end{proof}
+
+The next lemma is useful in estimating the optimization time of a
+quantum search heuristic when there is an easy way to bound the
+progress probability as well as the optimization time of the
+corresponding classical variant.
+
+
+\begin{lemma}
+\label{lem:boundedq}
+Let~$\mathcal{S}$ be a finite space, $P$ a transition matrix of a
+randomized search heuristic.  Suppose for
+all~$\mathbf{x}\in\mathcal{S}\setminus X$, the progress probability
+satisfies the inequality $p_{\min}\le p_{\mathbf{x}}\le p_{\max}$. Let
+$P'$ the scaled transition matrix corresponding to~$P$. Consider two
+Markov processes $\xvec = \{\xvec[t]\}_{t\in\NSet}$ and $\zvec =
+\{\zvec[t]\}_{t\in\NSet}$ corresponding to $P$ and $P'$, respectively
+such that $\xvec[0]$ and $\zvec[0]$ have the same distribution. For a
+hitting set $X\subseteq\mathcal{S}$, let $T$ and $T'$ be the hitting
+time of $\xvec$ and $\zvec$) respectively. Then
+\[
+p_{\min}^{1/2}\EXP[T]\le \TQSH \le p_{\max}^{1/2}\EXP[T].
+\]
+\end{lemma}
+
+\begin{proof}
+
+  Let~$p'_{\mathbf{x}}=1-p'(\mathbf{x},\mathbf{x}) =
+  p_{\mathbf{x}}^{-1/2}$ be the progress probabilities of $P'$ at a
+  point~$\mathbf{x}\in\mathcal{S}$.  From
+  \[
+  p_{\min}\le p_{\mathbf{x}}\le p_{\max}
+  \]
+  it follows that
+  \[
+  p_{\mathbf{x}}^{-1} p_{\min}^{1/2}\leq
+  \underbrace{{p_{\mathbf{x}}^{-1/2}}}_{= {p'_{\mathbf{x}}}^{-1}} \leq
+  p_{\mathbf{x}}^{-1} p_{\max}^{1/2}.
+  \]
+
+  The lemma follows now from the definition
+  \begin{eqnarray*}
+    \TRSH & \stackrel{\text{lemma \ref{lemma:TRSHexpand}}}{=} & \sum_{k=0}^{\infty} \sum_{\substack{\yvec\text{ open trajec-} \\ \text{tory of length $k$ in $\mathcal{S}$}}} P(\yvec)\cdot \left(p'_{\yvec[k]}\right)^{-1},
+  \end{eqnarray*}
+  and from the formula
+  \begin{eqnarray*}
+    \EXP[T] & = & \sum_{k=0}^{\infty} \sum_{\substack{\yvec\text{ open trajec-} \\ \text{tory of length $k$ in $\mathcal{S}$}}} P(\yvec)\cdot \left(p_{\yvec[k]}\right)^{-1}
+  \end{eqnarray*}
+  of lemma \ref{lemma:TRSHexpand}.
+
+\end{proof}
+
+The next lemma is useful if we can divide up the search space into
+regions where the progress probability behaves similarly. This turns
+out to be very convenient for the analysis of a QSH when the
+corresponding RSH is already understood.
+
+\begin{lemma}\label{lem:regions}
+  Let~$\mathcal{S}$ be a search space with objective function $f\colon
+  \SCal\to\mathbb{R}$ and mutation operator \MutOp.  Let $X\subseteq
+  \mathcal{S}$ be the set of optimal search points, and
+  let~$\mathcal{S}\setminus X$ be partitioned into $n$
+  sets~$\mathcal{S}_1, \ldots, \mathcal{S}_n$. Assume that for every
+  set~$\mathcal{S}_i$ there are constants $c_i$ and $C_i$ such that
+  for all $\mathbf{x}\in\mathcal{S}_i$ the progress probability
+  $p_{\xvec}$ satisfies $c_i\leq p_{\xvec} \leq C_i$ for some
+  parameters $c_i$ and $C_i$ that depend only on $i$.  Let
+  $\TRSH^{(i)}$ be the expected time that the randomized search
+  heuristic spends in the region $\mathcal{S}_i$ then the estimated
+  optimization time $\TQSH$ of its quantum variant satisfies the bounds given by
+  the inequality
+  \[
+  \sum_{i=1}^n \sqrt{c_i} \TRSH^{(i)} \le \TQSH \le \sum_{i=1}^n \sqrt{C_i}\TRSH^{(i)}.
+  \]  
+
+\end{lemma}
+\begin{proof}
+  
+  For all $\xvec \in \mathcal{S}_i$ we have $c_i \leq p_{\xvec} \leq
+  C_i$ therefore
+  \begin{equation} \label{ineq:pxciCi}
+  \frac{\sqrt{c_i}}{p_{\xvec}} \leq \frac{\sqrt{p_{\xvec}}}{p_{\xvec}} =
+  \frac{1}{\sqrt{p_{\xvec}}} \leq \frac{\sqrt{C_i}}{p_{\xvec}}.
+  \end{equation}
+  Let $\TQSH^{(i)}$ denote the time spent by the quantum variant in
+  the region $\mathcal{S}_i$. We have
+  \[
+  \TQSH^{(i)} =
+  \sum_{\mathbf{x}\in\mathcal{S}_i} \EXP[N(x)] \cdot \frac{1}{\sqrt{p_{\xvec}}}.
+  \]
+  Using the bounds in the inequality~\ref{ineq:pxciCi} we  have
+  \[
+  \sqrt{c_i} \sum_{\mathbf{x}\in\mathcal{S}_i} \EXP[N(x)] \cdot
+  \frac{1}{p_{\xvec}} %
+  \leq \TQSH^{(i)} \leq %
+  \sqrt{C_i} \sum_{\mathbf{x}\in\mathcal{S}_i} \EXP[N(x)] \cdot
+  \frac{1}{p_{\xvec}}.
+  \]
+  Notice that $\TRSH^{(i)} = \sum_{\mathbf{x}\in\mathcal{S}_i}
+  \EXP[N(x)] \cdot \frac{1}{p_{\xvec}}$. Therefore,
+  \begin{equation}\label{ineq:boundsTQSHi}
+    \sqrt{c_i}
+    \TRSH^{(i)} \leq \TQSH^{(i)} \leq \sqrt{C_i} \TRSH^{(i)}.
+  \end{equation}
+  Any non-optimal solution $\xvec$ should be in one of the regions $\mathcal{S}_i$. Therefore
+  using Lemma \ref{lem:TRSH} we have
+  \begin{eqnarray*}
+    \TQSH  & = &   \sum_i \sum_{\xvec\in\mathcal{S}_i} E[N({\xvec})] \frac{1}{\sqrt{p_{\xvec}}}\\
+    & = & \sum_i  \TQSH^{(i)}.
+  \end{eqnarray*}
+  The lemma follows from the bounds in
+  inequality~\ref{ineq:boundsTQSHi}.
+\end{proof}
+
+

@@ -1,0 +1,421 @@
+In this section we study quantum versions of known elitist (1+1)~Randomized Search Heuristics (short \rsh{}s). Given any \rsh like Random Local Search (\rls) or the (1+1)~Evolutionary Algorithm (EA), we use quantum probability amplification at each of its mutation and selection steps. We call such a version a quantum version of the search heuristic.
+
+Let~$\mathcal{S}$ be the search space and let $f$ be a function from the search space $\mathcal{S}$ to $\mathbb{R}$ that we want to maximize. Randomized search heuristics like random local search (RLS) and evolutionary algorithms can be formalized by defining what is known as its \emph{mutation operator}.
+\begin{definition}[Mutation Operator \textsc{mut}]~\\
+Let~$\mathcal{S}$ be a finite search space. A \emph{mutation operator} \textsc{mut} over $\mathcal{S}$ is a function from $\mathcal{S}$ to the space of probability distributions on $\mathcal{S}$.
+\end{definition}
+
+The mutation operator \textsc{mut} is essentially the search strategy of the corresponding \rsh. With a slight abuse of notation we write $\MutOp{\mathbf{x}}$ to denote a sample picked from $\mathcal{S}$ according to the distribution $\MutOp{\mathbf{x}}$.
+\begin{algorithm}[\rsh]\label{algo:rsh}~\\
+The \emph{elitist (1+1)~randomized search heuristic (\rsh)} over the finite search space~$\mathcal{S}$ with mutation operator \textsc{mut} that maximizes the objective function $f:\mathcal{S}\to\mathbb{R}$ is the following iterative algorithm:
+  \begin{enumerate}
+ \item Start with $\mathbf{x}_0 \in \mathcal{S}$ uniformly at random.
+ \item For each $t\geq 0$ iteratively assume that $\mathbf{x}_t$ had been
+ picked
+ \begin{enumerate}[(a)]
+ \item \label{step:mutate} Pick $\mathbf{y}_t \in \mathcal{S}$
+  according to the distribution $\MutOp{\mathbf{x}_t}$.
+ \item \label{step:pick} Set $\mathbf{x}_{t+1} = \mathbf{y}_t$ if
+  $f(\mathbf{y}_t) > f(\mathbf{x}_t)$. Otherwise, discard $\mathbf{y}_t$ and 
+  repeat (a).
+ \end{enumerate}
+ \end{enumerate}
+\end{algorithm}
+
+One can define a randomized search heuristic for minimizing $f$ by changing step~\ref{step:pick} of Algorithm~\ref{algo:rsh}: set $\mathbf{x}_{t+1} = \mathbf{y}_t$ if $f(\mathbf{y_t})<f(\mathbf{x}_t)$.  
+
+It follows from our definition of \rsh{} that all the candidate solutions $\mathbf{x}_t$ are distinct. Furthermore, for maximization problem, the sequence of reals $\{f(\mathbf{x}_t)\}_{t=0}^\infty$ form an increasing sequence.
+
+Having defined the \rsh associated with a mutation operator \textsc{mut}, we now define its quantum version. As before, we assume (without loss of generality) that our task is to maximize $f$. We can think of the Step~\ref{step:mutate} of Algorithm~\ref{algo:rsh} as follows: Generate a distribution on $\mathcal{S}$ according to $\MutOp{\mathbf{x}_t}$ and sample a candidate solution $\mathbf{y}_t$ out of it. In the quantum version, we do not pick a $\mathbf{y}_t$ directly from the distribution $\MutOp{\mathbf{x}_t}$. Instead we amplify the probability of getting a favorable $\mathbf{y}_t$ using quantum probability amplification and then measure to obtain $\mathbf{y}_t$. For this we need a membership oracle and the objective function gives us just that. Given~$f$, we define for each $\mathbf{x} \in \mathcal{S}$, a membership oracle $M_{f,\mathbf{x}}$ as follows:
+\[
+M_{f,\mathbf{x}}(\mathbf{y}) = \left\{ \begin{array}{ll}
+ 1 & \textrm{ if } f(\mathbf{y}) > f(\mathbf{x})\textrm{,}\\
+ 0 & \textrm{ otherwise. }\\
+ \end{array}\right.
+\]
+
+We now define elitist (1+1)~Quantum Search Heuristics (\qrsh{})  associated with a mutation \textsc{mut}.
+\begin{algorithm}[\qrsh]\label{algo:qe-rsh}~\\
+ The \emph{elitist (1+1)~quantum search heuristic (\qrsh)}  over the finite search space~$\mathcal{S}$ with mutation operator  \textsc{mut} that maximizes the objective function  $f:\mathcal{S}\to\mathbb{R}$ is the following iterative algorithm:
+ \begin{enumerate}
+\item Start with $\mathbf{x}_0 \in \mathcal{S}$ uniformly at random.
+\item For each $t\geq 0$ iteratively assume that $\mathbf{x}_t$ had
+  been picked. Sample $\mathbf{x}_{t+1}$ according to sampling
+  procedure for Theorem~\ref{thm:probamp} with search space
+  space~\SCal, membership oracle $M_{f,\mathbf{x}_t}$, and sampling
+  procedure~$\MutOp{\mathbf{x}_t}$.
+\end{enumerate}
+\end{algorithm}
+
+Instead of the rather strong condition ``$f(\mathbf{y}_t)> f(\mathbf{x}_t)$'' for accepting a new search point in Step~2.(b), often the weaker condition ``$f(\mathbf{y}_t) \geq f(\mathbf{x}_t)$ with~$\mathbf{y}_t\neq\mathbf{x}_t$'' is chosen. This results in variants of the two above algorithms which we call \rsh{}$^*$ and \qrsh{}$^*$.
+\begin{algorithm}[\rsh{}$^*$ and \qrsh{}$^*$]~\\
+By \rsh{}$^*$, we denote a \rsh{} where in Step~2.(b) the condition ''$f(\mathbf{y}_t)> f(\mathbf{x}_t)$''   is replaced by ''$f(\mathbf{y}_t) \geq f(\mathbf{x}_t)$ and~$\mathbf{y}_t\neq\mathbf{x}_t$''.
+
+By \qrsh{}$^*$, we denote a \qrsh{} where in Step~2. the membership oracle $M_{f,\mathbf{x}_t}$ is replaced by the membership oracle
+\[
+M^*_{f,\mathbf{x}}(\mathbf{y}) = \left\{ \begin{array}{ll}
+ 1 & \textrm{ if } f(\mathbf{y})\ge f(\mathbf{x})\textrm{ and }y\neq x\textrm{,}\\
+ 0 & \textrm{ otherwise. }\\
+ \end{array}\right.
+\]
+\end{algorithm}
+
+It is important to note that Theorem~\ref{thm:probamp} implies that the probability that the algorithm takes some fixed trajectory $\mathbf{x}_0, \mathbf{x}_1,\ldots, \mathbf{x}_t$ through the search space is exactly the same in both the \rsh and is quantum counterpart \qrsh. The only place where they differ is in the expected time required by them to make an improvement from $\mathbf{x}_i$ to $\mathbf{x}_{i+1}$.
+
+We are interested in the \emph{query complexity} of the \rsh{}s and \qrsh{}s as defined above.
+\begin{definition}[Query Complexity]~\\
+Let~$\mathcal{S}$ be a search space with objective function $f\colon \SCal\to\mathbb{R}$ and mutation operator \textsc{mut}. The \emph{query complexity} of the corresponding \rsh or \qrsh is the random variable that denotes the number of queries until the \rsh or \qrsh has found an optimal search point. A \emph{query of a \rsh} is an evaluation of~$f$ and a \emph{query of a \qrsh} is a call to the membership oracle associated to~$f$.
+\end{definition}
+
+
+Another random quantity of interest is the %\emph{optimization time}
+number of improvements until a \rsh or \qrsh has found an optimum.
+\begin{definition}[improvement number $\TOPT$]~\\
+Let~$\mathcal{S}$ be a search space with objective function $f\colon
+\SCal\to\mathbb{R}$ and mutation operator \textsc{mut}. 
+The \emph{improvement number}~\TOPT of the corresponding \rsh or \qrsh
+is the random variable that denotes the first point in time~$t$ such
+that~$\mathbf{x}_t$ is optimal with respect to~$f$.
+\end{definition}
+
+Note that $T$ indeed is the number of improvements in the algorithm since $t$ increases only if the objective function increases.
+
+In order to relate the query complexity to the improvement number, we need the notion of \emph{transition probabilities}.
+\begin{definition}[Transition Probability $p_t$]~\\
+Let~$\mathcal{S}$ be a search space with objective function $f\colon \SCal\to\mathbb{R}$ and mutation operator \textsc{mut}.
+
+For all~$t\in\NSet = \NSet_0$, the \emph{transition probability}~$p_t$ at time $t$ of the corresponding \rsh is the probability that~$\textsc{mut}(x_t)$ is an improvement, that is,
+\[
+p_t=\Prob[f(\textsc{mut}(x_t))>f(x_t)]\,.
+\]
+\end{definition}
+
+For a classical \rsh, the transition probability tells us how likely we are to advance from $\mathbf{x}_t$ to $\mathbf{x}_{t+1}$ by a single query to $f$. Therefore, $p_t^{-1}$ equals the expected number of queries needed to advance from $\mathbf{x}_t$ to $\mathbf{x}_{t+1}$. This observation leads us to the following definition.
+\begin{definition}[$\TRSH$]~\\
+Let~$\mathcal{S}$ be a search space with objective function $f\colon \SCal\to\mathbb{R}$ and mutation operator \textsc{mut}.
+
+The \emph{estimated query complexity}~\TRSH of the corresponding \rsh is the random variable
+\[
+\TRSH=\sum_{t\le T}p_t^{-1}\,.
+\]
+\end{definition}
+
+By the discussion above, we obtain the following lemma.
+
+\begin{lemma}
+\label{lem:tcl}
+Let~$\mathcal{S}$ be a search space with objective function $f\colon \SCal\to\mathbb{R}$ and mutation operator \textsc{mut}. Then it holds for the corresponding \rsh that the expected query complexity equals the expected estimated query complexity.
+\end{lemma}
+
+Now let us consider the \qrsh. Theorem \ref{thm:probamp} tells us two things. Firstly, if we fix an $\mathbf{x}$ and a $t$, then the probability $\Prob(\mathbf{x}_t=\mathbf{x})$ is the same for the \rsh and the \qrsh. In particular, the transition probability $p_t$ does not change if we switch to \qrsh. Secondly, the expected number of queries needed to advance from $\mathbf{x}_t$ to $\mathbf{x}_{t+1}$ is in $\Theta(p_t^{-\nicefrac{1}{2}})$. This leads to the following definition.
+
+\begin{definition}[$\TQSH$]~\\
+Let~$\mathcal{S}$ be a search space with objective function $f\colon \SCal\to\mathbb{R}$ and mutation operator \textsc{mut}.
+
+The \emph{estimated query complexity}~\TQSH of the corresponding \qrsh is the random variable
+\[
+\TQSH=\sum_{t\le T}p_t^{-\nicefrac{1}{2}}\,.
+\]
+\end{definition}
+
+Again, the discussion above yields us the following lemma.
+
+\begin{lemma}
+\label{lem:tq}
+Let~$\mathcal{S}$ be a search space with objective function $f\colon \SCal\to\mathbb{R}$ and mutation operator \textsc{mut}. Then it holds for the corresponding \qrsh that the expected query complexity is of the same order as the expected estimated query complexity.
+\end{lemma}
+
+Finally, we introduce the two \rsh{}s which we compare to their quantum versions: Randomized Local Search (\rls) and the (1+1)~Evolutionary Algorithm (\ea). We do this by defining their mutation operators such that the quantum version follows directly.
+
+\begin{definition}[\rls and the \ooea]~\\
+\emph{Randomized Local Search (\rls)} and the \emph{(1+1)~Evolutionary Algorithm (\ea)} are the elitist (1+1)~randomized search heuristics associated with the mutation operators $\textsc{mut}_\mathrm{RLS}$ and $\textsc{mut}_\mathrm{EA}$, respectively, which are defined as follows.
+ \begin{itemize}
+ \item $\textsc{mut}_{\mathrm{RLS}}(\mathbf{x})$ with~$x\in\{0,1\}^n$ is the probability distribution on~$\{0,1\}^n$ obtained by flipping one bit of $\mathbf{x}$ uniformly randomly.
+ \item $\textsc{mut}_{\mathrm{EA}}(\mathbf{x})$ with~$x\in\{0,1\}^n$  is the probability distribution on~$\{0,1\}^n$ obtained by flipping each bit of~$\mathbf{x}$ independently with probability~$1/n$.
+ \end{itemize}
+\end{definition}
+
+For the rest of the paper, we fix the search space $\mathcal{S}$ to be
+the set $\{0,1\}^n$ of bit-strings of length $n$. A bit-string in
+$\mathcal{S}$ will be denoted by bold faced Latin letters like
+$\mathbf{x}$, $\mathbf{y}$ etc. In particular, $\mathbf{x}_t$ will denote the search point of the corresponding \rsh or \qrsh after $t$ improvements, and $t$ runs from $0$ to $\TOPT$, which is the total number of improvements. The $i$-th bit of a bit-string
+$\mathbf{x}$ will be denoted by $\mathbf{x}(i)$. 
+
+%\daniel{delete the rest from here}
+%
+%
+%\begin{lemma}\label{lem:expruntime}
+% Let~$\mathcal{S}$ be a search space with objective function $f\colon
+% \SCal\to\mathbb{R}$ and mutation operator \textsc{mut}. Let
+% $\SCal^\star := \SCal \setminus \{\mathbf{x}\in \SCal \mid \mathbf{x}
+% \text{ is optimal}\}$. For all $\mathbf{x}\in S$, let
+% $\SCal_{\mathbf{x}} := \{\mathbf{y}\in S\mid M_\mathbf{x}(\mathbf{y})
+% = 1\}$ be the set of points accepted by the membership
+% oracle. Further, let $\mathrm{P}(\mathbf{x})$ be the probability that
+% an execution of Algorithm \ref{algo:rsh} visits the search point
+% $\mathbf{x}$, and let
+% $p_{\mathbf{x}}=\Prob[\MutOp{\mathbf{x}}\in\SCal_{\mathbf{x}}]$. Then
+% the expected running time of Algorithm \ref{algo:rsh} is
+% \begin{equation}\label{eq:TCL}
+% \EXP[\TRSH] = \sum_{\mathbf{x}\in\SCal^\star}\mathrm{P}(\mathbf{x})\, p_{\mathbf{x}}^{-1},
+% \end{equation}
+% and the expected running time of algorithm \ref{algo:qe-rsh} is
+% \begin{equation}\label{eq:TQE}
+% \EXP[\TQSH] = \sum_{\mathbf{x}\in \SCal^\star}\mathrm{P}(\mathbf{x})\, p_{\mathbf{x}}^{-\nicefrac{1}{2}}.
+% \end{equation}
+% Equivalently,
+% \begin{equation}\label{eq:TCLrecursive}
+% \EXP[\TRSH] = \sum_{\mathbf{x}\in\SCal^\star}\,\sum_{X_0,\ldots,X_j=\mathbf{x}}\,\prod_{i=0}^j\mathrm{P}(X_i \mid X_{i-1})\, p_{\mathbf{x}}^{-1}
+% \end{equation}
+% and
+% \begin{equation}\label{eq:TQErecursive}
+% \EXP[\TQSH] = \sum_{\mathbf{x}\in\SCal^\star}\,\sum_{X_0,\ldots,X_j=\mathbf{x}}\,\prod_{i=0}^j\mathrm{P}(X_i \mid X_{i-1})\, p_{\mathbf{x}}^{-\nicefrac{1}{2}},
+% \end{equation}
+% where the inner sum runs over all sequences $X_0,\ldots, X_j\in \SCal^\star$ such that $X_j = \mathbf{x}$ and $X_i \in \SCal_{X_{i-1}}$ for all $i$, and where for all $i\geq 1$
+% \[
+% \mathrm{P}(X_{i} \mid X_{i-1}) := \Prob(X_{i} = \MutOp{X_{i-1}} \mid \MutOp{X_{i-1}} \in \SCal_{X_{i-1}}),
+% \]
+% and for $i=0$ we set $\mathrm{P}(X_{i} \mid X_{i-1})$ to be the probability for $X_0$ to be the starting point of the algorithm.
+%
+% By abuse of notation, we abbreviate the above formulas by
+% \[
+% \EXP[\TRSH] = \EXP\big[\sum_{t=1}^T p_{t}^{-1}\big],
+% \]
+% and
+% \[
+% \EXP[\TQSH] = \EXP\big[\sum_{t=1}^T p_{t}^{-\nicefrac{1}{2}}\big],
+% \]
+% respectively.
+%\end{lemma}
+% 
+%\begin{proof}
+%First note that $\mathrm{P}(\mathbf{x})$ equals also the probability that an execution of algorithm \ref{algo:qe-rsh} visits the search point $\mathbf{x}$ by lemma \ref{lem:quant-prob-amplify}. Let $T_{\mathbf{x}}$ be the time that the algorithm stays in $\mathbf{x}$. Then the expected running time of either algorithm is given by 
+%\[
+% \EXP[T] = \sum_{\mathbf{x}\in \SCal^\star}\mathrm{P}(\mathbf{x})\,
+% \EXP[T_{\mathbf{x}} \mid \text{the algorithm visits }\mathbf{x}].
+% \]
+% For the classical \rsh, the latter term is simply 
+% \[
+% \EXP[T_{\mathbf{x}} \mid \text{the algorithm visits }\mathbf{x}] =
+% p_{\mathbf{x}}^{-1}.
+% \]
+% For \qrsh, by lemma \ref{lem:quant-prob-amplify}, it is
+% \[
+% \EXP[T_{\mathbf{x}} \mid \text{the algorithm visits }\mathbf{x}] =
+% p_{\mathbf{x}}^{-\nicefrac{1}{2}},
+% \]
+% which proves equations \eqref{eq:TCL} and \eqref{eq:TQE}.
+%
+% Now the formulas \eqref{eq:TCLrecursive} and \eqref{eq:TQErecursive} follow recursively by using 
+% \[
+% \mathrm{P}(\mathbf{x}) =
+% \sum_{\mathbf{y}\in\SCal^{\star}}\mathrm{P}(\mathbf{y})\Prob(\mathbf{x}
+% \mid \mathbf{y}).
+% \]
+%\end{proof}
+% 
+%
+% 
+%\piyush{I think the above lemma is too general to be used in the
+% proofs latter on. In fact it is difficult to get hold on $P(x)$ of
+% the Lemma. So I am formulating it a bit differently. Have a look and
+% keep the one that is most suitable. We are exceeding the page limit
+% but I guess if we remove the comments and compress the Intro section
+% a bit we will be in good shape}
+%
+%
+%Consider the randomized search heuristic associated with the mutation
+%\textsc{mut}.  Fix a run of the algorithm and consider the ordered
+%sequence $\mathbf{x}_0,\ldots,\mathbf{x}_t$ of samples in
+%$\mathcal{S}$ that it produce before it hit the optima
+%$\mathbf{x}_t$. Let $I = [a,b] = \{a,a+1,\ldots,b\}$ be an
+%interval. For a real number $\kappa$, we say that the algorithm
+%\emph{stagnates} at the value $\kappa$ in $I$ if $f(\mathbf{x}_a) =
+%f(\mathbf{x}_b) = \kappa$.
+%
+%\begin{proposition}\label{prop:stagnates}
+%
+%  \begin{enumerate}
+%  \item Suppose the algorithm stagnates at the value $\kappa$ in an
+%    interval $I$ then for all $i \in I$, $f(\mathbf{x}_i) = \kappa$.
+%  \item Let $I$ be an interval where the algorithm stagnates and let
+%    $J$ be a subinterval of $I$ then the algorithm stagnates in $J$ as
+%    well.
+%  \item If $I$ and $J$ be two consecutive intervals, i.e. $I=[a,b]$
+%    and $J=[b+1,c]$, such that the algorithm stagnates at the same
+%    value $\kappa$ on both $I$ and $J$ then the algorithm stagnates at
+%    $\kappa$ in the interval $I \cup J$ as well.
+%  \item Let $I_1$ and $I_2$ be two intervals where the algorithm
+%    stagnates at values $\kappa_1$ and $\kappa_2$ respectively. If
+%    $\kappa_1 \neq \kappa_2$ then $I_1 \cap I_2 = \emptyset$.
+%  \end{enumerate}
+%
+%\end{proposition}
+%
+%
+%
+%Let $I_0,\ldots,I_r$ be a sequence of consecutive intervals, i.e. if
+%$I_k = [a,b]$ then $I_{k+1} = [b+1,c]$ for all $k$, such that the
+%algorithm stagnates at $\kappa_s$ at interval $I_s$. It follows from
+%Proposition~\ref{prop:stagnates} that such a sequence is shortest when
+%the numbers $\kappa_s$ are all distinct. We call such a sequence of
+%intervals a \emph{shortest sequence of stagnating intervals}.  Notice
+%that for a fixed run the shortest sequence is unique. The
+%corresponding sequence of real numbers $\{\kappa_s\}_{s=0}^r$ is
+%called the \emph{sequence of stagnant values}. For any run of the
+%algorithm, the stagnant sequence is monotonically decreasing or
+%increasing depending upon whether we are maximizing or minimizing the
+%objective function respectively.  We can similarly define
+%\emph{shortest sequence of stagnating intervals} and \emph{sequence of
+%  stagnant values} for the quantum enhanced version as well.  All we
+%need to consider the is sequence $\mathbf{x}_0,\ldots,\mathbf{x}_t$ of
+%candidate solutions picked in Step~\ref{step:qe-pick} of
+%Algorithm~\ref{algo:qe-rsh}.
+%
+%We now restrict to the case of maximization problem. Consider the
+%following random process that generates decreasing sequence
+%$\underline{\kappa}= \kappa_0,\ldots,\kappa_r$ of real numbers as
+%follows: run the randomized search heuristic and output the sequence
+%of stagnant values. The advantage of considering this random process
+%is that, even if we replace the randomized search heuristic with its
+%quantum enhanced version, the statistical properties of the sequence
+%$\underline{\kappa}$ remains the same. This is because the conditional
+%probability of getting a particular improved solution $\mathbf{y}$
+%given a current candidate solution $\mathbf{x}$ does not change
+%(Lemma~\ref{lem:quant-prob-amplify}).
+%
+%
+%For an interval $I$, we often abuse notation and write $\mathbf{x} \in
+%I$ to mean $\mathbf{x} = \mathbf{x}_i$ for some $i \in I$. Let
+%$I_0,\ldots,I_r$ be the shortest sequence of stagnating intervals. We
+%define the following random variables:
+%
+%
+%For a fixed value $\kappa$ the probability of improving a candidate
+%solution $\mathbf{x}$ such that $f(\mathbf{x}) = \kappa$ depend on
+%$\mathbf{x}$. However in many cases this depends only on the value
+%$\kappa$. In such cases we define the escape probability as follows
+%
+%
+%\begin{definition}[Escape probability]
+%  Consider the randomized search heuristic associated with a mutation
+%  operator \textsc{mut} maximizing a objective function $f$ and let
+%  $\kappa$ be a real number. The \emph{escape probability} $p(\kappa)$
+%  associated with $\kappa$ is the probability of improving a solution
+%  $\mathbf{x}$ such that $f(\mathbf{x})=\kappa$.
+%\end{definition}
+%
+%In cases where the probabilities vary according to the candidate
+%solution $\mathbf{x}$, it suffices to obtain a upper and lower bound
+%on the probabilities.  We now prove the following lemma on the
+%expected running time of the algorithm.
+%
+%
+%\begin{lemma}
+%  Let the notations be as before and assume that escape probability
+%  $p(\kappa)$ is independent of the candidate solution $\mathbf{x}$
+%  such that $f(\mathbf{x}) = \kappa$. Then the expected running time
+%  of the classical and quantum enhanced randomized search heuristic
+%  respectively are given by
+%  \[ 
+%  \EXP[T_{CL}] \leq \sum_s
+%  \EXP_{\underline{\kappa}}\left[\frac{1}{p(\kappa_s)}\right]
+%  \]
+%  and
+%  \[ 
+%  \EXP[T_{QE}] \leq \sum_s
+%  \EXP_{\underline\kappa}\left[\sqrt{\frac{1}{p_s}}\right].
+%  \]
+%\end{lemma}
+%\begin{proof}
+%  For a sequence $\underline\kappa$, let $A(\underline\kappa)$ denote
+%  the event that the sequence of stagnant values is
+%  $\underline\kappa$.  For ease of notation let
+%  $\EXP[T_{CL}|\underline\kappa]$ denote the conditional probabilities
+%  $\EXP[T_{CL}|A(\underline\kappa)]$.  The events $A(\underline\kappa)$,
+%  as $\underline\kappa$ varies over decreasing sequences of real
+%  numbers form a mutually exclusive set of events. Hence the
+%  expected running time is given by 
+%  \[
+%  \EXP[T_{CL}] = \sum_{\underline\kappa} \Prob{A(\underline\kappa)}
+%  . \EXP[T_{CL}|\underline\kappa] \leq \EXP[T_{CL}|\underline\kappa].
+%  \]
+%  
+%  Fix a sequence of stagnant values $\underline\kappa$ and consider
+%  any run of the algorithm that produced the stagnant sequence
+%  $\underline\kappa$. Let $I_0,\ldots, I_r$ be the smallest sequence
+%  of stagnating intervals associated with that run of the algorithm.
+%  Consider the following sequences of random variables
+%  \begin{enumerate}
+%  \item The sequence $\{\tau_s(\underline{\kappa})\}_{s=0}^r$ of
+%    \emph{expected stagnation times}, which is the expected length of
+%    the interval $I_s$ 
+%  \item The sequence $\{ T_s \}_{s=0}^r$ of expected \emph{stagnation
+%    costs}, which is the expected number of queries made to the
+%    objective function while the algorithm stagnates in $I_s$.
+%  \end{enumerate}
+%
+%  The expectation is over $\{I_s\}_{s=0}^r$ of smallest sequence of
+%  stagnating intervals with of stagnant values $\underline\kappa$.
+%  Notice that $\tau_s(\underline\kappa) = \frac{1}{p(\kappa_s)}$ and
+%  each of the $\tau_s(\underline\kappa)$ mutations required $2$
+%  queries to the objective function $f$. Therefore $\{ T_s \} =
+%  \frac{2}{p(\kappa_s)}$. Clearly $E[T_{CL}|\kappa] = \sum_s T_s = 2
+%  . \sum_s \frac{2}{p(\kappa_s)}$. Therefore we have
+%  \[
+%  \EXP[T_{CL}] \leq  \EXP_{\underline\kappa}\left[ \sum_s \frac{2}{p(\kappa_s)} \right]
+%  = \BigOh{\sum_s \EXP_{\underline{\kappa}}\left[ \frac{1}{p(\kappa_s)}\right]}.\]
+%
+%  To get the bound for the quantum setting notice in the quantum
+%  setting the expected stagnation times $\tau_s(\underline{\kappa})$
+%  are $O(1)$ as the probability of making an improvement has been
+%  amplified to a constant, say $\frac{1}{2}$. However each of the
+%  constantly many steps require $\BigOh{\sqrt{\frac{1}{p(\kappa_s)}}}$
+%  many queries. Therefore $T_s =
+%  \BigOh{\sqrt{\frac{1}{p(\kappa_s)}}}$. As a result
+%  \[
+%  \EXP[T_{QE}] \leq
+%  \sum_s \EXP_{\underline\kappa}\left[\sqrt{\frac{1}{p_s}}\right].\]
+% \end{proof}
+%
+%
+%
+%% In the case of a randomized search heuristic we have the expected
+%% stagnation times are $\EXP[\tau_s] = \frac{1}{p_s}$ and the expected
+%% stagnation costs are $\EXP[T_s] = \EXP[\tau_s] * \BigOh{1}$. Thus
+%% the expected running time (query complexity) is given by
+
+%% \[
+%% \EXP[T_{CL}] = \sum_s \EXP[C_s] = \BigOh{\sum_s\EXP[\tau_s]} =
+%% \BigOh{\sum_s \frac{1}{p_s}}.
+%% \]
+
+%% Now we analyze the quantum enhanced version of the randomized search
+%% heuristic. Now let $\mathbf{x}_0, \ldots, \mathbf{x}_t$ denotes the
+%% samples obtained after probability amplification. Define stagnation
+%% intervals just as in the classical case.  Consider a run of the
+%% quantum version of the algorithm. Let $I_0,\ldots,I_r$ be the shortest
+%% sequence of stagnating intervals and let $\kappa_0,\ldots,\kappa_r$
+%% denote the corresponding stagnant values. From
+%% Lemma~\ref{lem:quant-prob-amplify}, since the conditional
+%% probabilities of getting a particular improved solution does not
+%% change, the statistical properties of the stagnant values $\kappa_s$
+%% is exactly the same as in the classical case.
+
+%% We define the random variables stagnation time, stagnation cost and
+%% escape probabilities as before. Let $q_s$, $\sigma_s$ and
+%% $\mathcal{T}_s$ denote the escape probabilities, stagnation times and
+%% stagnation costs in the quantum enhanced version respectively.  We
+%% have $q_s = \BigOh{1}$, $\sigma_s = \frac{1}{q_s} = \BigOh{1}$.
+%% However each probability amplification required $\sqrt{\frac{1}{p_s}}$
+%% queries where $p_s$ is the escape probabilities in the classical
+%% case. Hence $\EXP[\mathcal{T}_s] = \BigOh{\sqrt{\frac{1}{p_s}}}$. Thus
+%% the expected complexity of the quantum enhanced version is given by
+
+%% \[
+%% \EXP[T_{QE}] = \EXP[\mathcal{T}_s]= \BigOh{\sum_s \sqrt{\frac{1}{p_s}}}.
+%% \]
+
+
+%\piyush{I hope the above formulation makes the intuition precise.}
+

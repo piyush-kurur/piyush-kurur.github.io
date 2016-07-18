@@ -1,0 +1,997 @@
+%\documentclass{llncs}
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{problem}[theorem]{Problem}
+%\usepackage{showlabels}
+%\usepackage{algorithm2e}
+%\usepackage{fullpage}
+%\pagestyle{empty}
+\newcommand{\Ideal}[1]{\ensuremath{\mathfrak{#1}}}
+\newcommand{\Sym}[1]{\ensuremath{\mathbf{Sym}\left(#1\right)}}
+\newcommand{\Stab}[2]{\ensuremath{\mathbf{Stab}_{#1}\left(#2\right)}}
+\newcommand{\Gal}[1]{\ensuremath{Gal\left(#1\right)}}
+\newcommand{\Fix}[2]{\ensuremath{Fix_{#1}\left(#2\right)}}
+\newcommand{\Q}[0]{\ensuremath{\mathbb{Q}}}
+\newcommand{\Z}[0]{\ensuremath{\mathbb{Z}}}
+\newcommand{\C}[0]{\ensuremath{\mathbb{C}}}
+\newcommand{\F}[0]{\ensuremath{\mathbb{F}}}
+\newcommand{\size}[0]{\ensuremath{\mathrm{size}}}
+\newcommand{\mod}[0]{\ensuremath{\mathrm{mod}\ }}
+\renewcommand{\angle}[1]{\langle #1\rangle}
+\newcommand{\Prob}{\ensuremath{\mathrm{Prob}}}
+\newcommand{\Tr}{\mbox{\rm Tr}}
+
+\newcommand{\Frob}[2]
+{\ensuremath
+  {\left(
+      \begin{array}{c}
+        #1\\
+        \hline
+        #2
+      \end{array}
+    \right)
+  }
+}
+\newcommand{\Artin}[2]
+{\ensuremath
+  {\left[
+      \begin{array}{c}
+        #1\\
+        \hline
+        #2
+      \end{array}
+    \right]
+  }
+}
+
+\newcommand{\FBPP}{\mbox{\rm FBPP}}
+\newcommand{\UP}{\mbox{\rm UP}}
+\newcommand{\PP}{\mbox{\rm PP}}
+\newcommand{\BPP}{\mbox{\rm BPP}}
+\newcommand{\GapP}{\mbox{\rm GapP}}
+\newcommand{\NP}{\mbox{\rm NP}}
+\newcommand{\FP}{\mbox{\rm FP}}
+\newcommand{\p}{\mbox{\rm P}}
+\newcommand{\coNP}{\mbox{\rm co-NP}}
+\newcommand{\ParityP}{\mbox{$\oplus$\rm P}}
+\newcommand{\ModkP}{\mbox{\rm Mod$_k$P}}
+\newcommand{\numP}{\mbox{\rm \#P}}
+
+\title{Upper Bounds on the Complexity of some Galois Theory Problems}
+
+%% \subtitle{(Extended abstract)\footnote{The full version of the paper
+%%     is available at www.imsc.res.in/$\sim$ppk.}}
+
+\author{ V.~Arvind and Piyush P Kurur\\
+  Institute of Mathematical Sciences, C.I.T Campus,\\
+  Chennai 600113, India\\
+  {\tt \{arvind,ppk\}@imsc.res.in}
+}% \date{}
+%\usepackage{fancyhdr}
+\begin{document}
+\maketitle
+%%
+%% This is the junk I added to get the exact style of the proceedings version
+%%
+
+%% \setcounter{page}{716}
+%% \fancypagestyle{plain}{
+%% 	\fancyhf{}
+%% 	\renewcommand{\headrulewidth}{0pt}
+%% 	\fancyfoot[L]{\scriptsize
+%% 	T. Ibaraki, N. Katoh, and H. Ono (Eds.): ISAAC 2003,
+%% 	LNCS 2906, pp 716--725, 2003. \\ \copyright\ Springer-Verlag Berlin
+%% 	Heidelberg 2003}
+%% }
+%% \pagestyle{myheadings}
+%% \markboth{\qquad \normalfont{\footnotesize V. Arvind and P.P Kurur} \hfill}
+%% {\hfill \normalfont{\footnotesize Upper Bounds on the Complexity of some
+%% Galois Theory Problems\qquad}}
+%% \thispagestyle{plain}
+
+\begin{abstract}
+  Assuming the generalized Riemann hypothesis, we prove the following
+  complexity bounds: The order of the Galois group of an arbitrary
+  polynomial $f(x)\in\Z[x]$ can be computed in $\p^{\numP}$.
+  Furthermore, the order can be approximated by a randomized
+  polynomial-time algorithm with access to an NP oracle. For
+  polynomials $f$ with solvable Galois group we show that the order
+  can be computed exactly by a randomized polynomial-time algorithm
+  with access to an NP oracle. For all polynomials $f$ with abelian
+  Galois group we show that a  generator set for the Galois
+  group can be computed in randomized polynomial time.
+\end{abstract}
+
+\section{Introduction}
+A fundamental problem in computational algebraic number theory is to
+determine the Galois group of a polynomial $f(x) \in \Q[x]$. Formally,
+in this paper we study the computational complexity of the following
+problem:
+
+\begin{problem}\label{prob1}
+Given a nonzero polynomial $f(x)$ over the rationals $\Q$, 
+\begin{enumerate}
+\item[(a)]~determine the Galois group of $f$ over $\Q$.
+\item[(b)]~determine the order of the Galois group of $f$ over $\Q$. 
+\end{enumerate}
+\end{problem}
+
+
+%Given as input $f(x) \in \Q[x]$ there is a deterministic algorithm due
+%to Landau \cite{landau:1984:galois} that computes the Galois group of
+%$f$ in time polynomial in the cardinality of the Galois group (also
+%see \cite{lenstra:1992:algorithm}).  However, this is not an efficient
+%algorithm as the Galois group can be of cardinality exponential in
+%$n$. It is still open if Problem~\ref{prob1}(a), or even
+%Problem~\ref{prob1}(b), has a polynomial (in $\size(f)$) time
+%algorithm. Neither is a better upper bound than the exponential-time
+%algorithm mentioned above known, nor is any nontrivial hardness result
+%known for the problem. Problem~\ref{prob1}(b) is polynomial-time
+%reducible to Problem~\ref{prob1}(a).\footnote{Given a generator set
+%  for a subgroup $G$ of $S_n$ we can compute $|G|$ in time polynomial
+%  in $n$ \cite{luks93permutation}.}
+%
+%The Galois group of a polynomial is a fundamental object of study in
+%algebraic number theory. We recall the celebrated result of Galois: a
+%polynomial $f$ over $\Q$ is said to be solvable by radicals if we can
+%compute its zeroes from the coefficients by the standard arithmetic
+%operations and taking $r$th roots, for any positive integer $r$.
+%Galois theorem states that a polynomial $f\in\Q[x]$ is solvable by
+%radicals if and only if its Galois group is a solvable group. Landau
+%and Miller in \cite{landau85solvability} showed that the problem of
+%testing whether the Galois group of a polynomial $f\in\Q[x]$ is
+%solvable can be done in polynomial time. However, even when the Galois
+%group is solvable, no polynomial-time algorithm is known for
+%Problem~\ref{prob1}(a) or Problem~\ref{prob1}(b).
+
+%\subsection*{Summary of results}
+%
+%In this paper we prove the following new complexity upper bounds for
+%some special cases of Problems~\ref{prob1}(a) and (b), assuming the
+%generalized Riemann hypothesis (henceforth GRH).
+%
+%\begin{enumerate}
+%\item Given a polynomial $f\in\Q[x]$, the order of its Galois group
+%  can be computed by a polynomial time algorithm with one query to a
+%  $\numP$ oracle. This yields a \emph{polynomial-space} algorithm for
+%  Problem~\ref{prob1}(b). In contrast, we observe here that Landau's
+%  algorithm \cite{landau:1984:galois} requires more than polynomial
+%  space.
+%\item If the Galois group of the polynomial is solvable then we get a
+%  randomized algorithm with NP oracle that \emph{exactly} computes the
+%  order of its Galois group.
+%\item Assuming the GRH, we have a polynomial time randomized algorithm
+%  for computing the Galois group for a polynomial $f$ with
+%  \emph{abelian} Galois group. Previously, a polynomial-time algorithm
+%  was known only for the case when $f$ is \emph{irreducible} and has
+%  an abelian Galois group \cite{landau:1984:galois} (also see
+%  \cite{lenstra:1992:algorithm}), because in that case the Galois
+%  group has only $n$ elements.
+%\end{enumerate}
+%
+%Our main tool is an effective version of the Chebotarev density
+%theorem, which holds assuming the GRH.
+%
+%\subsection{Galois theory background}
+
+An \emph{extension} of a field $K$ is a field $L$ that contains $K$
+(written $L/K$). If $L/K$ is a field extension then $L$ is a vector
+space over $K$ and its dimension, denoted by $[L:K]$ is called its
+\emph{degree}.  If $[L : K]$ is finite then $L/K$ is a \emph{finite}
+extension. If $L/M$ and $M/K$ are finite extensions then $[L:K] =
+[L:M].[M:K]$.
+
+Let $K[x]$ denotes the ring of polynomials with indeterminate $x$ and
+coefficients from the field $K$. A polynomial $f(x) \in K[x]$ is
+\emph{irreducible} if it has no nontrivial factor over $K$.  The
+\emph{splitting field} $K_f$ of a polynomial $f(x) \in K[x]$ is the
+smallest extension $L$ of $K$ such that $f$ factorizes into linear
+factors in $L$. An extension $L/K$ is \emph{normal} if for any
+irreducible polynomial $f(x) \in K[x]$, $f$ either splits in $L$ or
+has no root in $L$. An extension $L/K$ is \emph{separable} if for all
+irreducible polynomials $f(x) \in K[x]$ there are no multiple roots in
+$L$.  A normal and separable finite extension $L/K$ is called a
+\emph{Galois extension}.
+
+An \emph{automorphism} of a field $L$ is a field isomorphism
+$\sigma:L\rightarrow L$. The \emph{Galois group} $\Gal{L/K}$ of a field
+extension $L/K$ is the subgroup of the group of automorphisms of $L$
+that leaves $K$ fixed: i.e. for every $\sigma\in\Gal{L/K}$, $\sigma(a)
+= a$ for all $a \in K$. By the Galois group of a polynomial $f\in
+K[x]$ we mean $\Gal{K_f/K}$.
+
+% For a subgroup $G$ of automorphisms of $L$, the
+%\emph{fixed field} $L^G$ is the largest subfield of $L$ fixed by $G$.
+%
+%We now state the fundamental theorem of Galois.
+
+%\begin{theorem}{\rm{\cite[Theorem 1.1 Chap.
+%     VI]{lang:algebra}}}\label{funda:galois} Let $L/K$ be a Galois
+%  extension with Galois group $G$. There is a one-to-one
+% correspondence between subfields $E$ of $L$ containing $K$ and
+% subgroups $H$ of $G$, given by $E \rightleftharpoons L^H$.  The
+% Galois group of $\Gal{L/E}$ is $H$ and $E/K$ is a Galois extension
+% iff $H$ is a normal subgroup of $G$. If $H$ is a normal subgroup of
+% $G$ and $E = L^H$ then the Galois group of $\Gal{E/K}$ is $G/H$.
+%\end{theorem}
+
+Roots of polynomials over $\Q$ are \emph{algebraic numbers}. The
+\emph{minimal polynomial} $T\in\Q[x]$ of an algebraic number $\alpha$
+is the unique monic polynomial of least degree with $\alpha$ as a
+root. \emph{Algebraic integers} are roots of monic polynomials in
+$\Z[x]$. A \emph{number field} is a finite extension of $\Q$. For an
+algebraic number $\alpha$, $\Q(\alpha)$ denotes the smallest number
+field that contains $\alpha$. If $f(x)$ is the minimal polynomial of
+$\alpha$ then $\Q(\alpha)$ can be identified with the quotient
+$\Q[x]/(f(x)\Q[x])$. Every number field $K$ has an element $\alpha$
+such that $K = \Q(\alpha)$ (see \cite[Theorem 4.6
+Chap.V]{lang:algebra}). Such elements are called \emph{primitive}
+elements of the field $K$.
+
+Let $f\in\Q[x]$ with roots $\alpha_1,\alpha_2,\ldots,\alpha_n\in
+\Q_f$. A well known lemma \cite{waerden:1991} states that $\Q_f$ has a
+primitive element of the form $\sum_{i=1}^n c_i \alpha_i$ for integers
+$c_i$. The proof actually yields a probabilistic version which states
+that $\sum_{i=1}^n c_i \alpha_i$ is primitive for most $c_i$.
+
+\begin{lemma}\label{random:prim:element}
+  Let $f\in \Q[x]$ be a degree $n$ polynomial with roots
+  $\alpha_1,\alpha_2,\ldots,\alpha_n$. For a random choice of integers
+  $c_1,c_2,\ldots,c_n$ such that $size(c_i) \leq n^2$ the algebraic
+  integer $\theta = \sum_{i=1}^n c_i \alpha_i$ is such that $L =
+  \Q(\theta)$ with probability $1- \frac{1}{2^{O(n^2)}}$.
+\end{lemma}
+
+A polynomial $f(x) \in \Q[x]$ is said to be solvable by radicals if
+the roots of $f$ can be expressed, starting with the coefficients of
+$f$, using only field operations and taking $r^{th}$ roots for integer
+$r$. Galois showed that a polynomial is solvable by radicals if and
+only if its Galois group is solvable.
+
+Let $L$ be a number field and $O_L$ be the ring of algebraic integers
+in $L$. We can write $O_L$ as $O_L=\{\sum_{i=1}^N a_i\omega_i\mid
+a_i\in\Z\}$ where $\omega_1,\omega_2,\ldots,\omega_N$ is its
+$\Z$-basis. The \emph{discriminant} $d_L$ of the field $L$ is defined
+as the determinant of the matrix $(\Tr(\omega_i\omega_j))_{i,j}$ where
+$\Tr:L\rightarrow \Q$ is the trace map. The discriminant $d_L$ is
+always a nonzero integer. Let $T$ be any polynomial of degree $N$.
+Then the discriminant $d(T)$ of the polynomial $T$ is defined as $d(T)
+= \prod_{i \ne j} (\theta_i - \theta_j)$, where
+$\theta_1,\theta_2,\ldots,\theta_N$ are the $N$ distinct roots of $T$
+(i.e.\ all the conjugates of $\theta$). The following is important
+property that relates $d(T)$ and $d_L$ (\cite[Proposition
+4.4.4]{cohen:1993}).
+
+\begin{proposition}
+  Let $L$ be a number field and $T$ be the minimal polynomial of a
+  primitive element $\theta$ of $L$. Then $d_L\mid d(T)$. More
+  precisely, $d(T) = d_L\cdot t^2$, for an integer $t$.
+\end{proposition}
+
+Let $\size(a)$ denote the length of the binary encoding of an integer
+$a$. For a rational $r = p/q$ such that $gcd(p,q) =1$, let $\size(r) =
+\size(p) + \size(q)$. A polynomial is encoded as a list of its
+coefficients. For a polynomial $f(x) = \sum a_i x^i\in\Q[x]$ we define
+$\size(f) = \sum \size(a_i)$. Thus, for an algorithm taking a
+polynomial $f$ as input, the input size is $size(f)$.
+
+For any polynomial $g(x) = a_0 + a_1 x + \ldots + a_n x^n$ in $\Z[x]$,
+let $|g|_2 = \sqrt{\sum a_i^2}$. Applying an inequality
+\cite{landau:1905:ineq} which bounds every root $\eta$ of $g$ by
+$|g|_2$, we obtain the following.
+
+\begin{theorem}\label{bound:d:theta}
+  Let $f(x) \in \Z[x]$ be a monic polynomial of degree $n$ with
+  splitting field $L$. Let $\alpha_1,\alpha_2,\ldots,\alpha_n$ be the
+  roots of $f$. Consider an element of the form $\theta = \sum c_i
+  \alpha_i$, $c_i\in \Z$, and let $T$ be the minimal polynomial of
+  $\theta$. Then $|d(T)| \leq (2c|f|_2)^{N^2}$, where $c =
+  {\mathrm{max}}\{ |c_i| : 1 \leq i \leq n \}$.  As a consequence,
+  $d_L \leq (2^{n^2} |f|_2)^{n!^2}$ and $\log{d_L} \leq
+  (n+1)!^2.\size(f)$.
+\end{theorem}
+
+The Galois group of a polynomial $f(x) \in K[x]$ is completely
+determined by its action on the roots of $f$ in $K_f$.  We assume
+w.l.o.g throughout this paper that $f$ is square-free. Otherwise, we
+can replace $f$ by $f/gcd(f.f')$ which is square-free with the same
+Galois group. Thus, if we label the $n$ distinct zeroes of $f$, we can
+consider the Galois group as a subgroup of the symmetric group $S_n$.
+Notice that this subgroup is determined only up to conjugacy (as the
+labeling of the zeroes of $f$ is arbitrary).  Since every subgroup of
+$S_n$ has a generator set of size $n-1$ (c.f.\ 
+\cite{sims70computational} and \cite{luks93permutation}), we can
+specify the Galois group in size polynomial in $n$. By computing the
+Galois group of a polynomial $f$ we mean finding a small generator set
+(polynomial in $n$) for it as a subgroup of $S_n$.
+
+We now state Landau's result on computing the Galois group of a
+polynomial $f$. Its worst case running time is exponential in
+$\size(f)$.
+
+\begin{theorem}[\cite{landau:1984:galois}]\label{splitfind}
+  Given a polynomial $f\in F[x]$, where the number field $F$ is given
+  as a vector space over $\Q$, the Galois group $G$ of $f$ over $F$
+  can be computed in time polynomial in $|G|$ and $\size(f)$.
+\end{theorem}
+
+The extended abstract is organized as follows: In
+Sect.~\ref{sect:cheb} we explain the Chebotarev density theorem in a
+form that is useful to us. In Sect.~\ref{ordersection} we give a
+polynomial time algorithm making a single query to $\numP$ to compute
+the order of the Galois group of a polynomial $f(x) \in \Q$. In
+Sect.~\ref{sol:order} we show that if the polynomial is solvable by
+radicals the order of its Galois group can be computed by a randomized
+algorithm with an $\NP$ oracle.  Finally in Sect.~\ref{sect:abel} we
+show that if the Galois group of $f$ is abelian then it can be
+computed by a randomized polynomial time algorithm. For the
+definitions of various complexity classes the reader can consult any
+complexity theory text like \cite{BDG}.
+
+
+
+\section{Chebotarev Density theorem}\label{sect:cheb} 
+
+The main tool in the proofs of our complexity results is the
+Chebotarev density theorem. In this section we explain the theorem
+statement and also state it in a form that is suitable for our
+applications.
+
+Let $L$ be a Galois number field and $O_L$ be the ring of algebraic
+integers in $L$. Let $n = [L : \Q]$ be the degree of $L$. For any
+prime $p \in \Q$ consider the principal ideal $pO_L$ generated by $p$
+(which we denote by $p$).  The ideal $p$ factorizes in $O_L$ as $p =
+\Ideal{p}_1^{e} \Ideal{p}_2^{e} \ldots \Ideal{p}_g^{e}$ for some
+positive integer $e$. For each $i$, $O_L/\Ideal{p}_i$ is a finite
+field extension of $\mathbb{F}_p$ with $p^{f}$ elements for some
+positive integer $f$. Furthermore $efg=n$.
+
+The prime $p$ is said to be \emph{ramified} in $L$ if $e>1$ and
+\emph{unramified} otherwise. It is a basic fact about number fields
+that a prime $p$ is ramified in $L$ if and only if $p$ divides the
+discriminant of $L$ (see \cite[Theorem 1, pg. 238]{ribenboim:1999}).
+
+Let $p$ be an unramified prime with factorization $p =
+\Ideal{p}_1\Ideal{p}_2 \ldots \Ideal{p}_g$ in $O_L$. Corresponding to
+the Frobenius automorphism of the finite field $O_L/\Ideal{p}_i$,
+there is an element denoted $\Frob{L/\Q}{\Ideal{p}_i}$ in the Galois
+group $G=\Gal{L/\Q}$ known as the Frobenius element of $\Ideal{p}_i$,
+for $i=1, 2,\ldots,g$. Furthermore, it is known that the set
+\[
+\Artin{L/\Q}{p} = \left\{ \Frob{L/\Q}{\Ideal{p}} : \Ideal{p} | p
+\right\}
+\]
+is a conjugacy class in the Galois group $G$. For any conjugacy class
+$C$ of $G$ let $\pi_C(x)$ be the number of unramified primes less that
+$x$ such that $\Artin{L/\Q}{p} = C$. We have the following theorem:
+
+\begin{theorem}[Chebotarev's density theorem]\label{chebo}
+  Let $L/\Q$ be a Galois extension and $G=\Gal{L/\Q}$ be its Galois
+  group. Then for every conjugacy class $C$ of $G$, $\pi_C(x)$
+  converges to $\frac{|C|}{|G|}.\frac{x}{\ln x}$ as $x \to \infty$.
+\end{theorem}
+
+In order to apply the above theorem in a complexity-theoretic context,
+we need the following effective version due to Lagarias and Odlyzko
+\cite{lagarias:1977:effective} proved assuming the GRH.
+
+\begin{theorem}\label{eff:chebo}
+  Let $L/\Q$ be a Galois extension and $G=\Gal{L/\Q}$ be its Galois
+  group. If the GRH is true then there is an absolute constant $x_0$
+  such that for all $x > x_0$:
+  \[
+  \left|\pi_C(x) - \frac{|C|}{|G|} \frac{x}{\ln x} \right| \leq  \frac{|C|}{|G|}
+    x^{1/2} \ln{d_L} + x^{1/2}\ln{x}. |G|.
+  \]
+\end{theorem}
+
+An unramified prime $p$ such that $\Artin{L/\Q}{p}=\{1\}$ is called a
+\emph{split prime}. By definition, $\pi_1(x)$ denotes the number of
+split primes $p\leq x$.
+
+\begin{corollary}\label{eff:split:primes}
+  Let $G = \Gal{L/\Q}$ for a Galois extension $L/\Q$. If the GRH is
+  true then there is an absolute constant $x_0$ such that for all $x >
+  x_0$:
+  \[
+  \left|\pi_1(x) - \frac{1}{|G|} \frac{x}{\ln x} \right| \leq  \frac{1}{|G|}
+    x^{1/2} \ln{d_L} + x^{1/2}\ln{x}. |G|.
+  \]
+\end{corollary}
+%\section{newsection}
+
+\section{Computing the order of Galois Groups}\label{ordersection}
+
+Let $f(x) \in \Z[x]$ be a monic polynomial of degree $n$ without
+multiple roots and let $L$ denote the splitting field of $f$. Suppose
+$\{\alpha_1,\alpha_2,\ldots,\alpha_n\}$ is the set of roots of $f$.
+
+As mentioned before, the Galois group $G=\Gal{L/\Q}$ can be seen as a
+subgroup of $S_n$. Each $\sigma\in G$, when considered as a
+permutation in $S_n$, can be expressed as a product of disjoint
+cycles.  Looking at the lengths of these cycles we get the \emph{cycle
+  pattern} $\angle{m_1,m_2,\ldots,m_n}$ of $\sigma$, where $m_i$ is
+the number of cycles of length $i$, $1\leq i\leq n$. We have
+$n=\sum_{i=1}^n m_i$.
+
+If $p$ is a prime such that $p \nmid d(f)$, we can factorize $f=
+g_1 g_2\ldots g_s$ into its distinct irreducible factors $g_i$ over
+$\F_p$. Looking at the degrees of these irreducible factors we get the
+\emph{decomposition pattern} $\angle{m_1,m_2,\ldots,m_n}$ of $f (\mod
+p)$, where $m_i$ is the number of irreducible factors of degree $i$.
+
+We now state an interesting fact from Galois theory (see \cite[page
+198]{waerden:1991} and \cite[Theorem 2.9, Chap. VII]{lang:algebra}).
+
+\begin{theorem}\label{waerden}
+  Let $f(x) \in \Z[x]$ be a monic polynomial of degree $n$ such that
+  $d(f) \neq 0$, and let $L$ denote its splitting field. Let $G =
+  \Gal{L/\Q}$. Let $p$ be a prime such that $p \nmid d(f)$. Then
+  there is a conjugacy class $C$ of $G$ such that for each $\sigma \in
+  C$ the cycle pattern of $\sigma$ is the same as the decomposition
+  pattern of $f$ factorized over $\F_p$.  Furthermore, if
+  $\{\alpha_1,\alpha_2,\ldots,\alpha_n\}$ are the $n$ roots of $f$ in
+  its splitting field and if $\F_{p^m}$ is the extension of $\F_p$
+  where $f\ (\textrm{mod } p)$ splits then there is an ordering of the
+  roots $\{\alpha'_1,\alpha'_2,\ldots,\alpha'_n\}$ of $f$ in
+  $\F_{p^m}$ such that for all indices $k$ and $l$,
+  $\sigma(\alpha_k)=\alpha_l$ if and only if the Frobenius
+  automorphism $x\mapsto x^p$ of $\F_{p^m}$ maps $\alpha'_k$ to
+  $\alpha'_l$.
+\end{theorem}
+
+For any prime $p$ that divides the order of the Galois group there is
+an element whose order is divisible by $p$. This can happen only if
+there is a prime $q$ such that the decomposition pattern of $f\ 
+(\textrm{mod } q)$ contains only the integers $p$ and $1$ (using
+Theorem~\ref{waerden}). Furthermore using the effective Chebotarev
+density theorem (Theorem~\ref{eff:chebo}) we can show that there is a
+$q$ with size $size(f)^{O(1)}$ satisfying the above property. So to
+check whether $p$ divides the order of the Galois group we guess such
+a $q$. This leads to the following theorem.
+%
+%\begin{lemma}\label{conjugacy}
+%  Let $f$ be a degree-$n$ polynomial with $d(f)\neq 0$ and let
+%  $\overline{n}=\angle{m_1,m_2,\ldots,m_n}$ be a partition of $n$.  If
+%  the GRH is true then
+%  \[
+%  \left| \pi_{\overline{n}}(x) - \frac{|G_{\overline{n}}|}{|G|}
+%\frac{x}{\ln x} \right| \leq
+%\frac{|G_{\overline{n}}|}{|G|} x^{1/2}\ln d_L + x^{1/2}\ln x|G|^2,
+%  \]
+%  where $L$ is the splitting field of $f$.
+%\end{lemma}
+%
+%The above theorem is easily proved by noting that $G_{\overline{n}}$
+%is a union of conjugacy classes of $G$, and by applying
+%Theorem~\ref{eff:chebo} for each conjugacy class contained in
+%$G_{\overline{n}}$. When we add up the inequalities for each conjugacy
+%class we obtain the theorem.  Notice that we get $|G|^2$ in the second
+%term as an upper bound for $|G||G_{\overline{n}}|$. We now have the following
+%theorem:
+
+\begin{theorem}\label{primes-np}
+  Assuming GRH, the following problem is in $\NP$: Given a prime
+  $p\leq n$, and a monic polynomial $f\in\Z[x]$ with $d(f)\neq 0$ as
+  input, test if $p$ divides the order of the Galois group of $f$. As
+  a consequence, the set of prime factors of $|\Gal{\Q_f/\Q}|$ can be
+  computed in $\p^{\NP}$.
+\end{theorem}
+
+%\begin{proof}
+%  Let $G$ denote the Galois group of $f$ and $s$ denote $size(f)$. Let
+%  $X_p$ denote the set of elements of $G$ of order $p$.  Then $X_p$ is
+%  non-empty if and only if $p$ divides $|G|$.  Furthermore, $X_p$ is a
+%  union of conjugacy classes of $G$.  Consider the set $Y_x=\{$prime
+%  $q\mid q\leq x,$ and $f$ factorizes in $\F_q$ into distinct
+%  irreducible factors of degrees $1$ or $p$ with at least one degree
+%  $p$ factor $\}$, for any positive integer $x$. Applying
+%  Lemma~\ref{conjugacy}, we can see that for $x \geq (n+1)!^6 s^4$ we
+%  have $Y_x$ is non-empty iff $X_p$ is nonempty. Now, to test if $p$
+%  divides $|G|$, the NP procedure can first guess a prime $q\leq
+%  (n+1)!^6 s^4$. To verify that $q\in Y_x$, the procedure next guesses
+%  and verifies the factorization of $f$ in $\F_q$, and then checks
+%  that each irreducible factor if of degree 1 or $p$ and there is at
+%  least one degree $p$ factor.
+%  
+%  Since all prime factors of $|G|$ are bounded by $n$, using the above
+%  NP procedure as oracle we can find all the prime factors of $|G|$ in
+%  polynomial time.
+%\end{proof}
+
+Now for the main result of this section.
+
+\begin{theorem}\label{order}
+  Assuming GRH, the order of the Galois group of a monic polynomial $f
+  \in \Z[x]$ can be computed in $\p^{\numP}$.
+\end{theorem}
+The algorithm first count the number of split primes (with a certain
+exponentially small error) less than a suitably large $x$ ($size(x) =
+size(f)^{O(1)}$) using a single $\numP$ query.  The order of the
+Galois group is the nearest integer to
+$\frac{1}{\pi_1(x)}\frac{x}{\ln x}$ which can be computed in
+polynomial time.
+
+To the best of our knowledge, this is the first polynomial-space
+bounded algorithm for the problem.  Next we consider the approximate
+counting problem.
+
+\begin{definition}
+  A randomized algorithm ${\cal A}$ is an $r$-approximation algorithm
+  for a $\numP$ function $f$ with error probability $\delta <
+  \frac{1}{2}$ if for all $x \in \{ 0,1\}^*$:
+  \[
+  Prob_{y}\left[|1 -\frac{{\cal A}(x,y)}{f(x)}|\leq r(|x|)\right]\geq 1-\delta,
+  \]
+  where $y$ is a uniformly chosen random string used by the algorithm
+  ${\cal A}$ on input $x$.
+\end{definition}
+
+Stockmeyer \cite{stockmeyer:1985:approx} showed that for any $\numP$
+function there is a $n^{-O(1)}$-approximation $\BPP^{\NP}$ algorithm.
+We can use Stockmeyer's result to approximate $\pi_1(x)$ within an
+inverse polynomial error and use this approximation instead. This
+yields the algorithm in the following theorem.
+
+\begin{theorem}\label{approx:G}
+  Let $f(x)\in \Z[x]$ be a degree $n$ polynomial, $G$ be its Galois
+  group, and $s$ denote $size(f)$. For any constant $c>0$ there is a
+  $\BPP^{\NP}$ algorithm that computes an approximation $A$ of $|G|$
+  such that
+  \[
+  \left(1 - \frac{1}{s^c}\right) A \leq |G| \leq \left(1 +
+    \frac{1}{s^c} \right) A.
+  \]
+  with probability greater than $\frac{2}{3}$.
+\end{theorem}
+
+We now derive a useful lemma as an immediate consequence of the above
+result.
+
+\begin{lemma}\label{star}
+  Let $f$ and $g$ be monic polynomials in $\Z[x]$ with nonzero
+  discriminant. Suppose the splitting field $\Q_g$ of $g$ is contained
+  in $\Q_f$ of $f$ and $[\Q_f:\Q_g]$ is a prime power $p^l$. There is
+  a $\BPP^{\NP}$ algorithm that computes $[\Q_f:\Q_g]$ exactly,
+  assuming that $|\Gal{\Q_g/\Q}|$ is already computed.
+\end{lemma}
+%
+%\begin{proof}
+%  To see this it suffices to note that as $[\Q_f:\Q_g]$ is a prime
+%  power of a small prime $p \leq n=\deg f$, if we approximate
+%  $[\Q_f:\Q_g]$ using the $\BPP^{\NP}$ algorithm of
+%  Theorem~\ref{approx:G} to within an inverse polynomial fraction, we
+%  will compute $[\Q_f:\Q_g]$ exactly. Such an approximation can be
+%  computed by first computing $[\Q_f : \Q]$ approximately and dividing
+%  it by $[\Q_g : \Q]$, which is already computed by assumption.
+%\end{proof}
+
+\section{Computing the order of solvable Galois Groups}\label{sol:order}
+
+In this section we show that if the Galois group $G$ of $f\in\Z[x]$ is
+\emph{solvable} then $|G|$ can be computed exactly in $\BPP^{\NP}$,
+assuming GRH. In fact, we show that for solvable Galois groups,
+finding $|G|$ is polynomial-time reducible to approximating $|G|$.
+
+To begin with we need a test for solvability by radicals.  A naive
+application of Galois' theorem gives an exponential time algorithm
+(using Theorem.~\ref{splitfind}). An important breakthrough was
+achieved by Landau and Miller when they gave a deterministic
+polynomial time algorithm to check whether a polynomial is solvable by
+radicals without actually computing the Galois group (see.
+\cite{landau85solvability}). We make use of results from
+\cite{landau85solvability}. We begin by recalling some definitions.
+
+A group $G$ is said to be \emph{solvable} if there is a
+\emph{composition series} of $G$, $G = G_0 \rhd G_1 \rhd \ldots \rhd
+G_t = {1}$ such that $G_i/G_{i+1}$ is a cyclic group of prime order.
+Throughout this section by composition series we mean such a
+composition series.
+  
+A Galois extension $K/F$ is said to be \emph{solvable} if $\Gal{K/F}$
+is a solvable group. Let $G = G_0 \rhd G_1 \rhd \ldots \rhd G_t = {1}$
+be a composition series of $G$. There is a corresponding tower of
+fields $F = E_0 \subseteq E_1 \subseteq \ldots \subseteq E_t = K$ such
+that $\Gal{K/E_i} = G_i$. Moreover if $K/F$ is Galois then by the
+fundamental theorem of Galois, since $G_i \rhd G_{i+1}$, the extension
+$E_{i+1}/E_i$ is Galois.
+  
+At this point we recall some permutation group theory (c.f.
+\cite{wielandt64finite}): Let $G$ be a subgroup of $S_n$ acting on a
+set $\Omega = \{1,2,\ldots,n\}$ of $n$ elements. $G$ is said to be
+\emph{transitive} if for every pair of distinct elements $i,
+j\in\Omega$, there is a $\sigma\in G$ such that $\sigma$ maps $i$ to
+$j$, written as $i^{\sigma}=j$. A \emph{block} is a subset
+$B\subseteq\Omega$ such that for every $\sigma\in G$ either
+$B^{\sigma}=B$ or $B^{\sigma}\cap B=\emptyset$.  If $G$ is transitive
+then under $G$-action blocks are mapped to blocks, so that starting
+with a block $B_1\subseteq\Omega$ we get a \emph{complete block
+  system} $\{B_1,B_2 ,\ldots, B_s\}$ which is a partition of $\Omega$.
+Notice that singleton sets and $\Omega$ are blocks for any permutation
+group. These are the \emph{trivial} blocks. A transitive group $G$ is
+\emph{primitive} if it has only trivial blocks. Otherwise it is called
+\emph{imprimitive}. A \emph{minimal block} of an imprimitive group is
+a nontrivial block of least cardinality. The corresponding block
+system is a \emph{minimal block system}.
+ 
+The following result about solvable primitive permutation groups
+\cite{palfy:1982:primitive} has been used to show polynomial time
+bounds for several permutation group algorithms
+\cite{luks93permutation}.
+
+\begin{theorem}[P\'alfy's bound]{\rm\cite{palfy:1982:primitive}}
+  If $G<S_n$ is a solvable primitive group then $|G|\leq n^{3.25}$.
+\end{theorem}
+
+Let $f(x) \in \Z[x]$ be a monic irreducible polynomial and let $G$ be
+the Galois group $\Gal{\Q_f/\Q}$ which acts transitively on the set of
+roots $\Omega = \{ \alpha_1,\alpha_2,\ldots,\alpha_n\}$ of $f$. Let
+$\{ B_1,B_2 ,\ldots, B_s\}$ be the minimal block system of $\Omega$
+under the action of $G$ and $H$ be the subgroup of $G$ that setwise
+stabilizes all the blocks: i.e.\ elements of $H$ map $B_i$ to $B_i$
+for each $i$. Let $B_1 = \{ \alpha_1,\alpha_2, \ldots, \alpha_k\}$,
+where $k =n/s$. Consider the polynomial $p(x) = \prod_{i=1}^k (x -
+\alpha_i) = \sum_{i=0}^k \delta_i x^i$.
+
+In \cite{landau85solvability} it is shown that $p(x) \in
+\Q(\alpha_1)[x]$ and there is a polynomial time deterministic
+algorithm to find $p(x)$: the algorithm computes each coefficient
+$\delta_i$ as a polynomial $p_i(\alpha_1)$ with rational coefficients.
+In polynomial time we can compute a primitive element $\beta_1$ of
+$\Q(\delta_0,\delta_1,\ldots,\delta_k)$ \cite{landau85solvability} so
+that $\Q(\beta_1) = \Q(\delta_0,\delta_1,\ldots,\delta_k)$. Let $g(x)
+\in \Z[x]$ be the minimal polynomial of $\beta_1$. In the following
+theorem we recall some results from \cite{landau85solvability},
+suitably rephrased.
+
+\begin{theorem}{\hfill{~}}\label{g:theorem}
+  \begin{enumerate}
+  \item The degree of $g(x)$ is $s$.
+  \item $H = \Gal{\Q_f/\Q_g}$ and $\Gal{\Q_g/\Q} = G/H$.
+  \item The Galois group $\Gal{\Q(B_1)/\Q(\beta_1)}$ acts primitively
+    on $B_1$.
+  \end{enumerate}
+\end{theorem}
+
+Let $\Gal{\Q(B_1)/\Q(\beta)} = G^{B_1} = G_0 \rhd G_1 \rhd \ldots \rhd
+G_t = {1}$ be a composition series of the solvable group $G^{B_1}$ and
+let $\Q(\beta_1) = K_0 \subseteq K_1 \subseteq \ldots \subseteq K_t =
+\Q(B_1)$ be the corresponding tower of subfields of the extension
+$\Q(B_1)/\Q(\beta_1)$. Since $K_{i+1}/K_i$ is an extension of prime
+degree for each $i$ we have the following proposition.
+
+\begin{proposition}\label{minimalextn}
+  For all $0 \leq i < t$ if $K^\prime$ be any field such that
+  $K_{i}\subseteq K^\prime \subseteq K_{i+1}$ then either $K^\prime =
+  K_i$ or $K^\prime = K_{i+1}$.
+\end{proposition}
+
+For each field $K_j$ in the above tower, let $\theta_j$ be a primitive
+element, $0 \leq j \leq t$. I.e. $\Q(\theta_j) = K_j$ for each $j$.
+Let $h_j(x) \in K_{j-1}[x]$ be the minimal polynomial of $\theta_{j}$
+over $K_{j-1}$. We can consider $h_j(x)$ as $h_j(x,\theta_{j-1})$, a
+polynomial over $\Q$ in the indeterminate $x$ and the algebraic number
+$\theta_{j-1}$ as parameter. As before let $G=\cup_{i=1}^s H\sigma_i$.
+For each field $K_j$ let $K_{ij}$ be the conjugate field under the
+action of $\sigma_i$. More precisely, let $K_{ij} = K_j^{\sigma_i}$
+and $\theta_{ij} = \theta_j^{\sigma_i}$.  We have the following
+proposition which follows from the fact that $\sigma_i$ is a field
+isomorphism which maps the extension $\Q(B_1)/\Q(\beta_1)$ to
+$\Q(B_i)/\Q(\beta_i)$, for each $i$.
+
+\begin{proposition}{\hfill{~}}
+  \begin{enumerate}
+  \item $K_{i0} \subseteq K_{i1} \subseteq \ldots \subseteq K_{it}$
+    forms a tower of fields of the extension $\Q(B_i)/\Q(\beta_i)$
+    corresponding to the composition series of
+    $\Gal{\Q(B_i)/\Q(\beta_i)}$.
+  \item $\Gal{K_{it}/K_{ij}} = \sigma_i^{-1} G_j \sigma_i$.
+  \item $K_{ij} = \Q(\theta_{ij})$, where $\theta_{ij} =
+    \theta_j^{\sigma_i}$.
+  \item The minimal polynomial of $\theta_{ij}$ over the field
+    $K_{ij-1}$ is $h_{ij}(x) = h_j(x,\theta_{ij-1})$.
+  \end{enumerate}
+\end{proposition}
+
+For each $i$, let $\overline{h}_i(x)$ denote the minimal polynomial of
+$\theta_i$ over $\Q$ and let $n_i$ be its degree. We have the
+following lemma:
+
+\begin{lemma}
+  Let $n_i = deg(\overline{h}_i)$ then $n_0 = [\Q(\beta_1):\Q]$ and
+  $n_i = p_i n_{i-1}$, where $[K_i:K_{i-1}]=p_i$ for each $i$.
+%  \item If $C_i$ be the set of all conjugates of $\theta_i$ then 
+%    $\overline{h}_{i+1}(x) = \prod_{\theta \in C_i} h_{i+1}(x,\theta)$.
+%  \item $\Q_{\overline{h}_i} \subseteq \Q_{\overline{h}_{i+1}}$, and
+%    if $K$ is a Galois number field such that $\Q_{\overline{h}_i}
+%    \subseteq K \subseteq \Q_{\overline{h}_{i+1}}$ then either $K =
+%   \Q_{\overline{h}_i}$ or $K = \Q_{\overline{h}_{i+1}}$.
+\end{lemma}
+
+Let $E_i=\Q_{\overline{h}_i}$, $0\leq i\leq t$. Notice that $\Q_f =
+E_t$ and $\Q_g = E_0$. We have the following theorem:
+
+\begin{theorem}\label{main:theorem}
+  Let $p_i$ be the order of $G_i/G_{i-1}$.  For every $i$ there is a
+  $l_i$ such that $\Gal{E_i/E_{i-1}}$ is an abelian group of order
+  $p_i^{l_i}$. Furthermore $\Gal{E_i/E_{i-1}}$ is an elementary
+  abelian $p_i$-group.
+\end{theorem}
+
+Suppose we know $[\Q_g : \Q]$. Using Lemma~\ref{star} we can compute
+$[\Q_f:\Q]$ by finding $[E_i :\Q]$ for each $1 \leq i \leq t$ starting
+from $i = 1$.  We will find $[\Q_g :\Q]$ recursively. It is also easy
+to generalize this algorithm for reducible polynomials $f(x) \in
+\Q[x]$.  This gives the following theorem:
+
+\begin{theorem}\label{second}
+  Assuming the GRH, there is a $\BPP^{\NP}$ procedure that takes as
+  input a monic polynomial $f\in\Z[x]$ such that $d(f)\neq 0$,
+  and computes $|\Gal{\Q_f/\Q}|$ exactly when $\Gal{\Q_f/\Q}$ is
+  solvable.
+\end{theorem}
+
+\section{Finding the Galois group of an abelian extension}\label{sect:abel}
+
+Let $f$ be a polynomial over $\Z[x]$ such that $\Gal{\Q_f/\Q}$ is
+abelian. In this section we give a polynomial-time randomized
+algorithm that computes the Galois group (as a set of generators) with
+constant success probability.
+
+Suppose $f\in\Z[x]$ is irreducible of degree $n$ with Galois group
+$G$. Since $G$ is a transitive subgroup of $S_n$, if $G$ is abelian
+then $|G|=n$. Thus, given an irreducible $f\in\Z[x]$, the algorithm of
+Theorem~\ref{splitfind} gives a $(\size(f))^{O(1)}$ algorithm for
+testing if its Galois group is abelian, and if so, finding the group
+explicitly. On the other hand, when $f$ is reducible with abelian
+Galois group, no polynomial time algorithm is known for computing the
+Galois group (c.f.\ Lenstra~\cite{lenstra:1992:algorithm}). However,
+for any polynomial $f$ testing if its Galois group is abelian can be
+done in polynomial time: we only need to test if the Galois group of
+each irreducible factors of $f$ is abelian.
+
+Let $f$ be a polynomial over $\Z[x]$ such that $\Gal{\Q_f/\Q}$ is
+abelian. Let $f = f_1 f_2 \ldots f_t$ be its factorization into
+irreducible factors $f_i$. Notice that if $\Gal{\Q_f/\Q}$ is abelian
+then $\Gal{\Q_{f_i}/\Q}$ is abelian for each $i$. Consequently, each
+$f_i$ is a primitive polynomial. Let $G = \Gal{\Q_f/\Q}$ and let $G_i
+= \Gal{\Q_{f_i}/\Q}$ for each $i$.  Notice that $G \leq G_1 \times G_2
+\times \ldots G_t$.
+
+Let $n_i$ be the degree of $f_i$. Since each $f_i$ is a primitive
+polynomial, $|G_i| = n_i$. Let $\theta_i$ be any root of $f_i$, $1\leq
+i\leq t$. Then, $\Q_{f_i}=\Q(\theta_i)$ for each $i$. Factorizing
+$f_i$ in $\Q(\theta_i)$, we can express the other roots of $f_i$ as
+$A_{ij}(\theta_i)$, where $A_{ij}(x)$ are all polynomials of degree at
+most $n_i$, $1\leq j\leq n_i$. We can efficiently find these
+polynomials $A_{ij}(x)$ for $1 \leq i \leq t$, $1\leq j\leq n_i$. Thus
+we can write $f_i(x) = \prod_{j=1}^{n_i} \left( x - A_{ij}(\theta_i)
+\right)$, where $\theta_i$ is one of the roots of $f_i$. We have the
+following lemma:
+
+\begin{lemma}\label{abel}
+  Let $\theta$ be any root of $f_i$ and let $A_{ij}$ be polynomials of
+  degree less than $\deg(f_i)$ such that $f_i(x) = \prod_{j=1}^{n_i}
+  ( x - A_{ij}(\theta))$. Then for $1 \leq j < deg(f_i)$,
+  we have $A_{ij}(A_{ik}(\theta)) =
+  A_{ik}(A_{ij}(\theta))$. Furthermore, for every $\sigma
+  \in G_i$ there is an index $k, 1\leq k\leq n_i$ such that for any
+  root $\eta$ of $f_i(x)$ we have $\sigma(\eta) = A_{ik}(\eta)$.
+\end{lemma}
+
+%\begin{proof}
+%  All the roots of the polynomial $f_i$ are given by $\theta_k =
+%  A_{ik}(\theta), 1\leq k\leq n_i$.  Since $f_i$ is irreducible, for
+%  each $k$ there is a element of $G_i$ that maps $\theta$ to
+%  $\theta_k$. Let $\sigma_k$ be the element of $G_i$ that maps
+%  $\theta$ to $\theta_k = A_{ik}(\theta)$. We have
+%  
+%  $A_{ij}(A_{ik}(\theta)) = \sigma_k (A_{ij}(\theta))= \sigma_k
+%  \sigma_j(\theta) =\sigma_j \sigma_k(\theta)$, because $G_i$ is
+%  abelian. But, $\sigma_j \sigma_k(\theta) =
+%  A_{ik}(A_{ij}(\theta))$. Thus, $A_{ij}(A_{ik}(\theta)) =
+%    A_{ik}(A_{ij}(\theta))$.
+%    
+%    Now, consider any root $\eta$ of $f_i$. There is a $j$ such that $
+%    \eta = \theta_j=A_{ij}(\theta)$.  Applying the above identity,
+%    notice that $\sigma_k$ maps $\eta$ to
+%    $A_{ij}(A_{ik}(\theta)) =
+%    A_{ik}(A_{ij}(\theta)) = A_{ik}(\eta)$.
+%\end{proof}
+
+{From} the above lemma it also follows that for each $i, 1\leq i\leq
+t$, the polynomials $A_{ij}$, $1\leq j\leq n_i$ are independent of the
+choice of the root $\theta$ of $f_i$ because the Galois group is
+abelian.
+
+Now, let $\sigma_{ij}$ denote the unique automorphism of $\Q_{f_i}$
+that maps $\theta$ to $A_{ij}(\theta)$ for every root $\theta$ of
+$f_i$. Since $G \leq G_1 \times G_2 \times \ldots \times G_t$, any
+element $\sigma\in G$ is a $t$-tuple $\sigma =
+\angle{\sigma_{1j_1},\sigma_{2j_2},\ldots,\sigma_{tj_t}}$, for indices
+$j_1,j_2,\ldots,j_t$. We will apply the Chebotarev density theorem to
+determine a generator set for $G$.
+
+Let $q$ be a prime such that $q \nmid d(f)$ and $\F_{q^m}$ be the
+extension of $\F_q$ where $f$ splits. Observe that since $G$ is
+abelian every conjugacy class of $G$ is a singleton set. Let
+$\pi_g(x)$ denote the number of primes $p \leq x$ whose Frobenius
+corresponds to $g$. By Theorem~\ref{chebo} $\pi_g(x)$ converges to
+$\frac{x}{(\ln x)|G|}$. Furthermore using Theorem~\ref{eff:chebo} we
+can show that for a random prime $p \leq x$, the probability that the
+Frobenius corresponding to  $p$ is $g$ lies in the range
+$\left(\frac{1}{|G|} - \epsilon, \frac{1}{|G|} + \epsilon \right)$,
+$\epsilon = \frac{1}{x^{O(1)}}$.
+  
+Next, fix $i$ and let $\{\alpha_1,\alpha_2,\ldots,\alpha_{n_i}\}$ be
+the roots of $f_i$.  By Theorem~\ref{waerden}, there is an ordering
+$\{\overline{\alpha}_1,\overline{\alpha}_2,\ldots,\overline{\alpha}_{n_i}\}$
+of the roots of $f_i$ in $\F_{q^m}$ such that the Frobenius
+automorphism $x\mapsto x^q$ maps $\overline{\alpha}_k$ to
+$\overline{\alpha}_l$ if and only if the element $g$ (the unique
+Frobenius element corresponding to $q$) maps $\alpha_k$ to $\alpha_l$.
+If the element
+$g=\angle{\sigma_{1j_1},\sigma_{2j_2},\ldots,\sigma_{tj_t}}$ we can
+determine $\sigma_{ij_i}$ as follows: find the splitting field
+$\F_{q^k}$ of $f_i$. Since $f_i$ is a primitive polynomial, $k \leq
+n_i$, thus $\F_{q^k}$ can be found efficiently.\footnote{ In fact $k
+  |n_i$ because $k$ is the order of the corresponding Frobenius
+  element which is in the Galois group of $f_i$, and the order of the
+  Galois group is $n_i$.}  Now, factorize $f_i$ in $\F_{q^k}$.  Pick
+any root $\overline{\theta}\in\F_{q^k}$ of $f_i$.  Then
+$\overline{\theta}^q=A_{ij}(\overline{\theta})$ for exactly one
+polynomial $A_{ij_i}$, which can be found by trying all of them.  This
+gives us $\sigma_{ij_i}$. Thus, we can determine $g$ as a $t$-tuple in
+polynomial time, in a manner independent of the choice of the root
+$\overline{\theta}$ of $f_i$ in $\F_{q^k}$.
+
+We have the following almost uniform polynomial-time sampling
+algorithm from the Galois group $G$: Pick primes $p \nmid d(f)$ less
+that a suitably large $x$ and recover corresponding Frobenius.  It can
+be shown that if we choose $x \geq (n!)^{10}.\size(f)^2$, the
+algorithm samples $g\in G$ with probability in the range
+\mbox{$\left(\frac{1}{|G|}-\frac{1}{x^{1/4}},\frac{1}{|G|}+\frac{1}{x^{1/4}}\right)$}.
+We require the following lemma to complete the proof
+
+\begin{lemma}
+  Suppose we have a (almost) uniform sampling procedure ${\cal A}$
+  from a subgroup $G$ of $S_n$. Then for every constant $c>0$, there
+  is a polynomial-time randomized algorithm with ${\cal A}$ as
+  subroutine that outputs a generator set for $G$ with error
+  probability bounded by $2^{-n^c}$.
+\end{lemma}
+%\begin{proof}
+%  To see this, let $g_1,g_2,\ldots,g_m$ be a random sample drawn from
+%  $G$ using ${\cal A}$, where $m=n^{O(1)}$ will be chosen later. To
+%  each $g_i$ associate the $0/1$ random variable $X_i$ which takes the
+%  value $0$ if either $\angle{g_1,\ldots,g_{i-1}}=G$ or
+%  $g_i\not\in\angle{g_1,\ldots,g_{i-1}}$ and the value $1$ otherwise.
+%  Let $p_i=\Prob[\angle{g_1,\ldots,g_{i-1}}=G]$ and $q_i =
+%  \Prob[g_i\not\in\angle{g_1,\ldots,g_{i-1}}|\angle{g_1,\ldots,g_{i-1}}
+%  \neq G]$. Since $G$ is a group and ${\cal A}$ is a uniform sampler
+%  from $G$, clearly $q_i\geq 1/2$. Thus, we have
+%  \[
+%  \Prob[X_i=0]=p_i +(1-p_i)q_i\geq 1/2+p_i/2\geq 1/2.
+%  \]
+%
+%  Let $X=\sum_i X_i$. Applying Markov's inequality we get that
+%  \[
+%  \Prob[X\leq 3m/4]\geq 1/3.
+%  \]
+%  
+%  Hence, letting $m=4(\ln n!)$, the set $\{g_1,g_2,\ldots,g_m\}$
+%  generates $G$ with probability $1/3$. The success probability can be
+%  boosted by suitably increasing the sample size. Notice that we can
+%  use the sifting algorithm for permutation groups
+%  (c.f~\cite{luks93permutation}) to prune the generator set to
+%  $O(n^2)$ size. This completes the proof of the claim.
+%\end{proof}
+
+The above lemma implies the the following theorem.
+%We have thus proved the following theorem. The algorithm in
+%pseudo-code for finding abelian Galois groups is given in the
+%appendix.
+
+\begin{theorem}
+  There is a randomized polynomial time algorithm for computing a
+  generator set for the Galois group of a polynomial $f\in\Z[x]$ if it
+  is abelian.
+\end{theorem}
+
+%\bibliographystyle{abbrv}
+%\bibliography{bibdata}
+
+
+\begin{thebibliography}{10}
+
+\bibitem{BDG}
+J.~L. Balc\'azar, J.~D\'iaz, and J.~Gabarr\'o.
+\newblock {\em Structural Complexity I \& II}.
+\newblock ETACS monographs on theoretical computer science. Springer-Verlag,
+  Berlin, 1988 and 1990.
+
+\bibitem{cohen:1993}
+H.~Cohen.
+\newblock {\em A Course in Computational Algebraic Number Theory}.
+\newblock Springer-Verlag, Berlin, 1993.
+
+\bibitem{lagarias:1977:effective}
+J.~C. Lagarias and A.~M. Odlyzko.
+\newblock Effective versions of the {Chebotarev} density theorem.
+\newblock In A.~{Fr\"ohlich}, editor, {\em Algebraic {Number Fields}}, pages
+  409--464. Academic Press, London, 1977.
+
+\bibitem{landau:1905:ineq}
+E.~Landau.
+\newblock {Sur quelques th\'eor\`emes de M. Petrovitch relatifs aux z\'eros des
+  fonctions analytiques}.
+\newblock {\em Bulletin de la Soci\'et\'e de France}, 33:251--261, 1905.
+
+\bibitem{landau:1984:galois}
+S.~Landau.
+\newblock Polynomial time algorithms for galois groups.
+\newblock In J.~Fitch, editor, {\em {EUROSAM 84} Proceedings of International
+  Symposium on Symbolic and Algebraic Computation}, volume 174 of {\em Lecture
+  Notes in Computer Sciences}, pages 225--236. Springer, July 1984.
+
+\bibitem{landau85solvability}
+S.~Landau and G.~L. Miller.
+\newblock Solvability by radicals is in polynomial time.
+\newblock {\em Journal of Computer and System Sciences}, 30:179--208, 1985.
+
+\bibitem{lang:algebra}
+S.~Lang.
+\newblock {\em Algebra}.
+\newblock {Addison-Wesley Publishing Company, Inc}, third edition, 1999.
+
+\bibitem{lenstra:1992:algorithm}
+H.~W. {Lenstra Jr.}
+\newblock Algorithms in algebraic number theory.
+\newblock {\em Bulletin of the American Mathematical Society}, 26(2):211--244,
+  April 1992.
+
+\bibitem{luks93permutation}
+E.~M. Luks.
+\newblock Permutation groups and polynomial time computations.
+\newblock {\em DIMACS Series in Discrete Mathematics and Theoretical Computer
+  Science}, 11:139--175, 1993.
+
+\bibitem{palfy:1982:primitive}
+P.~{P\'alfy}.
+\newblock A polynomial bound for the orders of primitive solvable groups.
+\newblock {\em Journal of Algebra}, pages 127--137, July 1982.
+
+\bibitem{ribenboim:1999}
+P.~Ribenboim.
+\newblock {\em Classical theory of algebraic numbers}.
+\newblock Universitext. Springer, 1999.
+
+\bibitem{sims70computational}
+C.~C. Sims.
+\newblock Computational methods in the study of permutation groups.
+\newblock {\em Computational problems in Abstract Algebra}, pages 169--183,
+  1970.
+
+\bibitem{stockmeyer:1985:approx}
+L.~Stockmeyer.
+\newblock On approximating algorithms for \#{P}.
+\newblock {\em SIAM Journal of Computing}, 14:849--861, 1985.
+
+\bibitem{waerden:1991}
+B.~L. van~der Waerden.
+\newblock {\em Algebra}, volume~I.
+\newblock Springer-Verlag, seventh edition, 1991.
+
+\bibitem{wielandt64finite}
+H.~Wielandt.
+\newblock {\em Finite Permutation Groups}.
+\newblock Academic Press, New York, 1964.
+
+\end{thebibliography}
+\end{document}

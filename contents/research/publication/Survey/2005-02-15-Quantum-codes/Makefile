@@ -1,7 +1,9 @@
 GENEXTS=dvi pdf aux blg bbl log
-.PHONY: all clean
-all: lecture.pdf lecture.dvi
+.PHONY: all clean pdf dvi
+all: pdf dvi
 
+pdf: lecture.pdf
+dvi: lecture.dvi
 lecture.pdf : lecture.tex
 	pdflatex lecture.tex
 	pdflatex lecture.tex

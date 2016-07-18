@@ -1,0 +1,58 @@
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+
+
+%theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{theorem*}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{subclaim}[theorem]{Subclaim}
+\theoremstyle{definition}\newtheorem{remark}[theorem]{Remark}
+
+% my custom commands
+\newcommand{\inparen}[1]{\left(#1\right)}             %\inparen{x+y}  is (x+y)
+\newcommand{\inbrace}[1]{\left\{#1\right\}}           %\inbrace{x+y}  is {x+y}
+\newcommand{\insquar}[1]{\left[#1\right]}             %\insquar{x+y}  is [x+y]
+\newcommand{\inangle}[1]{\left\langle#1\right\rangle} %\inangle{A}    is <A>
+\newcommand{\abs}[1]{\left|#1\right|}                 %\abs{x}        is |x|
+\newcommand{\norm}[1]{\left\Vert#1\right\Vert}        %\norm{x}       is ||x||
+\newcommand{\union}{\cup}
+\newcommand{\Union}{\bigcup}
+\newcommand{\intersection}{\cap}
+\newcommand{\Intersection}{\bigcap}
+\newcommand{\setdef}[2]{\inbrace{{#1}\ : \ {#2}}}
+\newcommand{\inv}[1]{#1^{-1}}
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\iso}{\cong}
+\newcommand{\bea}[1]{\begin{eqnarray*} #1 \end{eqnarray*}}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\sas}[4]{#1\longrightarrow #2\longrightarrow
+#3\longrightarrow #4\longrightarrow #1}
+
+%Dirac
+\newcommand{\bra}[1]{\left\langle #1 \right|}
+\newcommand{\ket}[1]{\left| #1 \right\rangle}
+\newcommand{\braket}[2]{\langle #1|#2 \rangle}
+\newcommand{\outerprod}[2]{\ket{#1}\bra{#2}}
+
+%blackboard letters
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+
+
