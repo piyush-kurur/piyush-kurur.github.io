@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable  #-}
 
 module Site.RemoteFile
-       ( copyRemoteFileCompiler
+       ( copyRemoteFileCompiler, RemoteFile
        ) where
 
 import Data.Binary
