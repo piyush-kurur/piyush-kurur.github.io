@@ -8,7 +8,7 @@ active: Teaching
 Software is becoming large and complex. More and more, control of
 critical infrastructure like railway signalling are being done in
 software where software bugs can have disastrous consequence. Such
-systems cannot be left at the mercy of ad-hoc programming. This course
+systems cannot be left to the mercy of ad-hoc programming. This course
 is about engineering reliable software. We study the technique of
 building _certified software_, i.e. software that comes with _formal
 proofs_ of correctness.
