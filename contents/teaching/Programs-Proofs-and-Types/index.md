@@ -63,7 +63,7 @@ scripts which I have found quite painful to use.
   encourage you to use the wiki and the issue tracker that is
   available with this repository.
 
-* [Certified programming using dependent types][sf]
+* [Certified programming using dependent types][cpdt]
 
 * [Software Foundations][sf]
 
