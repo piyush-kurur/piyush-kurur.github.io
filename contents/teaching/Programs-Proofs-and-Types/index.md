@@ -23,7 +23,7 @@ application of proof assistants like [coq] is in building certified
 software. However, these systems are often very powerful and are
 powerful enough to formalise and prove virtually any mathematical
 theorem --- for a recent success see the complete proof of
-Feit-Thomson theorem in [coq].
+[Feit-Thompson theorem in coq][ftcoq].
 
 # Who should take this course?
 
@@ -71,3 +71,4 @@ scripts which I have found quite painful to use.
 [sf]: <https://www.cis.upenn.edu/~bcpierce/sf/current/index.html> "Software foundations"
 [coq]: <https://coq.inria.fr/> "The coq proof assistant"
 [ppt]: <https://bitbucket.org/piyush-kurur/ppt> "Course repository for programs proofs and types"
+[ftcoq]: <http://www.msr-inria.fr/news/feit-thomson-proved-in-coq/> "Feit-Thompson theorem in Coq"
