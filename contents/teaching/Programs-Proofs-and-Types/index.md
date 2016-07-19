@@ -52,9 +52,9 @@ software.  The easiest way to get such a system is to install for
 yourself a basic GNU/Linux distribution like Debian or Ubuntu. [Coq]
 comes pre-packaged for these distributions.
 
-When developing serious code in [Coq] you would need to use the proof
-general mode in emacs. [Coq] comes with an ide for building proof
-scripts which I have found quite painful to use.
+When developing serious code in [Coq] you would need to use the
+[proof general] mode in emacs. [Coq] comes with an ide for building
+proof scripts which I have found quite painful to use.
 
 # External links
 
@@ -72,3 +72,4 @@ scripts which I have found quite painful to use.
 [coq]: <https://coq.inria.fr/> "The coq proof assistant"
 [ppt]: <https://bitbucket.org/piyush-kurur/ppt> "Course repository for programs proofs and types"
 [ftcoq]: <http://www.msr-inria.fr/news/feit-thomson-proved-in-coq/> "Feit-Thompson theorem in Coq"
+[proof general]: <https://proofgeneral.github.io/> "The proof general mode for emacs"
