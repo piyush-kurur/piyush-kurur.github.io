@@ -44,10 +44,8 @@ import Control.Monad
 import Data.Monoid
 import Hakyll
 import System.FilePath
-import System.Cmd
 
 import Site.Compilers
-import Site.Config
 import Site.RemoteFile
 
 
@@ -67,8 +65,6 @@ pubItemT = "templates/publication/item.md"
 
 rules :: Rules ()
 rules = do
-  -- Build all pdf files.
-  getMatches pubPat >>= mapM_ runMake
   
   -- Create bib version of publication
   match pubPat $ version "bib" $ do
@@ -157,9 +153,6 @@ runMake = do dir <- pubSourceDir
              unsafeCompiler $ void $ system $ unwords ["make", "-C", dir , "pdf"]
 
 -}
-runMake :: Identifier -> Rules ()
-runMake ident = preprocess $ void $ system $ unwords ["make", "-C", dir , "pdf"]
-  where dir = combine contentsDir $ dropExtension $ toFilePath ident
 
 {-
 -- | Build the local d
