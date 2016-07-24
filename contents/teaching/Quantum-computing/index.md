@@ -47,4 +47,4 @@ detail. Above all what is required is Mathematical maturity
 
 [quantum-adversary]: <http://arxiv.org/abs/quant-ph/0002066>
 [krp]: </notes/krp.pdf>
-[quantum-codes-survey]: </research/publication/K2005.pdf>
+[quantum-codes-survey]: </research/publication/Survey/2005-02-15-Quantum-codes.pdf>

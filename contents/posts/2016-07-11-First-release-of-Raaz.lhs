@@ -128,5 +128,5 @@ For more details visit
 [`hash`]: <https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Hash.html#t:hash> "The hash function"
 [`hashFile`]: <https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Hash.html#t:hashFile> "The hashFile function"
 [raaz-haddock]: <https://hackage.haskell.org/package/raaz-0.0.1/> "Haddock documentation for Raaz"
-[motivation]: </posts/2013-2013-08-24-Raaz-A-cryptographic-network-library.html>
+[motivation]: </posts/2013-08-24-Raaz-A-cryptographic-network-library.html>
 [repo]: <https://github.com/raaz-crypto/raaz>
