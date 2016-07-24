@@ -1,5 +1,5 @@
 ---
-title: First baby steps of Raaz
+title: First release of Raaz
 tags: Raaz, Cryptography, Haskell
 ---
 
