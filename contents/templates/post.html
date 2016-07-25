@@ -1,8 +1,17 @@
-<span class="post-date">$date$</span>
 <span class="post-tags"><i class="fa fa-tags"></i>$postTags$</span>
 <div class="post">
   <h1 id="post-title">$title$</h1>
-  $body$
+  <span class="post-date">$date$</span>
+
+  <a href="//www.reddit.com/submit"
+     onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false"
+     alt="submit to reddit" border="0">
+    <span class="reddit">
+      <i class="fa fa-reddit-square fa-lg"/> reddit this
+    </span>
+  </a>
+  <br/>
+    $body$
 </div>
 
 <div class="post-comments">
