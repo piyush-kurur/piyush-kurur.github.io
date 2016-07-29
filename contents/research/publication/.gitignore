@@ -10,6 +10,7 @@
 *.pstex_t
 *.out
 *.ps
+*.ptb
 *review*
 *response*
 *Review*

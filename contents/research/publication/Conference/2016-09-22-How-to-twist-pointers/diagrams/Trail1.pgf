@@ -1,0 +1,17 @@
+\begin{pgfpicture}
+  \pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{200.0000bp}{57.0000bp}}
+  \pgfusepath{use as bounding box}
+  \begin{pgfscope}
+    \pgfsetlinewidth{0.5000bp}
+    \definecolor{sc}{rgb}{0.0000,0.0000,0.0000}
+    \pgfsetstrokecolor{sc}
+    \pgfsetmiterjoin
+    \pgfsetbuttcap
+    \pgfpathqmoveto{8.4540bp}{8.4540bp}
+    \pgfpathqlineto{92.9942bp}{8.4540bp}
+    \pgfpathqlineto{114.1292bp}{45.0610bp}
+    \pgfpathqlineto{135.2643bp}{8.4540bp}
+    \pgfpathqcurveto{160.9018bp}{8.4540bp}{183.6236bp}{24.9624bp}{191.5460bp}{49.3451bp}
+    \pgfusepathqstroke
+  \end{pgfscope}
+\end{pgfpicture}
