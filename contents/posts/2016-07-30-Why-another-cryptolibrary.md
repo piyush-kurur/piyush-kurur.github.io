@@ -6,7 +6,7 @@ tags: Raaz, Cryptography, Haskell
 Haskell is already endowed with a comprehensive set of libraries for
 cryptography like [cryptonite], for example. What justifies working on
 another cryptographic library, after all isn't the 11-th commandment
-"Thou shall not (re)-implement cryptography". This post is _not_ a
+"Thou shall not (re)-implement cryptography" ? This post is _not_ a
 [cryptonite] vs [raaz] comparison --- a simple look at the haddock
 documentations of the two libraries should convince anyone that
 [cryptonite] is far ahead of [raaz]. This post is an attempt at
@@ -18,34 +18,33 @@ it comes to cryptographic library.
 Firstly, I would like to dispose of the unnecessary fear of
 (re)-implementing cryptography. This fear is unfounded and, I believe,
 is partly responsible for open source libraries like OpenSSL becoming
-the "enterprise" level crypto-implementation. How else does one
-explain a successful open source project becoming such a nightmare of
-a code base?  Cryptographic libraries are software libraries in the
-first place so all the best practices for building large scale
-software should be applicable to it as well. How can it be otherwise?
-I am not denying the fact that there are certain class of bugs unique
-to cryptographic implementations like timing based attacks. However,
-once these class of bugs are identified, it is just a question of
-suitably modifying the development process to account for such bugs as
-well. As a Haskell programmer, one should be wondering how to exploit
-the type system to avoid these kinds of bugs.
+the "enterprise" level crypto-implementation that it is now. How else
+does one explain a successful open source project becoming such a
+nightmare of a code base?  Cryptographic libraries are software
+libraries in the first place so all the best practices for building
+large scale software should be applicable to it as well. How can it be
+otherwise?  I am not denying the fact that there are certain class of
+bugs unique to cryptographic implementations like timing based
+attacks. However, once these class of bugs are identified, it is just
+a question of suitably modifying the development process to account
+for such bugs as well. As a Haskell programmer, one should be
+wondering how to exploit the type system to avoid these kinds of bugs.
 
 The second myth is that one needs to be a professional cryptographer
 to write a cryptographic library. Granted, it is difficult if one is
 [Donald Trump] but one does not need to be [djb] either to pull it
 off, although being the later does give some significant
 advantages. Building software in any field requires absorbing the
-nuances of the field and cryptography is no different.
+nuances of the field and cryptography is no different. To drive home
+the point, it would be absurd to say that one should not work on an
+api to access databases just because one is not a database expert.
 
-To drive home the point, a haskell programmer might not be
-professional database researcher. But this does not prevent him from
-avoiding SQL injection attacks by making use of the strong types of
-Haskell. A professional cryptographer has an advantage but remember,
-she might not have experience building large software and might not be
-familiar with some of the cool tricks one can play with types.  So if
-you think you are capable of developing complex software, with enough
-background reading and awareness of the literature, you should be able
-to contribute significantly in the development of a crypto-library.
+A professional cryptographer has an advantage but remember, she might
+not have experience building large software and might not be familiar
+with some of the cool tricks one can play with types.  So if you think
+you are capable of developing complex software, with enough background
+reading and awareness of the literature, you should be able to
+contribute significantly in the development of a crypto-library.
 
 I am _not_ a professional cryptographer by any means. One of my
 current interest is to build reliable software by using formal methods
@@ -54,7 +53,7 @@ believe, one can go quite a bit in building a secure cryptographic
 library. This is my main motivation behind [Raaz]. The kind of bugs
 that we want to deal with are
 
-1. Timing related bugs
+1. Timing related bugs.
 
 2. Bugs due to secret leaking out of unlocked memory.
 
@@ -86,8 +85,9 @@ and MACs should have their `Equality` instance declared first. Their
 `Eq` instance is then declared using the combinator
 [`(===)`][triple-eq] which makes use of `eq` to do the timing safe
 comparison. Clearly, we cannot enforce this at compile time but we can
-look of this pattern while reviewing the code. Anything other than
-this like for example a `deriving Eq` clause should raise suspicion.
+look for this pattern while reviewing the code base. Anything other
+than this, like for example a `deriving Eq` clause, should raise
+suspicion.
 
 ## Pointer manipulation.
 
@@ -104,8 +104,8 @@ memory interface uses this abstraction.
 
 My first aim is to get the API correct. We have place holder
 implementations of the SHA2 family of hashes and aes-cbc but we have
-not really tweaked these for either security or performance. The AES
-code for example uses sbox which is not really a great idea.
+not really tweaked these either for security or performance. The AES
+code for example uses sbox which is [not really a great idea][aes-cache-timing].
 
 In no particular order these are the current goals (comments,
 criticism and most importantly pull requests are welcome).
@@ -125,20 +125,22 @@ criticism and most importantly pull requests are welcome).
    to get this working is to build on Ubuntu launch pad.
 
 It does not mean I will be unhappy with merging a
-[bit-sliced implementation AES-CTR][aes-without-sbox] but the above
+[bit-sliced implementation of AES-CTR][aes-without-sbox] but the above
 ones are my priorities as of now.
 
 [cryptonite]:
 	<https://hackage.haskell.org/package/cryptonite>
 	"Cryptonite: Cryptography Primitives sink"
-	
+
 [raaz-hash]:
 	<https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Hash.html>
 	"Documentation for Hashes in Raaz"
-	
+
 [raaz-memory]:
 	<https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Core-Memory.html>
 	"Raaz: Secure memory"
+
+[aes-cache-timing]: <http://cr.yp.to/antiforgery/cachetiming-20050414.pdf>
 
 [aes-without-sbox]: <http://crypto.stackexchange.com/questions/55/known-methods-for-constant-time-table-free-aes-implementation-using-standard>
 [Donald Trump]: <https://en.wikipedia.org/wiki/Donald_Trump> "Donald Trum"
