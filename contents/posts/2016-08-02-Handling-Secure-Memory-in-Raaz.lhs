@@ -30,28 +30,28 @@ solution for storing sensitive data is to store it in a _locked_
 pointer should wipe the memory clean and unlock it. This seamingly
 easy solution has the following problem.
 
-Firstly mlock/munlock works at the level of pages, i.e. it locks or
-unlocks multiple of pages. Now consider two locked buffers `b₁` and
-`b₂` where `b₁` ends at the first byte of a page and `b₂` is the rest
-of the page. Then unlocking `b₁` will also unlock `b₂` as munlock
-unlocks all the pages that contains part of `b₁`. If `b₁` and `b₂` are
-foriegn pointers, then when the gc notices that `b₁` gets out of scope
-it will unlock `b₁` as well as `b₂` (because the entire page is
-unlocked). In other words nesting of mlock and munlock does not
-work. This clearly is not acceptable.
+The system calls `mlock`/`munlock` works at the level of pages,
+i.e. it locks or unlocks multiple of pages. Now consider two locked
+buffers `b₁` and `b₂` where `b₁` ends at the first byte of a page and
+`b₂` is the rest of the page. Then unlocking `b₁` will also unlock
+`b₂` as `munlock` unlocks all the pages that contains part of `b₁`. If
+`b₁` and `b₂` are foriegn pointers, then when the gc notices that `b₁`
+gets out of scope it will unlock `b₁` as well as `b₂` (because the
+entire page is unlocked). In other words nesting of mlock and munlock
+does not work. This clearly is not acceptable.
 
 Of course this idea can be made to work by building a mini-garbage
 collecter inside the crypto-library. We should maintain a pool of
-memory pages which is locked. The [`ForeignPtr`]'s meant to be used
-for sensitive data should be allocated from this pool. The finaliser
-of the these [`ForeignPtr`]'s do not unlock but mearly mark that a
-given chunk of memory is unused.  A particular page can be unlocked
-only when all the foreign pointers that are alive do not contain that
-particular page. With some bookkeeping such an allocator can be built
-but tricky. We need to take care of all the things that are common in
-garbage collection like fragmentation etc besides knowing system level
-details like page sizes etc. An ancient version of raaz had such a
-memory allocator and it was not pretty.
+_locked_ memory pages and [`ForeignPtr`]'s meant to be used for
+sensitive data should be allocated from this pool. The finaliser of
+the these [`ForeignPtr`]'s do not unlock immediately on going out of
+scope but merely mark that a given chunk of memory is unused.  A
+particular page can be unlocked only when no portion of it is part of
+any live secure foreign pointers. With some book-keeping such an
+allocator can be built but it is tricky. We need to take care of all
+the issues related to garbage collection like fragmentation besides
+knowing system level details like page sizes. An ancient version of
+raaz had such a memory allocator and it was not pretty.
 
 ## Raaz's simplified memory model.
 
@@ -100,12 +100,12 @@ types becomes too tedious because of the pointer arithmetic and size
 calculation involved in defining its allocation strategy. Every such
 low level code has the word disaster written all around it.
 
-It turns out that an [`Applicative`] functor structure can be given on
-the type [`Alloc`][Alloc] _which does the right thing_.  The
+It turns out that an [`Applicative`] functor instance can be defined
+on the type [`Alloc`][Alloc] _which does the right thing_.  The
 allocation strategy for the compound type (a product of simpler memory
 types) can be constructed out of the allocation strategy of its
-components using this applicative interface. The [`Memory`] instance of a product type
-will then be something along this lines:
+components using this applicative interface. The [`Memory`] instance
+of a product type will then be something along this lines:
 
 > instance (Memory mem1, Memory mem2) => Memory (mem1, mem2) where
 >     memoryAlloc         = (,) <$> memoryAlloc <*> memoryAlloc
