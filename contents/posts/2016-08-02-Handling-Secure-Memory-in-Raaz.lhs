@@ -100,26 +100,28 @@ types becomes too tedious because of the pointer arithmetic and size
 calculation involved in defining its allocation strategy. Every such
 low level code has the word disaster written all around it.
 
-It turns out that the type [`Alloc`][Alloc] has the structure of an
-[`Applicative`] functor _which does the right thing_. This
-considerably simplifies the Memory instance declarations as the
-allocation strategy for the compound type (typically a product of
-simpler memory types) can be easily built out of the allocation
-strategy of its components.
+It turns out that an [`Applicative`] functor structure can be given on
+the type [`Alloc`][Alloc] _which does the right thing_.  The
+allocation strategy for the compound type (a product of simpler memory
+types) can be constructed out of the allocation strategy of its
+components using this applicative interface. The [`Memory`] instance of a product type
+will then be something along this lines:
 
 > instance (Memory mem1, Memory mem2) => Memory (mem1, mem2) where
->     memoryAlloc    = (,) <$> memoryAlloc <*> memoryAlloc
+>     memoryAlloc         = (,) <$> memoryAlloc <*> memoryAlloc
 >     underlyingPtr (m,_) = underlyingPtr m
 >
 
-The library provides some basic memory types like
-[`MemoryCell`]. Compound memory types (which are essentially product
-of simpler memory types) can be built out of them using this
+Note that all the book keeping involved in the length calculations and
+pointer arithmetic is hidden in the applicative interface. All
+Implementations of primitives in Raaz always use a memory element to
+keep its internal state secure.
+
+
+To bootstrap the process, the library provides some basic memory types
+like [`MemoryCell`]. Compound memory types (which are essentially
+product of simpler memory types) can be built out of them using this
 [`Applicative`] instance of [`Alloc`][Alloc].
-
-
-All Implementations of primitives in Raaz always use a memory element
-to keep its internal state secure.
 
 ## Does it still keep things from swapping out?
 
