@@ -93,12 +93,12 @@ involves a single mlock/munlock call is not problematice. Besides we
 do not need to know any system dependent parameters.
 
 What about more complicated actions action that requires many such
-memory elements, say for example `mem1` and `mem2`?  We think of this
-as an action that takes the pair `(mem1, mem2)` and define a memory
-instance for this. Defining [`Memory`] instances for such product
-types becomes too tedious because of the pointer arithmetic and size
-calculation involved in defining its allocation strategy. Every such
-low level code has the word disaster written all around it.
+memory elements, say for example `mem1` and `mem2`?  We think of it as
+an action that takes the pair `(mem1, mem2)`. This requires us to
+define a memory instance for product types which becomes too tedious
+because of the pointer arithmetic and size calculation involved in
+defining its allocation strategy. Every such low level code has the
+word disaster written all around it.
 
 It turns out that an [`Applicative`] functor instance can be defined
 on the type [`Alloc`][Alloc] _which does the right thing_.  The
