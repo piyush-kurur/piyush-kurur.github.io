@@ -1,13 +1,13 @@
 ---
 title: Haskell 2016: impressions of a first timer
-tag: Haskell
+tags: Haskell
 ---
 
 I had an exhausting yet exciting trip to Nara where for the first time
-I am interacting with the functional programming community. What
-started out as a hobby is taking its toll on me; I am getting sucked
-in deeper and deeper into functional programming and it seems I am not
-minding that.
+I interacted with the functional programming community. What started
+out as a hobby is taking its toll on me; I am getting sucked in deeper
+and deeper into functional programming and it seems I am not minding
+that.
 
 The broad area of functional programming and type theory is seeing a
 revolution of some sort. For a functional programmer it seems nothing
