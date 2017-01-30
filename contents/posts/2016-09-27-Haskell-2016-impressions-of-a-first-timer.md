@@ -1,5 +1,5 @@
 ---
-title: Haskell 2016: impressions of a first timer
+title: "Haskell 2016: impressions of a first timer"
 tags: Haskell
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: SSHFS: Remote directory over ssh
+title: "SSHFS: Remote directory over ssh"
 tags: Security
 ---
 

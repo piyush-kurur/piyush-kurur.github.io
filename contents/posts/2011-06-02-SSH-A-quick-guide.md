@@ -1,5 +1,5 @@
 ---
-title: SSH: A quick guide
+title: "SSH: A quick guide"
 tags: Security
 ---
 

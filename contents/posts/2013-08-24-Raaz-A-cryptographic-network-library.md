@@ -1,5 +1,5 @@
 ---
-title: Raaz: A cryptographic network library for Haskell
+title: "Raaz: A cryptographic network library for Haskell"
 tags: Raaz, Cryptography, Haskell
 ---
 
