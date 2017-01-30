@@ -24,10 +24,10 @@ ${HAKYLL_TARGETS}: site
 
 # Rules for compass operations.
 stylesheets:
-	compass compile
+	bundler exec compass compile
 
 stylesheets-clean:
-	compass clean
+	bundler exec compass clean
 
 stylesheets-rebuild: stylesheets-clean stylesheets
 
@@ -57,6 +57,3 @@ deploy: deploy-cse deploy-extern
 deploy-extern: deploy-cse
 	export COMMIT=`git rev-list HEAD --max-count=1`;\
 	make -C ../piyush-kurur.github.com deploy
-
-
-
