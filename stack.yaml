@@ -1,0 +1,6 @@
+# This is the stack file used raaz package. Its flag settings are
+# optimisitc and you may need to disable some to install on you
+# machine.
+resolver: lts-7.12
+extra-deps:
+  - hakyll-4.9.0.0

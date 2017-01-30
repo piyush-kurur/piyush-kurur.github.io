@@ -9,7 +9,7 @@ PUBDIRS := $(patsubst %.md, %, ${PUBS})
 # Compass targets.
 .PHONY: stylesheets stylesheets-clean stylesheets-rebuild
 
-.PHONY: deploy deploy-cse deploy-extern     # deploys the webpage
+.PHONY: deploy deploy-cse deploy-extern site    # deploys the webpage
 
 .PHONY: dist-clean  # cleans up every thing.
 
@@ -20,7 +20,7 @@ rebuild: stylesheets-rebuild publications
 clean:   stylesheets-clean publications-clean
 
 ${HAKYLL_TARGETS}: site
-	./site $@
+	stack exec site $@
 
 # Rules for compass operations.
 stylesheets:
@@ -45,15 +45,17 @@ dist-clean: clean
 	rm -f $(addprefix site, .o .hi)
 	rm -f site
 
-site: site.hs
-	ghc --make -Wall site.hs
+site:
+	stack build
+
 
 
 # Deployment Rules.
 deploy-cse: build
-	./site deploy
+	stack exec site deploy
 deploy: deploy-cse deploy-extern
 
 deploy-extern: deploy-cse
-	export COMMIT=`git rev-list HEAD --max-count=1`;\
-	make -C ../piyush-kurur.github.com deploy
+	banner External deploy disabled.
+#	export COMMIT=`git rev-list HEAD --max-count=1`;\
+#	make -C ../piyush-kurur.github.com deploy
