@@ -61,8 +61,8 @@ postPandoc cxt = apply layoutT >=> apply wrapperT >=> relativizeUrls
 pandoc :: Pipeline String String
 pandoc = reader >=> transform >=> writer
   where transform = plugins . itemBody >=> makeItem
-        reader    = return  . readPandocWith readerOptions
-        writer    = return  . writePandocWith writerOptions
+        reader    = readPandocWith readerOptions
+        writer    = return . writePandocWith writerOptions
 
 -- | The pipeline for a standard page.
 stdPage :: Pipeline String String

@@ -67,5 +67,6 @@ config :: Configuration -- ^ The configuration. Don't edit this
 config = defaultConfiguration { deployCommand     = deploy
                               , providerDirectory = contentsDir
                               }
-  where rsync  dest = "rsync -avvz _site/ " ++ dest
+  where rsync       :: String -> String
+        rsync  dest = "rsync -avvz _site/ "  ++ dest
         deploy = rsync rsyncDest ++ "; " ++ rsync githubPages

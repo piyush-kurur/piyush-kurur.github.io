@@ -18,8 +18,9 @@ import           Hakyll
 import qualified Data.Map as M
 
 -- | A link expander.
-type Expand      = [Inline] -- ^ The anchor text
-                 -> String  -- ^ The title of the link
+type Expand      = Attr
+                 -> [Inline] -- ^ The anchor text
+                 -> String   -- ^ The title of the link
                  -> Compiler Inline
 
 -- | A name space is just a map of strings to link expanders
@@ -33,28 +34,28 @@ linkExpand :: Namespace -> Pandoc -> Compiler Pandoc
 linkExpand mp = bottomUpM $ expand mp
 
 -- | Apply the namespace function to the the inline element.
-applyNs :: Namespace -> [Inline] -> Maybe (String -> Compiler Inline)
-applyNs mp ins = do
+applyNs :: Namespace -> Attr -> [Inline] -> Maybe (String -> Compiler Inline)
+applyNs mp attr ins = do
   (ns, cont) <- parseFieldIs ':' ins
   func       <- M.lookup (stringify ns) mp
-  return $ func cont
+  return $ func attr cont
   <|> do func <- M.lookup "" mp
-         return $ func ins
+         return $ func attr ins
 
 -- | Expands a link using the namespace.
 expand :: Namespace -> Inline -> Compiler Inline
-expand mp lnk@(Link ins ("", title)) = fromMaybe (return lnk) $ do
-  func <- applyNs mp ins
+expand mp lnk@(Link attr ins ("", title)) = fromMaybe (return lnk) $ do
+  func <- applyNs mp attr ins
   return $ func title
 expand _ inln = return inln
 
 -- | The wikipedia link expander. It supports the pipe trick as well.
 wikipedia :: Expand
-wikipedia ins title = return
-                    $ maybe nopipe pipe
-                    $ parseFieldIs '|' ins
-  where nopipe      = Link ins $ wikipediaTarget ins title
-        pipe        = wikipediaPipeTrick title
+wikipedia attr ins title = return
+                           $ maybe nopipe pipe
+                           $ parseFieldIs '|' ins
+  where nopipe      = Link attr ins $ wikipediaTarget ins title
+        pipe        = wikipediaPipeTrick attr title
 
 -- | Compute the target from an given wiki page title and title.
 wikipediaTarget :: [Inline] -- ^ wiki page title
@@ -90,13 +91,14 @@ wikipediaTarget pageTitle title = (url, actualTitle)
 --    2.2 foo, bar, biz (bhur) will become foo, bar, biz
 --
 
-wikipediaPipeTrick  :: String -- ^ Title
+wikipediaPipeTrick  :: Attr
+                    -> String -- ^ Title
                     -> ([Inline],[Inline]) -- ^ stuff before and after
                                            -- the pipe
                     -> Inline
-wikipediaPipeTrick title (pageTitle, txt)
-  | null txt   = Link [guessTxt]  target
-  | otherwise  = Link txt         target
+wikipediaPipeTrick attr title (pageTitle, txt)
+  | null txt   = Link attr [guessTxt]  target
+  | otherwise  = Link attr txt         target
    where target   = wikipediaTarget pageTitle title
          guessTxt = Str
                   $ wikiPipeText
