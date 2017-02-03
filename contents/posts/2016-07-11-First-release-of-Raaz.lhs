@@ -14,7 +14,9 @@ little primitives; we currently support sha1, sha2 hashes and their
 hmacs. We also have an implementation of aes-cbs but these are hard to
 use in an high level fashion.
 
-# Quick examples.
+Quick examples.
+==============
+
 
 We demonstrate the interface for computing message digests based of
 cryptographic hashes. Raaz uses distinct types for distinct
@@ -35,7 +37,8 @@ necessary in this case so that ghc can deduce which hash to compute.
 > fileDst :: IO SHA512
 > fileDst = hashFile "myphoto.jpg"
 
-## Entering hashes directly in source code.
+Entering hashes directly in source code.
+----------------------------------------
 
 With the `OverloadedStrings` extension, you can enter the hashes
 directly in the source code using the string notation. However, for
@@ -59,7 +62,8 @@ to compute its digest. The result is also a pure value.
 For more details, we refer the reader to the [haddock documentation of
 `Raaz.Hash`][raaz-hash]
 
-# Design philosopy.
+Design philosopy.
+----------------
 
 The raaz package will expose cryptographic primitives which will be
 used to implement specific cryptographic protocols (in separate
