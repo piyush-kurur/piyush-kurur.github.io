@@ -3,7 +3,8 @@ title: Handling secure memory in Raaz.
 tags: Raaz, Cryptography, Haskell
 ---
 
-# The problem
+The problem
+===========
 
 Cryptographic software need to keep confidential data like private
 keys in its memory. Unless the machine is severly compromised, this is
@@ -20,7 +21,8 @@ memory clean before unlocking and freeing.
 
 
 
-## A "solution" using [`ForeignPtr`].
+A "solution" using [`ForeignPtr`].
+----------------------------------
 
 The [`ForeignPtr`] type in Haskell is a pointer together with a
 finalisation routine. When the pointer goes out of scope, the
@@ -53,7 +55,8 @@ the issues related to garbage collection like fragmentation besides
 knowing system level details like page sizes. An ancient version of
 raaz had such a memory allocator and it was not pretty.
 
-## Raaz's simplified memory model.
+Raaz's simplified memory model.
+------------------------------
 
 The main idea behind the secure memory interface is that we allocate
 all the required secure memory in one go. This approach is faster and
@@ -123,7 +126,8 @@ like [`MemoryCell`]. Compound memory types (which are essentially
 product of simpler memory types) can be built out of them using this
 [`Applicative`] instance of [`Alloc`][Alloc].
 
-## Does it still keep things from swapping out?
+Does it still keep things from swapping out?
+--------------------------------------------
 
 Unfortunately, there can still be instances where things can go
 outside secure memory. For example, if you reads the contents of a
