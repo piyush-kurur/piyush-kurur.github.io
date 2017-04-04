@@ -44,7 +44,11 @@ calculating the size of say an array of `Word32` of length 10. This is
 because the quantity 10 is a _dimensionless_ and therefore the
 resulting product has the same dimension as bytes.
 
-I would freely confess my stupidity in this aspect. At least we have
+In the heat of the moment it is pretty easy to overlook these
+bugs. This is particularly tempting because of the "unnecessary"
+boilerplate that it gets rid of that to at very minimal cost; just a
+`deriving` clause away. I would freely confess my stupidity in this
+aspect. At least we have
 [repented](https://github.com/raaz-crypto/raaz/issues/247) and
 [corrected](https://github.com/raaz-crypto/raaz/pull/251) this to
 avoid perdition.
