@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta name="keywords" content="Haskell" />
+    
+    
+    
+    
+    <meta name="generator" content="pandoc" />
+    <link href="//fonts.googleapis.com/css?family=Tangerine:700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link href="../stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/font-awesome/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <title>Piyush P Kurur|Beware of numeric type classes.</title>
+  </head>
+  <body>
+    <div id="root" class="page">
+  <div class="header">
+    <h1>Piyush P Kurur</h1>
+    <div class="navigation">
+      <!-- Add your navigation menu here !-->
+<ul>
+<li><a href="../" title="Home"><i class="fa fa-home"></i></a></li>
+<li><a href="../posts/feeds/atom.xml"><i class="fa fa-rss"></i></a></li>
+<li><a href="../contact/" title="Contact"><i class="fa fa-envelope"></i></a></li>
+<li><a href="https://github.com/piyush-kurur" title="On GitHub"><i class="fa fa-github"></i></a></li>
+<li><a href="https://bitbucket.org/piyush-kurur" title="On BitBucket"><i class="fa fa-bitbucket"></i></a> <!--
+
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+--></li>
+</ul>
+    </div>
+  </div>
+  <div class="main-content">
+    <span class="post-tags"><i class="fa fa-tags"></i><a href="../posts/tags/Haskell.html">Haskell</a></span>
+<div class="post">
+  <h1 id="post-title">Beware of numeric type classes.</h1>
+  <span class="post-date">April  4, 2017 (Tuesday)</span>
+
+  <a href="//www.reddit.com/submit" onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false" alt="submit to reddit" border="0">
+    <span class="reddit">
+      <i class="fa fa-reddit-square fa-lg"></i> reddit this
+    </span>
+  </a>
+  <br />
+    <p>This blog post is to document some cases where unconstrained Num type definitons can seriously compromise type safety. None of what I say here is new but it is worth repeating. Take it as a note of warning against being zealous when defining instances of some standard type classes, in particular the <code>Num</code> class</p>
+<p>Here is an example from the cryptographic library <code>Raaz</code>. To prevent inadvertent use of the wrong offset measure, raaz uses what we call type-safe lengths. One such length is <code>BYTES</code> but there are others. For example, the type <code>BLOCKS c</code> measures length in multiples of the block length of the the cipher <code>c</code>. The advantage of such a definition is that for low level functions like <code>encryptBlocks</code> the length argument is in <code>BLOCKS c</code> which ensures that one does not accidently supply length in bytes. The constructors of BLOCKS should not be directy availabe to the outside world to avoid users from circumventing such gurantees. Instead we define a class <code>LengthUnit</code> which has a member function that converts instances to <code>BYTES</code>. This instance function is what is use to perform the actual size calculation of pointer manipulation.</p>
+<p>It is tempting to define the <code>Num</code> instance for <code>BLOCKS</code> as this is a great convenience for users. However, such an instance will effectively bypass all the type safety we so carefully built into the system. Consider for example, a code like <code>encryptBlocks chacha20imp ptr 42</code>. Haskell is able to infer that the 42 is of type <code>BLOCKS ChaCha20</code> because it knows the type of <code>chacha20imp</code>. This will not raise any kind of type error and will result in encrypting 42 blocks (i.e. 2688 bytes) of data. This is a disaster if the user actually meant only <code>42</code> bytes. Haskell should not have the privilege of such bugs unlike others like Fortran (See <a href="http://en.wikipedia.org/wiki/Mariner_1" title="Wikipedia: Mariner 1">Mariner 1</a>).</p>
+<p>A theoretical reason to see why the <code>Num</code> instance is plain wrong for length units is the see that multiplication does not make sense here. In the language of physics, length offset is <em>not</em> a dimensionless scalar and hence the product of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mstyle mathvariant="normal"><mi>b</mi><mi>y</mi><mi>t</mi><mi>e</mi><mi>s</mi></mstyle><mo>×</mo><mn>7</mn><mstyle mathvariant="normal"><mi>b</mi><mi>y</mi><mi>t</mi><mi>e</mi><mi>s</mi></mstyle></mrow><annotation encoding="application/x-tex">6\mathrm{bytes} × 7 \mathrm{bytes}</annotation></semantics></math> is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>42</mn><msup><mstyle mathvariant="normal"><mi>b</mi><mi>y</mi><mi>t</mi><mi>e</mi><mi>s</mi></mstyle><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">42 \mathrm{bytes}^2</annotation></semantics></math> which is not a length unit at all. On the other hand, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mo>*</mo><mn>4</mn><mstyle mathvariant="normal"><mi>b</mi><mi>y</mi><mi>t</mi><mi>e</mi><mi>s</mi></mstyle></mrow><annotation encoding="application/x-tex">10 * 4 \mathrm{ bytes}</annotation></semantics></math> makes sense when calculating the size of say an array of <code>Word32</code> of length 10. This is because the quantity 10 is a <em>dimensionless</em> and therefore the resulting product has the same dimension as bytes.</p>
+<p>In the heat of the moment it is pretty easy to overlook these bugs. This is particularly tempting because of the “unnecessary” boilerplate that it gets rid of that to, at a very minimal cost; just a <code>deriving</code> clause away. I would freely confess my stupidity in this aspect. At least we have <a href="https://github.com/raaz-crypto/raaz/issues/247">repented</a> and <a href="https://github.com/raaz-crypto/raaz/pull/251">corrected</a> this to avoid perdition.</p>
+</div>
+
+<div class="post-comments">
+  <div id="disqus_thread"></div>
+</div>
+
+<script type="text/javascript">
+  var disqus_shortname  = 'piyushkurur';  // required: Short name.
+  var disqus_url        = 'http://cse.iitk.ac.in/users/ppk/posts/2017-04-04-Beware-of-Numeric-Types.html';
+                          // The url of this page
+  var disqus_title      = 'Beware of numeric type classes.';      // The title of this post
+  var disqus_identifier = '2017-04-04-Beware-of-Numeric-Types';  // The id of this post
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+  </div>
+  <div id="powered-by-footer"></div>
+</div>
+<div id="powered-by">
+  Powered by: <a href="http://jaspervdj.be/hakyll">Hakyll</a>,
+  <a href="http://compass-style.org"> Compass</a> and
+  <a href="http://fontawesome.io"><i class="fa fa-flag"></i> Fontawesome</a>
+</div>
+
+  </body>
+</html>

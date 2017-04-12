@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta name="keywords" content="Security" />
+    
+    
+    
+    
+    <meta name="generator" content="pandoc" />
+    <link href="//fonts.googleapis.com/css?family=Tangerine:700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link href="../stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/font-awesome/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <title>Piyush P Kurur|SSHFS: Remote directory over ssh</title>
+  </head>
+  <body>
+    <div id="root" class="page">
+  <div class="header">
+    <h1>Piyush P Kurur</h1>
+    <div class="navigation">
+      <!-- Add your navigation menu here !-->
+<ul>
+<li><a href="../" title="Home"><i class="fa fa-home"></i></a></li>
+<li><a href="../posts/feeds/atom.xml"><i class="fa fa-rss"></i></a></li>
+<li><a href="../contact/" title="Contact"><i class="fa fa-envelope"></i></a></li>
+<li><a href="https://github.com/piyush-kurur" title="On GitHub"><i class="fa fa-github"></i></a></li>
+<li><a href="https://bitbucket.org/piyush-kurur" title="On BitBucket"><i class="fa fa-bitbucket"></i></a> <!--
+
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+--></li>
+</ul>
+    </div>
+  </div>
+  <div class="main-content">
+    <span class="post-tags"><i class="fa fa-tags"></i><a href="../posts/tags/Security.html">Security</a></span>
+<div class="post">
+  <h1 id="post-title">SSHFS: Remote directory over ssh</h1>
+  <span class="post-date">June  3, 2011 (Friday)</span>
+
+  <a href="//www.reddit.com/submit" onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false" alt="submit to reddit" border="0">
+    <span class="reddit">
+      <i class="fa fa-reddit-square fa-lg"></i> reddit this
+    </span>
+  </a>
+  <br />
+    <p>Often one wants shared access to files across machines. Traditionally one uses the <a href="http://en.wikipedia.org/wiki/Network_File_System_(protocol)" title="NFS Wiki">network file system</a> (<a href="http://en.wikipedia.org/wiki/Network_File_System_(protocol)" title="NFS Wiki">nfs</a>). The network file server works as follows: There is an <em>nfs server</em> that <em>exports</em> some directories in its filesystem hiearchy to various <em>nfs clients</em> that <em>mount</em> these directory over the network into their file system hierarchy. As a result, each of the clients shares the directories exported by the nfs server. However <a href="http://en.wikipedia.org/wiki/Network_File_System_(protocol)" title="NFS Wiki">nfs</a> is probably the worst protocol when it comes to security and is rightly called network failure system.</p>
+<p>This is a tutorial on sshfs or ssh file system. The idea is to provide a <a href="http://en.wikipedia.org/wiki/Network_File_System_(protocol)" title="NFS Wiki">nfs</a> like mount which is secured by the very dependable ssh (the sftp subsystem of ssh).</p>
+<h1 id="using-sshfs.">Using sshfs.</h1>
+<ol style="list-style-type: decimal">
+<li>First mount the remote directory onto a local directory</li>
+</ol>
+<div class="sourceCode"><table class="sourceCode bash numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+2
+</pre></td><td class="sourceCode"><pre><code class="sourceCode bash">
+$ <span class="ex">sshfs</span> ppk@remote: path/to/mount</code></pre></td></tr></table></div>
+<p>where <code>path/to/mount</code> is the point where you want the remote file system to be mounted.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>After step 1, <code>path/to/mount</code> on your local machine is actually the home directory of the remote machine. So you can use it just like a local machine. Expect slow response if your network connection to remote machine is slow though.</li>
+</ol>
+<div class="sourceCode"><table class="sourceCode bash numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+2
+3
+</pre></td><td class="sourceCode"><pre><code class="sourceCode bash">$ <span class="bu">cd</span> path/to/mount
+$ <span class="ex">emacs</span> myfavoritprogram.hs
+$ <span class="ex">ghc</span> myfavoritprogram.hs</code></pre></td></tr></table></div>
+<ol start="3" style="list-style-type: decimal">
+<li>After you are done with the work on the remote machine you may unmount the file system</li>
+</ol>
+<div class="sourceCode"><table class="sourceCode bash numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+2
+</pre></td><td class="sourceCode"><pre><code class="sourceCode bash">
+$ <span class="ex">fusermount</span> -u path/to/mount</code></pre></td></tr></table></div>
+<h1 id="how-it-works.">How it works.</h1>
+<p>Sshfs is a userspace file system (fuse) that works over ssh, or rather sftp. Fuse is an implementation of filesystem primitives in userspace rather than in kernel space. This essentially means that users can mount and unmount file system without having to be root. Sshfs makes use of the sftp subsystem to do the remote file system operations. Thus all the great features of ssh holds true, i.e. key based authentication, use of ssh-agents. See my <a href="../posts/2011-06-02-SSH-A-quick-guide.html">tutorial blog on ssh</a> for more details on how to use ssh.</p>
+<h1 id="installing-sshfs.">Installing sshfs.</h1>
+<p>All linux distros have a prebuilt package for sshfs. On <a href="http://www.debian.org" title="Debian">Debian</a>/<a href="http://www.ubuntu.com" title="Ubuntu">Ubuntu</a> and <a href="http://www.archlinux.org" title="The Arch Linux homepage">Arch</a> the relevant package is <code>sshfs</code>. So all you need to do is to install it.</p>
+<div class="sourceCode"><table class="sourceCode bash numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+2
+3
+4
+</pre></td><td class="sourceCode"><pre><code class="sourceCode bash">
+$ <span class="ex">aptitude</span> install sshfs <span class="co"># as root.</span>
+$ <span class="fu">sudo</span> aptitude install sshfs <span class="co"># if you are on Unbutu</span>
+$ <span class="ex">pacman</span> -S sshfs <span class="co"># as root on an Arch machine</span></code></pre></td></tr></table></div>
+<p>On Fedora it looks like it is called <code>fuse-sshfs</code> so something like this should work.</p>
+<div class="sourceCode"><table class="sourceCode bash numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+</pre></td><td class="sourceCode"><pre><code class="sourceCode bash">$ <span class="ex">yum</span> install fuse-sshfs</code></pre></td></tr></table></div>
+<h1 id="ssh-is-working-but-not-sshfs.">Ssh is working but not sshfs.</h1>
+<p>A common error that people have reported is that ssh works but sshfs fails. If this happens, check whether your sftp subsystem is working. Most probably this too would fail or work incorrectly. One of the main reasons why sshfs/sftp does not work is because your startup scripts in the remote machine prints stuff on the screen. To check this out, try the following command.</p>
+<div class="sourceCode"><table class="sourceCode bash numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+</pre></td><td class="sourceCode"><pre><code class="sourceCode bash">$ <span class="fu">ssh</span> ppk@remote /bin/true</code></pre></td></tr></table></div>
+<p>If this command produces any output then you are in trouble. You have to fix your startup script in your remote machine — <code>.bash_profile</code> and <code>.bashrc</code>, if you are using bash as your default shell. The startup script should check whether the standard output is a terminal before it outputs something. For this protect your output generating commands inside a <code>test -t 1</code> block as follows</p>
+<div class="sourceCode"><table class="sourceCode bash numberLines"><tr class="sourceCode"><td class="lineNumbers"><pre>1
+2
+3
+4
+5
+6
+</pre></td><td class="sourceCode"><pre><code class="sourceCode bash">$ <span class="fu">cat</span> .bash_profile
+
+<span class="kw">if</span><span class="bu"> [</span> <span class="ot">-t</span> 1<span class="bu"> ]</span> <span class="co"># Check if stdout is connected to a terminal</span>
+<span class="kw">then</span>
+    <span class="bu">echo</span> <span class="st">&quot;The answer is 42&quot;</span>
+<span class="kw">fi</span></code></pre></td></tr></table></div>
+<p>See the <a href="http://www.openssh.com/faq.html" title="ssh faq">openssh FAQ</a> for more details.</p>
+</div>
+
+<div class="post-comments">
+  <div id="disqus_thread"></div>
+</div>
+
+<script type="text/javascript">
+  var disqus_shortname  = 'piyushkurur';  // required: Short name.
+  var disqus_url        = 'http://cse.iitk.ac.in/users/ppk/posts/2011-06-03-SSHFS-Remote-directory-over-ssh.html';
+                          // The url of this page
+  var disqus_title      = 'SSHFS: Remote directory over ssh';      // The title of this post
+  var disqus_identifier = '2011-06-03-SSHFS-Remote-directory-over-ssh';  // The id of this post
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+  </div>
+  <div id="powered-by-footer"></div>
+</div>
+<div id="powered-by">
+  Powered by: <a href="http://jaspervdj.be/hakyll">Hakyll</a>,
+  <a href="http://compass-style.org"> Compass</a> and
+  <a href="http://fontawesome.io"><i class="fa fa-flag"></i> Fontawesome</a>
+</div>
+
+  </body>
+</html>

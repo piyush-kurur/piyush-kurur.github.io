@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta name="keywords" content="Raaz, Cryptography, Haskell" />
+    
+    
+    
+    
+    <meta name="generator" content="pandoc" />
+    <link href="//fonts.googleapis.com/css?family=Tangerine:700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link href="../stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/font-awesome/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <title>Piyush P Kurur|Raaz: New release</title>
+  </head>
+  <body>
+    <div id="root" class="page">
+  <div class="header">
+    <h1>Piyush P Kurur</h1>
+    <div class="navigation">
+      <!-- Add your navigation menu here !-->
+<ul>
+<li><a href="../" title="Home"><i class="fa fa-home"></i></a></li>
+<li><a href="../posts/feeds/atom.xml"><i class="fa fa-rss"></i></a></li>
+<li><a href="../contact/" title="Contact"><i class="fa fa-envelope"></i></a></li>
+<li><a href="https://github.com/piyush-kurur" title="On GitHub"><i class="fa fa-github"></i></a></li>
+<li><a href="https://bitbucket.org/piyush-kurur" title="On BitBucket"><i class="fa fa-bitbucket"></i></a> <!--
+
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+--></li>
+</ul>
+    </div>
+  </div>
+  <div class="main-content">
+    <span class="post-tags"><i class="fa fa-tags"></i><a href="../posts/tags/Raaz.html">Raaz</a>, <a href="../posts/tags/Cryptography.html">Cryptography</a>, <a href="../posts/tags/Haskell.html">Haskell</a></span>
+<div class="post">
+  <h1 id="post-title">Raaz: New release</h1>
+  <span class="post-date">February  2, 2017 (Thursday)</span>
+
+  <a href="//www.reddit.com/submit" onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false" alt="submit to reddit" border="0">
+    <span class="reddit">
+      <i class="fa fa-reddit-square fa-lg"></i> reddit this
+    </span>
+  </a>
+  <br />
+    <p>I have just uploaded, on hackage, a <a href="https://hackage.haskell.org/package/raaz-0.1.0/candidate">new release candidate</a> for <a href="http://github.com/raaz-crypto/raaz" title="Raaz: A Cryptographic Network library for Haskell">raaz</a>. I plan to release it on Feb 28, 2017 (coinciding with the <a href="http://en.wikipedia.org/wiki/National_Science_Day" title="Wikipedia: National Science Day">National Science Day</a> in India).</p>
+<ul>
+<li><a href="https://github.com/raaz-crypto/raaz/blob/release-0.1.0/CHANGELOG.md" title="Change log for 0.1.0">Change log</a></li>
+<li><a href="https://hackage.haskell.org/package/raaz-0.1.0/candidate">Candidate release page</a> on hackage.</li>
+</ul>
+<p>This release include the following primitives</p>
+<ul>
+<li><p><a href="https://tools.ietf.org/html/rfc7539" title="ChaCha20 RFC">chacha20</a> stream cipher</p></li>
+<li><p>a prg based on <a href="https://tools.ietf.org/html/rfc7539" title="ChaCha20 RFC">chacha20</a></p></li>
+</ul>
+<p>Besides the portable C implementation, we have an implementation that uses 256bit vector instructions (using GCC/Clang intrinsics). The randomness source for this library uses the chachac20 cipher as a PRG. The stream cipher is really efficient with the following figures on my machine<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<ul>
+<li>Encryption/decryption:
+<ul>
+<li>portable C: 4.98 Gbps</li>
+<li>vector256+avx2: 9.55 Gbps</li>
+</ul></li>
+<li>Pseudo-random bytes: 5.45 Gbps</li>
+</ul>
+<p>Notice that the vector256+avx implementation can pretty much saturate a 10Gbps line. The PRG uses the most efficient <a href="https://tools.ietf.org/html/rfc7539" title="ChaCha20 RFC">chacha20</a> implementation available, which in this case is vector256+avx2. The reduction in performance for prg is due to some copying overhead that I have not bothered to optimise. For more details and comparisons with other primitives see the gist:</p>
+<p><a href="https://gist.github.com/piyush-kurur/93955e669ab72a51996590bfc106677d" class="uri">https://gist.github.com/piyush-kurur/93955e669ab72a51996590bfc106677d</a></p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Intel i7-4770 CPU @ 3.40GHz x 8 cores.<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
+</div>
+
+<div class="post-comments">
+  <div id="disqus_thread"></div>
+</div>
+
+<script type="text/javascript">
+  var disqus_shortname  = 'piyushkurur';  // required: Short name.
+  var disqus_url        = 'http://cse.iitk.ac.in/users/ppk/posts/2017-02-02-Raaz-new-release.html';
+                          // The url of this page
+  var disqus_title      = 'Raaz: New release';      // The title of this post
+  var disqus_identifier = '2017-02-02-Raaz-new-release';  // The id of this post
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+  </div>
+  <div id="powered-by-footer"></div>
+</div>
+<div id="powered-by">
+  Powered by: <a href="http://jaspervdj.be/hakyll">Hakyll</a>,
+  <a href="http://compass-style.org"> Compass</a> and
+  <a href="http://fontawesome.io"><i class="fa fa-flag"></i> Fontawesome</a>
+</div>
+
+  </body>
+</html>

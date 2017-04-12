@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    
+    
+    
+    
+    
+    <meta name="generator" content="pandoc" />
+    <link href="//fonts.googleapis.com/css?family=Tangerine:700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link href="../../stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="../../stylesheets/font-awesome/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <title>Piyush P Kurur|Principles of Programming languages.</title>
+  </head>
+  <body>
+    <div id="root" class="page">
+  <div class="header">
+    <h1>Piyush P Kurur</h1>
+    <div class="navigation">
+      <!-- Add your navigation menu here !-->
+<ul>
+<li><a href="../../" title="Home"><i class="fa fa-home"></i></a></li>
+<li><a href="../../posts/feeds/atom.xml"><i class="fa fa-rss"></i></a></li>
+<li><a href="../../contact/" title="Contact"><i class="fa fa-envelope"></i></a></li>
+<li><a href="https://github.com/piyush-kurur" title="On GitHub"><i class="fa fa-github"></i></a></li>
+<li><a href="https://bitbucket.org/piyush-kurur" title="On BitBucket"><i class="fa fa-bitbucket"></i></a> <!--
+
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+--></li>
+</ul>
+    </div>
+  </div>
+  <div class="main-content">
+    <h1 id="principles-of-programming-languages">Principles of Programming languages</h1>
+<p>The course will loosely follow the text book <a href="http://www.info.ucl.ac.be/~pvr/book.html">“Concepts Techniques and Models of Computer Programming”</a> by Peter Van Roy and Seif Haridi. The primary platform used in this book is the Oz language. One of the advantage of oz is that it provides features for all the different styles of programming. However, this is also its weakness. Therefore we will also look at candidate language for each of the paradigm to better appreciate the power/weakness of each of these paradigm.</p>
+<h2 id="assignment-submission">Assignment submission</h2>
+<ul>
+<li><a href="./submission">Assignment submission procedure</a></li>
+<li><a href="https://github.com/piyush-kurur/sample-code/blob/master/assignments/delhi-metro/delhi-metro.pl" title="Assignment 1: Delhi Metro">Assignment 1</a> - Due on the midnight of 30 Sep 2013 (Monday).</li>
+<li><a href="https://github.com/piyush-kurur/sample-code/blob/assignment/assignments/traffic/controller.erl">Assignment 2</a> - Due on the midnight of 4th Nov 2014</li>
+</ul>
+<h2 id="note">Note:</h2>
+<p>The Oz package for 64-bit is buggy. If you have trouble installing it for use you may try the following <a href="http://ppk.cse.iitk.ac.in/ppk/cs350/virtual-image.7z" title="Linux Image file">image file of about 2.3 GB (<em>internal link</em>)</a> created by <a href="http://cse.iitk.ac.in/users/satvikc" title="Satvik's homepage">Satvik</a> with virtual box. The <code>root</code> user password is <code>toor</code> and that of the user <code>debian</code> is <code>reverse</code>. I have not tested it though.</p>
+<h2 id="course-ta">Course TA</h2>
+<ol style="list-style-type: decimal">
+<li>Satvik C (email id <code>satvikc</code>)</li>
+<li>Smriti J (email id <code>smritij</code>)</li>
+</ol>
+<h2 id="programming-environment">Programming Environment</h2>
+<ol style="list-style-type: decimal">
+<li><p><a href="http://www.mozart-oz.org/" title="The Mozart Programming System">Oz/Mozart</a>.</p></li>
+<li><p><a href="http://www.swi-prolog.org/" title="SWI-prolog home">swi-prolog</a> for Prolog</p></li>
+<li><p><a href="http://erlang.org" title="Erlang">Erlang</a></p></li>
+<li><p><a href="http://haskell.org/haskellwiki/GHC" title="GHC">GHC</a> for <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a></p></li>
+<li><p><a href="http://wiki.portal.chalmers.se/agda/pmwiki.php" title="Agda Homepage/Wiki">Agda</a> for <a href="https://en.wikipedia.org/wiki/Dependent_type" title="Dependent types Wikipedia">dependent typed programming</a></p></li>
+</ol>
+<h2 id="online-reading-material">Online reading material</h2>
+<ol style="list-style-type: decimal">
+<li><p><a href="https://github.com/piyush-kurur/sample-code/">Github repository</a> of some sample code that I showed in the class</p></li>
+<li><p><a href="http://research.microsoft.com/en-us/um/people/simonpj/papers/slpj-book-1987/" title="Implementation of Functional Programming Language">Implementation of Functional Programming Language</a> Topics covered in the class include:</p>
+<ol style="list-style-type: lower-roman">
+<li>How pattern matching is compiled efficiently.</li>
+</ol></li>
+<li><p>A complete unification algorithm is given in my <a href="../../teaching/cs653/notes/lecture-at-a-time.html">functional programming lecture notes</a>. This unification algorithm is tailored for type inference but you can have a look.</p></li>
+</ol>
+<h2 id="some-difficult-long-term-exercises-that-you-can-try-out.">Some difficult (long term) exercises that you can try out.</h2>
+<ol style="list-style-type: decimal">
+<li>Implement the general <a href="http://en.wikipedia.org/wiki/Unification_(computer_science)" title="SLD Resolution">unification algorithm</a> described in the class. Use any of your favorite programming language although doing it in C or Java might not be such a good idea.</li>
+</ol>
+<p>Beware: many algorithms described in literature have subtle bugs.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Code up the resolution algorithm used by Prolog (<a href="http://en.wikipedia.org/wiki/SLD_resolution" title="SLD Resolution">SLD Resolution</a>). Implement a simple prolog interpreter based on it.</li>
+</ol>
+  </div>
+  <div id="powered-by-footer"></div>
+</div>
+<div id="powered-by">
+  Powered by: <a href="http://jaspervdj.be/hakyll">Hakyll</a>,
+  <a href="http://compass-style.org"> Compass</a> and
+  <a href="http://fontawesome.io"><i class="fa fa-flag"></i> Fontawesome</a>
+</div>
+
+  </body>
+</html>

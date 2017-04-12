@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta name="keywords" content="Raaz, Cryptography, Haskell" />
+    
+    
+    
+    
+    <meta name="generator" content="pandoc" />
+    <link href="//fonts.googleapis.com/css?family=Tangerine:700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link href="../stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/font-awesome/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <title>Piyush P Kurur|First release of Raaz</title>
+  </head>
+  <body>
+    <div id="root" class="page">
+  <div class="header">
+    <h1>Piyush P Kurur</h1>
+    <div class="navigation">
+      <!-- Add your navigation menu here !-->
+<ul>
+<li><a href="../" title="Home"><i class="fa fa-home"></i></a></li>
+<li><a href="../posts/feeds/atom.xml"><i class="fa fa-rss"></i></a></li>
+<li><a href="../contact/" title="Contact"><i class="fa fa-envelope"></i></a></li>
+<li><a href="https://github.com/piyush-kurur" title="On GitHub"><i class="fa fa-github"></i></a></li>
+<li><a href="https://bitbucket.org/piyush-kurur" title="On BitBucket"><i class="fa fa-bitbucket"></i></a> <!--
+
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+--></li>
+</ul>
+    </div>
+  </div>
+  <div class="main-content">
+    <span class="post-tags"><i class="fa fa-tags"></i><a href="../posts/tags/Raaz.html">Raaz</a>, <a href="../posts/tags/Cryptography.html">Cryptography</a>, <a href="../posts/tags/Haskell.html">Haskell</a></span>
+<div class="post">
+  <h1 id="post-title">First release of Raaz</h1>
+  <span class="post-date">July 11, 2016 (Monday)</span>
+
+  <a href="//www.reddit.com/submit" onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false" alt="submit to reddit" border="0">
+    <span class="reddit">
+      <i class="fa fa-reddit-square fa-lg"></i> reddit this
+    </span>
+  </a>
+  <br />
+    <p>After a long delay, and a lot of false detours, I released the very first version of <a href="http://github.com/raaz-crypto/raaz" title="Raaz: A Cryptographic Network library for Haskell">Raaz</a>, a cryptographic network library for <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a>. My reasons on embarking on such a project is briefly mentioned in a <a href="../posts/2013-08-24-Raaz-A-cryptographic-network-library.html">previous post</a>.</p>
+<p>The current release is mostly a proof of concept release with very little primitives; we currently support sha1, sha2 hashes and their hmacs. We also have an implementation of aes-cbs but these are hard to use in an high level fashion.</p>
+<h1 id="quick-examples.">Quick examples.</h1>
+<p>We demonstrate the interface for computing message digests based of cryptographic hashes. Raaz uses distinct types for distinct hashes. These types are opaque in the sense that we do not expose its constructor. However, they are instances of the <code>IsString</code> and <code>Show</code> class which makes them conviently representable in code.</p>
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt;</span> <span class="ot">{-# LANGUAGE OverloadedStrings #-}</span>
+<span class="ot">&gt;</span> <span class="kw">import </span><span class="dt">Data.ByteString.Char8</span>(<span class="dt">ByteString</span>)</code></pre></div>
+<p>We now demonstrate how the sha512 digest of a file can be computed. All cryptographic hashes are instance of the type class <code>Hash</code> and the generic function <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Hash.html#t:hashFile" title="The hashFile function"><code>hashFile :: Hash h =&gt; FilePath -&gt; h</code></a> can be used to compute the hash of a file. The top level signature is necessary in this case so that ghc can deduce which hash to compute.</p>
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; fileDst ::</span> <span class="dt">IO</span> <span class="dt">SHA512</span>
+<span class="ot">&gt;</span> fileDst <span class="fu">=</span> hashFile <span class="st">&quot;myphoto.jpg&quot;</span></code></pre></div>
+<h2 id="entering-hashes-directly-in-source-code.">Entering hashes directly in source code.</h2>
+<p>With the <code>OverloadedStrings</code> extension, you can enter the hashes directly in the source code using the string notation. However, for objects that do not have 1:1 correspondence with byte strings, use of this extension often lead to runtime errors and its use is generally <em>not recommended</em>. There are some rarely cases when it is convenient to embedd hash values in source code like when writing unit tests.</p>
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; emptySHA256 ::</span> <span class="dt">SHA256</span>
+<span class="ot">&gt;</span> emptySHA256 <span class="fu">=</span> <span class="st">&quot;e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&quot;</span></code></pre></div>
+<p>Hashes can be compared for equality. What more, these comparison are constant time and hence timing safe.</p>
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt; check ::</span> <span class="dt">Bool</span>
+<span class="ot">&gt;</span> check <span class="fu">=</span> emptySHA256 <span class="fu">==</span> hash (<span class="st">&quot;&quot;</span><span class="ot"> ::</span> <span class="dt">ByteString</span>)</code></pre></div>
+<p>Notice that for pure values like ByteString, we use function <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Hash.html#t:hash" title="The hash function"><code>hash</code></a> to compute its digest. The result is also a pure value.</p>
+<p>For more details, we refer the reader to the <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Hash.html" title="Documentation for Hashes in Raaz">haddock documentation of <code>Raaz.Hash</code></a></p>
+<h2 id="design-philosopy.">Design philosopy.</h2>
+<p>The raaz package will expose cryptographic primitives which will be used to implement specific cryptographic protocols (in separate packages). We would like to expose a high-level view of cryptographic primitives and levarage the type safety of Haskell when ever possible. Here are some design principles that we have followed which we believe are important.</p>
+<dl>
+<dt><strong>Types distinguish functionality:</strong></dt>
+<dd><p>In cryptographic literature, data like hashes are often treated just as a sequece of bytes. For example, a string of 32 bytes, a sha256 hash or its hmac or for that matter any other hash like blake2s are all just 32-byte strings. For a crypto library this is a bad design. This is confusing the semantics of the data type with is syntax (encoding)</p>
+<p>Raaz makes these types distinct and, to prevent accidental usage in ways unindented, makes these types opaque.</p>
+</dd>
+<dt><strong>Encoding:</strong></dt>
+<dd>We do care about external presentation of cryptographic data captured by the data class <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Core-Encode.html#t:Encodable" title="The class Encodable"><code>Encodable</code></a>. Almost all cryptographic data that has some encodable presentation is an instance of this type. An instance of <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Core-Encode.html#t:Encodable" title="The class Encodable"><code>Encodable</code></a> can be converted to any of the supported binary formats. Currently only hex-encoding is supported but the git repository has Base64 encoding. The design of the encoding interface is done and adding a new encoding should not be difficult.
+</dd>
+<dt><strong>Equality in constant time:</strong></dt>
+<dd>We ensure that all cryptographically sensitive data, like hashes have constant time equality comparisons, i.e. the time does not depend on whether the values are equal or not or by how many characters they match. We expose a class <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Core-Types.html#t:Equality" title="Timing safe equality"><code>Equality</code></a> which aids in constructing such timing safe equality.
+</dd>
+<dt><strong>Multiple low level implementation:</strong></dt>
+<dd>For cryptographic primitives, we support the use of multiple implementations. One of the goal of the design is to allow users to plugin their favorite implementation if the default one provided by the library was found lacking. However, this is an advanced feature and may need quite a bit of hacking.
+</dd>
+<dt><strong>Secure memory interface:</strong></dt>
+<dd>We have an interface for secure memory, i.e. memory that is locked and will not be swapped. The library ensures that this memory is wiped clean after use. All implementations are designed to use this secure memory to store their sensitive internal state. See the module <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Core-Memory.html" title="Raaz: Secure memory"><code>Raaz.Core.Memory</code></a> in the library.
+</dd>
+<dt><strong>Documentation:</strong></dt>
+<dd>We hope to have a well documented cryptographic library. In fact, quite a few students from IIT Kanpur have contributed to this project. I hope there is enough documentation in the source so that students can easily start working on it (as an academic I would like students to participate in such development efforts).
+</dd>
+</dl>
+<p>For more details visit</p>
+<ol style="list-style-type: decimal">
+<li><p><a href="https://github.com/raaz-crypto/raaz">Our Repository</a></p></li>
+<li><p><a href="https://hackage.haskell.org/package/raaz-0.0.1/" title="Haddock documentation for Raaz">Haddock documentation</a></p></li>
+</ol>
+</div>
+
+<div class="post-comments">
+  <div id="disqus_thread"></div>
+</div>
+
+<script type="text/javascript">
+  var disqus_shortname  = 'piyushkurur';  // required: Short name.
+  var disqus_url        = 'http://cse.iitk.ac.in/users/ppk/posts/2016-07-11-First-release-of-Raaz.html';
+                          // The url of this page
+  var disqus_title      = 'First release of Raaz';      // The title of this post
+  var disqus_identifier = '2016-07-11-First-release-of-Raaz';  // The id of this post
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+  </div>
+  <div id="powered-by-footer"></div>
+</div>
+<div id="powered-by">
+  Powered by: <a href="http://jaspervdj.be/hakyll">Hakyll</a>,
+  <a href="http://compass-style.org"> Compass</a> and
+  <a href="http://fontawesome.io"><i class="fa fa-flag"></i> Fontawesome</a>
+</div>
+
+  </body>
+</html>

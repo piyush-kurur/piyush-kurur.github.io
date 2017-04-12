@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta name="keywords" content="Web" />
+    
+    
+    
+    
+    <meta name="generator" content="pandoc" />
+    <link href="//fonts.googleapis.com/css?family=Tangerine:700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link href="../stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/font-awesome/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <title>Piyush P Kurur|Webpage Reloaded</title>
+  </head>
+  <body>
+    <div id="root" class="page">
+  <div class="header">
+    <h1>Piyush P Kurur</h1>
+    <div class="navigation">
+      <!-- Add your navigation menu here !-->
+<ul>
+<li><a href="../" title="Home"><i class="fa fa-home"></i></a></li>
+<li><a href="../posts/feeds/atom.xml"><i class="fa fa-rss"></i></a></li>
+<li><a href="../contact/" title="Contact"><i class="fa fa-envelope"></i></a></li>
+<li><a href="https://github.com/piyush-kurur" title="On GitHub"><i class="fa fa-github"></i></a></li>
+<li><a href="https://bitbucket.org/piyush-kurur" title="On BitBucket"><i class="fa fa-bitbucket"></i></a> <!--
+
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+--></li>
+</ul>
+    </div>
+  </div>
+  <div class="main-content">
+    <span class="post-tags"><i class="fa fa-tags"></i><a href="../posts/tags/Web.html">Web</a></span>
+<div class="post">
+  <h1 id="post-title">Webpage Reloaded</h1>
+  <span class="post-date">May 15, 2013 (Wednesday)</span>
+
+  <a href="//www.reddit.com/submit" onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false" alt="submit to reddit" border="0">
+    <span class="reddit">
+      <i class="fa fa-reddit-square fa-lg"></i> reddit this
+    </span>
+  </a>
+  <br />
+    <p>This is my very first post. It also coincides with the entire rewriting of my homepage and these two events are not independent. I used to use a set of Makefiles for dependency checks, <a href="http://johnmacfarlane.net/pandoc" title="Pandoc">pandoc</a> for generating html, m4 for templating and no css. The stuff worked but it soon became difficult to maintain.</p>
+<p>It was more or less clear to me from the start that I wanted a static site managed via <a href="http://darcs.net" title="Darcs">darcs</a>, written in <a href="http://daringfireball.net/projects/markdown/" title="Markdown">markdown</a>. Of course there is <a href="http://jekyllrb.com" title="Jekyll">jekyll</a> but I always thought <a href="http://johnmacfarlane.net/pandoc" title="Pandoc">pandoc</a> was way more powerful than some of the other markdown processors that comes with <a href="http://jekyllrb.com" title="Jekyll">jekyll</a>. And then I heard of <a href="http://jaspervdj.be/hakyll/" title="Hakyll">hakyll</a>. It uses <a href="http://johnmacfarlane.net/pandoc" title="Pandoc">pandoc</a> as its markdown processor which means that I get all the <a href="http://johnmacfarlane.net/pandoc" title="Pandoc">pandoc</a> goodies: easy math integration, syntax highlighting, and possibility of using different input (say latex) and output (say pdf) formats. Besides, it is written in <a href="http://www.haskell.org" title="Haskell homepage">my favorite programming language</a>. No more excuses for a bad homepage.</p>
+<p>I <em>never</em> thought my page would ever be styled with css. As a language (if you can call it one) css is pretty lousy, maybe slightly better than html. Besides, no two browser seems to agree on the standard. Who, in their right senses would want to work with it ? <a href="http://compass-style.org" title="Compass">Compass</a> made me change my opinion. Firstly, you can use the <a href="http://sass-lang.com" title="Sass">sass</a> now instead of css, an advantage comparable to using <a href="http://daringfireball.net/projects/markdown/" title="Markdown">markdown</a> instead of html. Secondly, it has mixins that take care of all (most) of those browser incompatibilities. It might not go well with IE users: I don’t know, neither do I care to know. But it should work mostly. The style for this page is entirely written in sass using the <a href="http://compass-style.org" title="Compass">compass</a> framework. I will publish the source code soon after some refactoring.</p>
+<p>Thanks to the great softwares mentioned above, I now have a clean homepage complete with a blog and atom/rss feeds. Some lecture notes that I had are not yet hakyllised. It will soon be.</p>
+<p>A big <em>thank you</em> to the folks behind <a href="http://jaspervdj.be/hakyll/" title="Hakyll">hakyll</a>, <a href="http://johnmacfarlane.net/pandoc" title="Pandoc">pandoc</a> and <a href="http://compass-style.org" title="Compass">compass</a>.</p>
+<p><strong>Update 18 May 2013</strong>: I have added my old wrtings as blog post. So it might appear as if this not my first post.</p>
+</div>
+
+<div class="post-comments">
+  <div id="disqus_thread"></div>
+</div>
+
+<script type="text/javascript">
+  var disqus_shortname  = 'piyushkurur';  // required: Short name.
+  var disqus_url        = 'http://cse.iitk.ac.in/users/ppk/posts/2013-05-15-Webpage-Reloaded.html';
+                          // The url of this page
+  var disqus_title      = 'Webpage Reloaded';      // The title of this post
+  var disqus_identifier = '2013-05-15-Webpage-Reloaded';  // The id of this post
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+  </div>
+  <div id="powered-by-footer"></div>
+</div>
+<div id="powered-by">
+  Powered by: <a href="http://jaspervdj.be/hakyll">Hakyll</a>,
+  <a href="http://compass-style.org"> Compass</a> and
+  <a href="http://fontawesome.io"><i class="fa fa-flag"></i> Fontawesome</a>
+</div>
+
+  </body>
+</html>

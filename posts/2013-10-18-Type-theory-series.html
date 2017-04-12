@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta name="keywords" content="Type theory" />
+    
+    
+    
+    <link rel="next" href="../posts/2013-11-04-Lambda-calculus.html" />
+    <meta name="generator" content="pandoc" />
+    <link href="//fonts.googleapis.com/css?family=Tangerine:700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link href="../stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/font-awesome/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <title>Piyush P Kurur|Types, proofs and programming.</title>
+  </head>
+  <body>
+    <div id="root" class="page">
+  <div class="header">
+    <h1>Piyush P Kurur</h1>
+    <div class="navigation">
+      <!-- Add your navigation menu here !-->
+<ul>
+<li><a href="../" title="Home"><i class="fa fa-home"></i></a></li>
+<li><a href="../posts/feeds/atom.xml"><i class="fa fa-rss"></i></a></li>
+<li><a href="../contact/" title="Contact"><i class="fa fa-envelope"></i></a></li>
+<li><a href="https://github.com/piyush-kurur" title="On GitHub"><i class="fa fa-github"></i></a></li>
+<li><a href="https://bitbucket.org/piyush-kurur" title="On BitBucket"><i class="fa fa-bitbucket"></i></a> <!--
+
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+--></li>
+</ul>
+    </div>
+  </div>
+  <div class="main-content">
+    <span class="post-tags"><i class="fa fa-tags"></i><a href="../posts/tags/Type%20theory.html">Type theory</a></span>
+<div class="post">
+  <h1 id="post-title">Types, proofs and programming.</h1>
+  <span class="post-date">October 18, 2013 (Friday)</span>
+
+  <a href="//www.reddit.com/submit" onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false" alt="submit to reddit" border="0">
+    <span class="reddit">
+      <i class="fa fa-reddit-square fa-lg"></i> reddit this
+    </span>
+  </a>
+  <br />
+    <p>For quite some time, I have been toying with the idea of trying to get a grip on the various beautiful ideas that go under the name <em>type theory</em>. It looks to me that the time has come for a deep dive into the <a href="http://homotopytypetheory.org" title="Homotopic Type Theory">hott</a> (no this is definitely not a typo) waters. This is the first in a series of posts on type theory and its various ramifications to Functional programming and foundations of mathematics. I am not an expert in this area but by blogging I hope to gain the insights that has eluded me so far.</p>
+<p>This particular blog post also will serve as a “Table of Contents” for the series. While all the posts in this series will have the “<a href="../posts/tags/Type%20theory.html" title="Posts on Type theory">Type theory</a>” tag in it, the explicit listing of the contents serves as a suggested order in which to read the posts.</p>
+<h1 id="perspective.">Perspective.</h1>
+<p>In a sufficiently rich functional programming language (like for example Haskell), we have <em>expressions</em> each of which are associated with a <em>type</em>. The types can be seen as <em>invariants</em> that the expressions satisfy through out the program. For example, when you assert that the variable <code>x</code> has type <code>Int</code>, you are implicitly asking the compiler to make sure that <code>x</code> is used in ways that are consistent to the fact that it is an integer. Checking this invariant at compile time ensures that the programmer does not introduce silly bugs like trying to add <code>2</code> to <code>&quot;hello&quot;</code> etc. Thus there is some amount of <em>theorem proving</em>, rather trivial in the above case, already built into any strongly typed language. This informal connection can be formalised via what is know as the Curry-Howard Isomorphism which observes that the rules for assigning well defined types to expressions coincide remarkably with rules for proving statements in a suitable logic. For any type <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">τ</annotation></semantics></math> one can associate a statement <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mi>τ</mi></msub><annotation encoding="application/x-tex">A_τ</annotation></semantics></math> such that if <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math> is a well typed expression of type <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">τ</annotation></semantics></math>, we can map <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>, rather the derivation of the type of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>, to a proof of the statement <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mi>τ</mi></msub><annotation encoding="application/x-tex">A_τ</annotation></semantics></math>. The precise statement of this connection is left for later posts but the core idea here is that <em>type checking</em> is essentially <em>proof checking</em> (and vice-versa).</p>
+<p>Why is this connection interesting? In order to fully see the <a href="http://en.wikipedia.org/wiki/Blind_men_and_an_elephant" title="Wikipedia: Blind men and an elephant">type theory elephant</a>, we often need to acquire the split personalities of a programmer (functional programmer) and a mathematician.</p>
+<p>The programmer is actually interested in the expressions, as they are the programs. Types are a way of ensuring that the programs satisfy certain invariants. The stronger the type system, the larger is the class of invariants that can be expressed. Thus for her the types are a means to achieve correct programs. The holy grail in this line of thought is to have completely machine certified programs. A full fledged programming language which implements such types can thus be its own specification language.</p>
+<p>The mathematician is more interested in the types as they correspond to mathematical truths. Expressions are just proofs of these statements. The functional programming language with sufficiently powerful types can thus be used as a proof assistant to achieve completely automated mathematical proof checking. However, proofs being values are now first class values. Much like in a functional programming language, where making functions first class values helped in a lot of simplification and abstraction, it is hoped that making proofs first class can give ways to manipulate and think about them which traditional mathematics could not.</p>
+<p>The above two viewpoint have sometimes slightly conflicting goals. A programmer is concerned in the performance of these languages. There are certain technical issues like the fact that all function should terminate if one wants to avoid inconsistency that can be a show stopper in writing non-terminating programs like servers etc. The mathematician however is not much bothered about the actual efficiency of the running code. However, issues like consistency and termination is important. After all who wants a proof assistant that will accept all proofs.</p>
+<h1 id="contents">Contents</h1>
+<ol style="list-style-type: decimal">
+<li><a href="../posts/2013-11-04-Lambda-calculus.html">Lambda Calculus</a></li>
+<li><a href="../posts/2014-01-11-Typed-lambda-calculus.html">Typed lambda calculus</a></li>
+<li><a href="../posts/2014-08-27-Dependent-Types.html">Dependent Types</a></li>
+</ol>
+</div>
+
+<div class="post-comments">
+  <div id="disqus_thread"></div>
+</div>
+
+<script type="text/javascript">
+  var disqus_shortname  = 'piyushkurur';  // required: Short name.
+  var disqus_url        = 'http://cse.iitk.ac.in/users/ppk/posts/2013-10-18-Type-theory-series.html';
+                          // The url of this page
+  var disqus_title      = 'Types, proofs and programming.';      // The title of this post
+  var disqus_identifier = '2013-10-18-Type-theory-series';  // The id of this post
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+  </div>
+  <div id="powered-by-footer"></div>
+</div>
+<div id="powered-by">
+  Powered by: <a href="http://jaspervdj.be/hakyll">Hakyll</a>,
+  <a href="http://compass-style.org"> Compass</a> and
+  <a href="http://fontawesome.io"><i class="fa fa-flag"></i> Fontawesome</a>
+</div>
+
+  </body>
+</html>

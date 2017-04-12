@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta name="keywords" content="Raaz, Cryptography, Haskell" />
+    
+    
+    
+    
+    <meta name="generator" content="pandoc" />
+    <link href="//fonts.googleapis.com/css?family=Tangerine:700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link href="../stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/font-awesome/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <title>Piyush P Kurur|Raaz: A cryptographic network library for Haskell</title>
+  </head>
+  <body>
+    <div id="root" class="page">
+  <div class="header">
+    <h1>Piyush P Kurur</h1>
+    <div class="navigation">
+      <!-- Add your navigation menu here !-->
+<ul>
+<li><a href="../" title="Home"><i class="fa fa-home"></i></a></li>
+<li><a href="../posts/feeds/atom.xml"><i class="fa fa-rss"></i></a></li>
+<li><a href="../contact/" title="Contact"><i class="fa fa-envelope"></i></a></li>
+<li><a href="https://github.com/piyush-kurur" title="On GitHub"><i class="fa fa-github"></i></a></li>
+<li><a href="https://bitbucket.org/piyush-kurur" title="On BitBucket"><i class="fa fa-bitbucket"></i></a> <!--
+
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+--></li>
+</ul>
+    </div>
+  </div>
+  <div class="main-content">
+    <span class="post-tags"><i class="fa fa-tags"></i><a href="../posts/tags/Raaz.html">Raaz</a>, <a href="../posts/tags/Cryptography.html">Cryptography</a>, <a href="../posts/tags/Haskell.html">Haskell</a></span>
+<div class="post">
+  <h1 id="post-title">Raaz: A cryptographic network library for Haskell</h1>
+  <span class="post-date">August 24, 2013 (Saturday)</span>
+
+  <a href="//www.reddit.com/submit" onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false" alt="submit to reddit" border="0">
+    <span class="reddit">
+      <i class="fa fa-reddit-square fa-lg"></i> reddit this
+    </span>
+  </a>
+  <br />
+    <p>This is my first post on <a href="http://github.com/raaz-crypto/raaz" title="Raaz: A Cryptographic Network library for Haskell">Raaz</a>, a cryptographic network library for <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a>. <a href="http://github.com/raaz-crypto/raaz" title="Raaz: A Cryptographic Network library for Haskell">Raaz</a> broadly aims at developing into:</p>
+<ol style="list-style-type: decimal">
+<li><p>A platform to experiment with various cryptographic primitives.</p></li>
+<li><p>A library to write high performance servers and clients to some common cryptographic network protocols.</p></li>
+</ol>
+<p>I believe that <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a> as a language has a lot of features that allow writing fast (as fast or better than any <a href="http://en.wikipedia.org/wiki/C_%28programming_language%29">C</a> library available) as well as secure cryptographic code. In this post, I attempt to explain some of the features of <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a> that we make use of.</p>
+<h1 id="speed">Speed</h1>
+<p>Let me first dispose of the one myth that seems to persist in the mind of people who have never seen a modern functional language. No one wants their software to be slow. Cryptographic protocols should be especially well implemented otherwise folks would simply avoid using the secure options. Clearly when it comes to performance <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a> can beat any of the interpreted languages <a href="http://www.python.org">Python</a>, <a href="http://www.ruby-lang.org">Ruby</a> or <a href="http://en.wikipedia.org/wiki/Java_%28programming_language%29">Java</a>. But what about <a href="http://en.wikipedia.org/wiki/C_%28programming_language%29">C</a>?</p>
+<p>The tight loops in the library which implements the primitives will anyway be written in <a href="http://en.wikipedia.org/wiki/C_%28programming_language%29">C</a>/Assembly. If one wants speed then one needs to do this whether one likes it or not. So for primitives it really does not matter which language one chooses. It then boils down to how easy it is to integrate <a href="http://en.wikipedia.org/wiki/C_%28programming_language%29">C</a>/Assembly code with <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a>. Having a low overhead foreign function Interface (FFI) is really critical here and Haskell fortunately has it.</p>
+<p>Having fast primitives helps but a network library is not just a set of fast cryptographic primitives. Here are some of the features that one would.</p>
+<ol style="list-style-type: decimal">
+<li><p>High performance concurrency primitives for server applications. <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a> really has no competition in this department. Here are some of the features that GHC (and libraries) supports: <a href="http://en.wikipedia.org/wiki/Green_threads" title="Wikipedia: Green threads">Green threads</a> <a href="http://www.haskell.org/haskellwiki/Software_transactional_memory">STM</a>s, <a href="http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Concurrent-MVar.html">MVar</a>s etc. Using these features, servers written in <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a> have been competitive (often outperforming) servers written is <a href="http://en.wikipedia.org/wiki/C_%28programming_language%29">C</a>. See for example <a href="http://mew.org/~kazu/proj/mighttpd/en/">mighttpd</a>.</p></li>
+<li><p>Efficient data serialisation and parsing libraries: Implementing the wire protocol efficiently is critical in improving the efficiency of the network application. <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a> is especially rich in this department as well: <a href="http://hackage.haskell.org/package/attoparsec">attoparsec</a>, <a href="http://hackage.haskell.org/package/binary">binary</a>, <a href="http://hackage.haskell.org/package/blaze-builder">blaze-builder</a> etc. There are libraries that supports high performance (close to hand written <a href="http://en.wikipedia.org/wiki/C_%28programming_language%29">C</a> performance) at the same time achieving these feats at a much higher level of abstraction (which translates to less bugs and high maintainability).</p></li>
+</ol>
+<p>While having fast libraries is great, languages like <a href="http://en.wikipedia.org/wiki/C_%28programming_language%29">C</a> achieve this at the cost of abstraction. It often appears to the programmer that one needs to sacrifice elegance for speed. Not so with <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a>. Many of the libraries I mentioned above achieve <a href="http://en.wikipedia.org/wiki/C_%28programming_language%29">C</a> speed with no compromise on the level of abstraction. This greatly enhances the maintainability and leads us to the next important feature that we want in our libraries, safety.</p>
+<h1 id="safety.">Safety.</h1>
+<p>Cryptographic implementations are full of corner cases and the bugs in them can be particularly lethal. A cryptographic library is usually broken, not by a direct attack on the underlying algorithm, RSA although quite dated is still secure, but through other means like buffer overflows, cache timing attacks and other <em>side channel</em> attacks. How can one minimise this? Let me give an example of a code which, while correct in normal circumstances, is bad in a crypto setting. Suppose you grant privileged access to a user by comparing a secret that you posses with the user supplied password. A naive string comparison will be prone to timing attacks: The time taken to reject a password is proportional to length of the longest common prefix of the secret and the password. The attacker then can guess the password one character at a time by looking at the time it takes for you to reject the password. One would usually not compare the secrets directly but hash them together with a salt and compare the hashes. However, any comparisons that take time <em>dependent</em> on the user input is prone to lead to future attacks when deployed without much thought.</p>
+<p>We could avoid this problem by asking users of our library to always use string comparisons that take constant time irrespective of the input. However, it is very likely that a user of our library, most of them will not be cryptographers, might miss this instruction. Won’t it be nice if such incidents are caught at compile time?</p>
+<p>We avoid this problem in <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a> by leveraging its type safety. Instead of representing cryptographically significant data types like hashes, macs etc. as mere byte string, we define <a href="http://www.haskell.org" title="Haskell homepage">Haskell</a> data types for them. For example sha1 hashes are represented (in a simplified form) as follows:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">
+<span class="kw">module</span> <span class="dt">Raaz.Hash.Sha1</span> ( <span class="dt">Sha1</span> )
+
+<span class="kw">data</span> <span class="dt">Sha1</span> <span class="fu">=</span> <span class="dt">Sha1</span> <span class="dt">Word32</span> <span class="dt">Word32</span> <span class="dt">Word32</span> <span class="dt">Word32</span> <span class="dt">Word32</span>
+
+<span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">Sha1</span> <span class="kw">where</span>
+	(<span class="fu">==</span>) (<span class="dt">Sha1</span> h0 h1 h2 h3 h4) (<span class="dt">Sha1</span> g0 g1 g2 g3 g4)
+             <span class="fu">=</span>   xor h0 g0
+             <span class="fu">.|.</span> xor h1 g1
+             <span class="fu">.|.</span> xor h2 g2
+             <span class="fu">.|.</span> xor h3 g3
+             <span class="fu">.|.</span> xor h4 g4
+             <span class="fu">==</span> <span class="dv">0</span></code></pre></div>
+<p>The <code>Eq</code> instance for Sha1 has comparison operator defined in such a way that it will take time independent on the number of positions they match. A user is then forced by the compiler to use this equality as we will not be exposing the constructor to her.</p>
+<h1 id="status-of-the-project-and-how-to-contribute">Status of the project and how to contribute</h1>
+<p>Currently we have just began. We have made no releases yet and we are still experimenting with the API. All code is available under BSD3 license from <a href="http://github.com/raaz-crypto/raaz" class="uri">http://github.com/raaz-crypto/raaz</a>).</p>
+<p>I look forward to your contributions. Even if you are not comfortable with haskell, you can contribute. For example, if computer architecture is your bread and butter and you are the <a href="http://en.wikipedia.org/wiki/Chuck_Norris" title="Wikipedia: Chuck Norris">Chuck Norris</a> of assembly language programming, do join us for some fun coding: A lot of primitives require fast implementation often exploiting the platform specific features like <a href="http://en.wikipedia.org/wiki/SIMD" title="Wikipedia: SIMD">SIMD</a> instruction set.</p>
+</div>
+
+<div class="post-comments">
+  <div id="disqus_thread"></div>
+</div>
+
+<script type="text/javascript">
+  var disqus_shortname  = 'piyushkurur';  // required: Short name.
+  var disqus_url        = 'http://cse.iitk.ac.in/users/ppk/posts/2013-08-24-Raaz-A-cryptographic-network-library.html';
+                          // The url of this page
+  var disqus_title      = 'Raaz: A cryptographic network library for Haskell';      // The title of this post
+  var disqus_identifier = '2013-08-24-Raaz-A-cryptographic-network-library';  // The id of this post
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+  </div>
+  <div id="powered-by-footer"></div>
+</div>
+<div id="powered-by">
+  Powered by: <a href="http://jaspervdj.be/hakyll">Hakyll</a>,
+  <a href="http://compass-style.org"> Compass</a> and
+  <a href="http://fontawesome.io"><i class="fa fa-flag"></i> Fontawesome</a>
+</div>
+
+  </body>
+</html>

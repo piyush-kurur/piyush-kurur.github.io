@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta name="keywords" content="Raaz, Cryptography, Haskell" />
+    
+    
+    
+    
+    <meta name="generator" content="pandoc" />
+    <link href="//fonts.googleapis.com/css?family=Tangerine:700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link href="../stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/font-awesome/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <title>Piyush P Kurur|Handling secure memory in Raaz.</title>
+  </head>
+  <body>
+    <div id="root" class="page">
+  <div class="header">
+    <h1>Piyush P Kurur</h1>
+    <div class="navigation">
+      <!-- Add your navigation menu here !-->
+<ul>
+<li><a href="../" title="Home"><i class="fa fa-home"></i></a></li>
+<li><a href="../posts/feeds/atom.xml"><i class="fa fa-rss"></i></a></li>
+<li><a href="../contact/" title="Contact"><i class="fa fa-envelope"></i></a></li>
+<li><a href="https://github.com/piyush-kurur" title="On GitHub"><i class="fa fa-github"></i></a></li>
+<li><a href="https://bitbucket.org/piyush-kurur" title="On BitBucket"><i class="fa fa-bitbucket"></i></a> <!--
+
+[<i class="icon-legal " title="Legalese"/>](/legal/)
+
+[<i class="icon-archive " title="Archive"/>](/posts/archive/)
+--></li>
+</ul>
+    </div>
+  </div>
+  <div class="main-content">
+    <span class="post-tags"><i class="fa fa-tags"></i><a href="../posts/tags/Raaz.html">Raaz</a>, <a href="../posts/tags/Cryptography.html">Cryptography</a>, <a href="../posts/tags/Haskell.html">Haskell</a></span>
+<div class="post">
+  <h1 id="post-title">Handling secure memory in Raaz.</h1>
+  <span class="post-date">August  2, 2016 (Tuesday)</span>
+
+  <a href="//www.reddit.com/submit" onclick="window.location = '//www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false" alt="submit to reddit" border="0">
+    <span class="reddit">
+      <i class="fa fa-reddit-square fa-lg"></i> reddit this
+    </span>
+  </a>
+  <br />
+    <h1 id="the-problem">The problem</h1>
+<p>Cryptographic software need to keep confidential data like private keys in its memory. Unless the machine is severly compromised, this is safe as no other process can access them and the data vaporises once the power is turned off. However, if the operating system swaps the data into external memory (hard disk) during the execution of the program, the secret data gets stored on permanent memory and can remain live for years to come. Therefore it is clear that one needs to prevent the OS from swapping out data that is sensitive and typical operating systems provide system calls <code>mlock/munlock</code> which locks/unlocks memory from being swapped. The library should lock all the memory that contains sensitive data and after use should wipe the memory clean before unlocking and freeing.</p>
+<h2 id="a-solution-using-foreignptr.">A “solution” using <a href="https://hackage.haskell.org/package/base-4.9.0.0/docs/Foreign-ForeignPtr.html#t:ForeignPtr" title="Foreign Pointer"><code>ForeignPtr</code></a>.</h2>
+<p>The <a href="https://hackage.haskell.org/package/base-4.9.0.0/docs/Foreign-ForeignPtr.html#t:ForeignPtr" title="Foreign Pointer"><code>ForeignPtr</code></a> type in Haskell is a pointer together with a finalisation routine. When the pointer goes out of scope, the finalisation routine is run before the memory is de-allocated. A naive solution for storing sensitive data is to store it in a <em>locked</em> <a href="https://hackage.haskell.org/package/base-4.9.0.0/docs/Foreign-ForeignPtr.html#t:ForeignPtr" title="Foreign Pointer"><code>ForeignPtr</code></a> based buffer. The finalisation step of this foreign pointer should wipe the memory clean and unlock it. This seamingly easy solution has the following problem.</p>
+<p>The system calls <code>mlock</code>/<code>munlock</code> works at the level of pages, i.e. it locks or unlocks multiple of pages. Now consider two locked buffers <code>b₁</code> and <code>b₂</code> where <code>b₁</code> ends at the first byte of a page and <code>b₂</code> is the rest of the page. Then unlocking <code>b₁</code> will also unlock <code>b₂</code> as <code>munlock</code> unlocks all the pages that contains part of <code>b₁</code>. If <code>b₁</code> and <code>b₂</code> are foriegn pointers, then when the gc notices that <code>b₁</code> gets out of scope it will unlock <code>b₁</code> as well as <code>b₂</code> (because the entire page is unlocked). In other words nesting of mlock and munlock does not work. This clearly is not acceptable.</p>
+<p>Of course this idea can be made to work by building a mini-garbage collecter inside the crypto-library. We should maintain a pool of <em>locked</em> memory pages and <a href="https://hackage.haskell.org/package/base-4.9.0.0/docs/Foreign-ForeignPtr.html#t:ForeignPtr" title="Foreign Pointer"><code>ForeignPtr</code></a>’s meant to be used for sensitive data should be allocated from this pool. The finaliser of the these <a href="https://hackage.haskell.org/package/base-4.9.0.0/docs/Foreign-ForeignPtr.html#t:ForeignPtr" title="Foreign Pointer"><code>ForeignPtr</code></a>’s do not unlock immediately on going out of scope but merely mark that a given chunk of memory is unused. A particular page can be unlocked only when no portion of it is part of any live secure foreign pointers. With some book-keeping such an allocator can be built but it is tricky. We need to take care of all the issues related to garbage collection like fragmentation besides knowing system level details like page sizes. An ancient version of raaz had such a memory allocator and it was not pretty.</p>
+<h2 id="raazs-simplified-memory-model.">Raaz’s simplified memory model.</h2>
+<p>The main idea behind the secure memory interface is that we allocate all the required secure memory in one go. This approach is faster and simpler. We describe this interface here.</p>
+<p>In Raaz we have the notion of an abstract memory element which are buffers wrapped in an appropriate type. These are instances of the class <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Core-Memory.html#t:Memory" title="The Memory type class"><code>Memory</code></a>.</p>
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt;</span> 
+<span class="ot">&gt;</span> <span class="kw">class</span>  <span class="dt">Memory</span> mem <span class="kw">where</span>
+<span class="ot">&gt;   memoryAlloc    ::</span>  <span class="dt">Alloc</span> mem       <span class="co">--  allocation strategy</span>
+<span class="ot">&gt;   underlyingPtr  ::</span>  mem <span class="ot">-&gt;</span> <span class="dt">Pointer</span>  <span class="co">--  recover the pointer</span></code></pre></div>
+<p>The type <a href="https://hackage.haskell.org/package/raaz-0.0.2/docs/Raaz-Core-Memory.html#t:Alloc" title="Allocation strategy"><code>Alloc mem</code></a> captures what we call an <em>allocation strategy</em> for the memory element <code>mem</code>. This is essentially a pair <code>(Pointer -&gt; mem, Int)</code> which encodes the following:</p>
+<ol style="list-style-type: decimal">
+<li><p>The <code>Int</code> portion keeps track of the amount of memory that is required to create the memory element <code>mem</code>.</p></li>
+<li><p>The <code>Pointer -&gt; mem</code> part gives the constructor for the memory element, i.e. it gives a function that takes a pointer which points to a block of memory, and create the memory element.</p></li>
+</ol>
+<p>All actions that require secure memory should be of the type <code>mem -&gt; IO a</code> for some memory element <code>mem</code>. In the library, this is captured by the type <a href="https://hackage.haskell.org/package/raaz-0.0.2/docs/Raaz-Core-Memory.html#t:MT" title="Memory action"><code>MT mem a</code></a>. It is easy to see that one can easily define a higher order function <a href="https://hackage.haskell.org/package/raaz-0.0.2/docs/Raaz-Core-Memory.html#v:securely" title="running the memory action securely"><code>securely :: MT mem a -&gt; IO a</code></a> that takes such a memory action and passes it a memory element by constructing it out of a locked memory of appropriate size. At the end of the action, this combinator also ensures that the memory is wiped clean before unlocking the memory. Such a use which involves a single mlock/munlock call is not problematice. Besides we do not need to know any system dependent parameters.</p>
+<p>What about more complicated actions action that requires many such memory elements, say for example <code>mem1</code> and <code>mem2</code>? We think of it as an action that takes the pair <code>(mem1, mem2)</code>. This requires us to define a memory instance for product types which becomes too tedious because of the pointer arithmetic and size calculation involved in defining its allocation strategy. Every such low level code has the word disaster written all around it.</p>
+<p>It turns out that an <a href="https://hackage.haskell.org/package/base-4.6.0.1/docs/Control-Applicative.html#t:Applicative"><code>Applicative</code></a> functor instance can be defined on the type <a href="https://hackage.haskell.org/package/raaz-0.0.2/docs/Raaz-Core-Memory.html#t:Alloc" title="Allocation strategy"><code>Alloc</code></a> <em>which does the right thing</em>. The allocation strategy for the compound type (a product of simpler memory types) can be constructed out of the allocation strategy of its components using this applicative interface. The <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Core-Memory.html#t:Memory" title="The Memory type class"><code>Memory</code></a> instance of a product type will then be something along this lines:</p>
+<div class="sourceCode"><pre class="sourceCode literate literatehaskell"><code class="sourceCode literatehaskell"><span class="ot">&gt;</span> <span class="kw">instance</span> (<span class="dt">Memory</span> mem1, <span class="dt">Memory</span> mem2) <span class="ot">=&gt;</span> <span class="dt">Memory</span> (mem1, mem2) <span class="kw">where</span>
+<span class="ot">&gt;</span>     memoryAlloc         <span class="fu">=</span> (,) <span class="fu">&lt;$&gt;</span> memoryAlloc <span class="fu">&lt;*&gt;</span> memoryAlloc
+<span class="ot">&gt;</span>     underlyingPtr (m,_) <span class="fu">=</span> underlyingPtr m</code></pre></div>
+<p>Note that all the book keeping involved in the length calculations and pointer arithmetic is hidden in the applicative interface. All Implementations of primitives in Raaz always use a memory element to keep its internal state secure.</p>
+<p>To bootstrap the process, the library provides some basic memory types like <a href="https://hackage.haskell.org/package/raaz-0.0.1/docs/Raaz-Core-Memory.html#t:MemoryCell" title="The Memory type class"><code>MemoryCell</code></a>. Compound memory types (which are essentially product of simpler memory types) can be built out of them using this <a href="https://hackage.haskell.org/package/base-4.6.0.1/docs/Control-Applicative.html#t:Applicative"><code>Applicative</code></a> instance of <a href="https://hackage.haskell.org/package/raaz-0.0.2/docs/Raaz-Core-Memory.html#t:Alloc" title="Allocation strategy"><code>Alloc</code></a>.</p>
+<h2 id="does-it-still-keep-things-from-swapping-out">Does it still keep things from swapping out?</h2>
+<p>Unfortunately, there can still be instances where things can go outside secure memory. For example, if you reads the contents of a memory cell into a pure value of Haskell, the contents have leaked into the Haskell Heap which might be swapped. However, with care we can minimise such explicit reads. Copying from one memory cell to another can be done using a memcpy which does not involve such transfer to the heap.</p>
+<p>For the actual implementation see the documentation of the module <a href="https://hackage.haskell.org/package/raaz-0.0.2/docs/Raaz-Core-Memory.html" title="Raaz: Secure memory">Raaz.Core.Memory</a>. The theory behind the applicative structure of <a href="https://hackage.haskell.org/package/raaz-0.0.2/docs/Raaz-Core-Memory.html#t:Alloc" title="Allocation strategy"><code>Alloc</code></a> is dealt with in <a href="../research/publication/Conference/2016-09-22-How-to-twist-pointers.pdf" title="How to twist pointer without breaking them">our upcoming paper in Haskell 2016</a>.</p>
+</div>
+
+<div class="post-comments">
+  <div id="disqus_thread"></div>
+</div>
+
+<script type="text/javascript">
+  var disqus_shortname  = 'piyushkurur';  // required: Short name.
+  var disqus_url        = 'http://cse.iitk.ac.in/users/ppk/posts/2016-08-02-Handling-Secure-Memory-in-Raaz.html';
+                          // The url of this page
+  var disqus_title      = 'Handling secure memory in Raaz.';      // The title of this post
+  var disqus_identifier = '2016-08-02-Handling-Secure-Memory-in-Raaz';  // The id of this post
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript'; dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+  </div>
+  <div id="powered-by-footer"></div>
+</div>
+<div id="powered-by">
+  Powered by: <a href="http://jaspervdj.be/hakyll">Hakyll</a>,
+  <a href="http://compass-style.org"> Compass</a> and
+  <a href="http://fontawesome.io"><i class="fa fa-flag"></i> Fontawesome</a>
+</div>
+
+  </body>
+</html>
