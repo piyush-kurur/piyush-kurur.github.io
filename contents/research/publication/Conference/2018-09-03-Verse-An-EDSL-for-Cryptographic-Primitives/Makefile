@@ -1,8 +1,9 @@
 LATEX_GEN= aux glob fls out fdb_latexmk toc pdf log tdo blg bbl
 .PHONY: all build clean latest-verse watch
 
-all: main.pdf
+all: pdf
 
+pdf: main.pdf
 
 contents.tex: contents.v
 	coqdoc --latex --body-only --short contents.v
