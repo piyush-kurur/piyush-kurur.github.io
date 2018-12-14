@@ -1,0 +1,218 @@
+\documentclass[sigconf,review,final]{acmart}\settopmatter{printfolios=true}%% For double-blind review submission
+%\documentclass[acmsmall,review,anonymous,draft]{acmart}\settopmatter{printfolios=true}%% For double-blind review submission
+%% For final camera-ready submission
+%%\documentclass[acmlarge]{acmart}\settopmatter{}
+
+%% Some recommended packages.
+\usepackage[color]{coqdoc}
+
+% Coq typesetting tweaks.
+\renewcommand{\coqdockw}[1]{\textbf{\texttt{#1}}}
+\renewcommand{\coqdocvar}[1]{{\color{\coqdocvarcolor}{\textbf{\small\texttt{#1}}}}}
+% End of coq typesetting tweaks.
+
+\usepackage{booktabs}   %% For formal tables:
+                        %% http://ctan.org/pkg/booktabs
+\usepackage{subcaption} %% For complex figures with subfigures/subcaptions
+                        %% http://ctan.org/pkg/subcaption
+
+
+%\makeatletter\if@ACM@journal\makeatother
+%% Journal information (used by PACMPL format)
+%% Supplied to authors by publisher for camera-ready submission
+%% \acmJournal{PACMPL}
+%% \acmVolume{1}
+%% \acmNumber{1}
+%% \acmArticle{1}
+%% \acmYear{2017}
+%% \acmMonth{1}
+%% \acmDOI{10.1145/nnnnnnn.nnnnnnn}
+%% \startPage{1}
+%% \else\makeatother
+%% Conference information (used by SIGPLAN proceedings format)
+%% Supplied to authors by publisher for camera-ready submission
+\acmConference[PPDP-2018]{3-5 September 2018}{Frankfurt am Main}{Germany}
+\acmYear{2018}
+\acmISBN{NONE}
+\acmDOI{NONE}
+%\startPage{1}
+%\fi
+
+
+%% Copyright information
+%% Supplied to authors (based on authors' rights management selection;
+%% see authors.acm.org) by publisher for camera-ready submission
+\setcopyright{none}             %% For review submission
+%\setcopyright{acmcopyright}
+%\setcopyright{acmlicensed}
+%\setcopyright{rightsretained}
+%\copyrightyear{2017}           %% If different from \acmYear
+
+
+%% Bibliography style
+\bibliographystyle{ACM-Reference-Format}
+%% Citation style
+%% Note: author/year citations are required for papers published as an
+%% issue of PACMPL.
+\citestyle{acmauthoryear}   %% For author/year citations
+
+\usepackage{hyperref}
+
+%%%%%% Setting up the Todo list.
+
+\usepackage{flushend}
+
+
+%% Todo notes should become invisible in the final version.
+\usepackage[obeyFinal]{todonotes}
+%%\usepackage[disable,obeyFinal,colorinlistoftodos]{todonotes}
+\newcommand{\ppk}[1]{\todo[inline,color=red!20!white]{#1 ---PPK}}
+\newcommand{\abhi}[1]{\todo[inline,color=blue!20!white]{#1 ---ABHI}}
+\newcommand{\citetodo}[1]{\cite{#1}\todo[color=red!80]{Citation: #1}}
+\newcommand{\criticaltodo}[1]{\todo[inline,color=red!80]{#1}}
+
+%% Fixing the listoftodos to work with amsart class.
+%% \makeatletter
+%% \providecommand\@dotsep{5}
+%% \renewcommand{\listoftodos}[1][\@todonotes@todolistname]{%
+%%   \@starttoc{tdo}{#1}}
+%% \makeatother
+
+%%%%%%%%%% END of todnotes
+
+\begin{document}
+\title{Verse: An EDSL for cryptographic primitives}
+\author{Abhishek Dang}
+\affiliation{
+  \department{Department of Computer Science and Engineering}
+  \institution{IIT Kanpur}
+  \streetaddress{}
+  \city{Kanpur}
+  \state{Uttar Pradesh}
+  \postcode{208016}
+  \country{India}
+}
+\email{ahdang@cse.iitk.ac.in}          %% \email is recommended
+
+\author{Piyush P Kurur}
+\affiliation{
+  \department{Department of Computer Science and Engineering}
+  \institution{IIT Kanpur}
+  \streetaddress{}
+  \city{Kanpur}
+  \state{Uttar Pradesh}
+  \postcode{208016}
+  \country{India}
+}
+\email{ppk@cse.iitk.ac.in}          %% \email is recommended
+
+\begin{abstract}
+  Cryptographic primitives need high-speed implementations that are
+  also resistant to side channel attacks. The absolute control over
+  instructions and registers that such implementations demand makes
+  assembly language programming a necessity. In this article, we
+  describe Verse, a \emph{typed low-level} language \emph{embedded} in
+  Coq designed specifically to generate assembly language programs for
+  cryptographic primitives. Despite being a low-level language, the
+  programming experience is markedly high-level:
+
+  \begin{itemize}
+  \item The type system of Verse is rich enough to even prevent
+    errors in array indexing and endian conversion.
+  \item Being embedded in Coq, we have at our disposal Gallina, the
+    underlying functional programming language, as a macro assembler
+    for code generation, and Ltac, the tactic language, as an
+    automation tool for proof obligations inherent to our type
+    system.
+  \end{itemize}
+
+  We also provide a generic framework to formulate semantic aspects of
+  Verse. This framework has value beyond providing an interpretation
+  of Verse in Coq. We demonstrate this versatility by using it to
+  localise uninitialised/clobbered variable use, and arithmetic
+  overflows.
+
+  %%  As an example, we prove the correctness of
+  %% implementation of arithmetic in the finite field
+  %% $\mathrm{GF}(2^{130} - 5)$ used in Poly1305.
+
+  %% this mechanism can
+  %% be specialised to provide checks beyond type safety. Two examples of
+  %% such specialised semantics is available in Verse. provided in verse
+
+  %% refactor and
+  %% verify programs. Together with features like Sectioning we present
+  %% an interface to verse that resembles high-level language. Verse also
+  %% gives a uniform representation for instruction across distinct
+  %% architecture making it concise and portable.
+
+
+  %% Besides the
+
+  %% are prevented in Verse by its type system.
+
+
+
+\end{abstract}
+
+\keywords{Coq, EDSL, Cryptography, assembly language}  %% \keywords is optional
+
+
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10011007.10011006.10011050.10011017</concept_id>
+<concept_desc>Software and its engineering~Domain specific languages</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10002978.10002986.10002990</concept_id>
+<concept_desc>Security and privacy~Logic and verification</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~Domain specific languages}
+\ccsdesc[300]{Security and privacy~Logic and verification}
+
+%%%%%%%%%%%%%%%%%%%%%%% Legalese from ACM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Their documentation is unclear which of the two works I have added both
+%% and commented out the one that does not work.
+%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%% Option one ########################################
+\copyrightyear{2018}
+\acmYear{2018}
+\setcopyright{acmlicensed}
+\acmConference[PPDP '18]{The 20th International Symposium on Principles and
+Practice of Declarative Programming}{September 3--5, 2018}{Frankfurt am
+Main, Germany}
+\acmBooktitle{The 20th International Symposium on Principles and Practice
+of Declarative Programming (PPDP '18), September 3--5, 2018, Frankfurt am
+Main, Germany}
+\acmPrice{15.00}
+\acmDOI{10.1145/3236950.3236971}
+\acmISBN{978-1-4503-6441-6/18/09}
+
+%%%%%%%%%%%%%%%%%%%%% Option two %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% \CopyrightYear{2018}
+%% \setcopyright{acmlicensed}
+%% \conferenceinfo{PPDP '18,}{September 3--5, 2018, Frankfurt am Main, Germany}
+%% \isbn{978-1-4503-6441-6/18/09}
+%% \acmPrice{$15.00}
+%% \doi{https://doi.org/10.1145/3236950.3236971}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% End of ACM legalese %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle
+\listoftodos{}
+\input{contents}
+\bibliography{references}
+%\appendix
+%\section{ChaCha20 in verse}
+%\input{chacha20}
+
+\end{document}
