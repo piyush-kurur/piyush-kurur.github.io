@@ -25,9 +25,10 @@
 	</teaching/Tools-for-Programming/>
 	"Tools for computing"
 
-[cse]: <http://cse.iitk.ac.in>
+[cse]: https://iitpkd.ac.in/computer-staff
        "Department of Computer Science and Engineering"
 [iitk]:  <http://www.iitk.ac.in> "IIT Kanpur"
+[iitpkd]: <http://www.iitpkd.ac.in> "IIT Palakkad"
 [imsc]: <http://www.imsc.res.in>
 	"Institute of Mathematical Sciences, Chennai"
 
@@ -85,7 +86,7 @@
 [ghc]:  http://haskell.org/haskellwiki/GHC "GHC"
 
 
-[Piyush P Kurur]: <http://cse.iitk.ac.in/users/ppk> "Piyush P Kurur"
+[Piyush P Kurur]: <http://piyush-kurur.github.io> "Piyush P Kurur"
 [Anindya De]: <http://www.cs.berkeley.edu/~anindya> "Anindya De"
 [V. Arvind]: <http://www.imsc.res.in/~arvind> "V. Arvind"
 [Ramprasad Saptharishi]: <http://www.cmi.ac.in/~ramprasad>
