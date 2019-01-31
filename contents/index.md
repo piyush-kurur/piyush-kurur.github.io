@@ -20,7 +20,7 @@ complexity and logic.
 
 # Teaching this semester
 
-This semester I am teaching [Programs, proofs and types][ppt].
+This semester I am teaching [Compilers]
 
 
 # Recent blog posts
@@ -29,5 +29,3 @@ $for(posts)$
 * [$title$]($url$) - $date$
 $endfor$
 * [<i class="fa fa-archive"></i>Archives](/posts/archive/)
-
-[ppt]: </teaching/Programs-Proofs-and-Types> "Programs, Proofs and Types"
