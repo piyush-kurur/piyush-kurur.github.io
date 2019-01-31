@@ -20,7 +20,7 @@ complexity and logic.
 
 # Teaching this semester
 
-This semester I am teaching [Compilers]
+This semester I am teaching [Compilers].
 
 
 # Recent blog posts
