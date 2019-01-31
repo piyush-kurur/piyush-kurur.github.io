@@ -24,10 +24,10 @@ ${HAKYLL_TARGETS}: site
 
 # Rules for compass operations.
 stylesheets:
-	bundler exec compass compile
+	rvm `cat .ruby-version` do bundler exec compass compile
 
 stylesheets-clean:
-	bundler exec compass clean
+	rvm `cat .ruby-version` do bundler exec compass clean
 
 stylesheets-rebuild: stylesheets-clean stylesheets
 
