@@ -62,7 +62,7 @@ readerOptions = defaultHakyllReaderOptions
 -- | Pandoc writer options.
 writerOptions :: WriterOptions
 writerOptions = defaultHakyllWriterOptions
-   { writerHTMLMathMethod = MathML Nothing -- ^ I want math rendering
+   { writerHTMLMathMethod = MathML -- ^ I want math rendering
    }
 
 
