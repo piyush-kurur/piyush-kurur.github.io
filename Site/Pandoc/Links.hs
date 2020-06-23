@@ -102,8 +102,7 @@ wikipediaPipeTrick attr title (pageTitle, txt)
    where target   = wikipediaTarget pageTitle title
          guessTxt = Str
                   $ wikiPipeText
-                  $ stringify
-                  $ normalizeSpaces pageTitle
+                  $ stringify pageTitle
 
 wikiPipeText :: String -> String
 wikiPipeText str =  intercalate ","
@@ -143,7 +142,7 @@ parseFieldIs :: Char
              -> [Inline]
              -> Maybe ([Inline], [Inline])
 
-parseFieldIs  c ins = applyOnBoth normalizeSpaces $ parse ins
+parseFieldIs  c ins = parse ins
   where parse []     = Nothing
         parse (x:xs) = do (xfst,xrst) <- parseFieldI c x
                           return ([xfst], xrst:xs)
